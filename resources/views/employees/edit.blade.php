@@ -17,7 +17,6 @@
             
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-colors">
                 
-                <!-- Header Band -->
                 <div class="bg-gradient-to-r from-amber-50 to-white dark:from-amber-900/20 dark:to-slate-800 px-8 py-6 border-b border-gray-100 dark:border-slate-600">
                     <h3 class="text-lg font-bold text-amber-800 dark:text-amber-500">Update Information</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Modify personal details and employment terms.</p>
@@ -28,6 +27,12 @@
                         @csrf
                         @method('PUT')
                         
+                        <!-- ID NUMBER -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Employee ID Number</label>
+                            <input type="text" name="employee_code" value="{{ $employee->employee_code }}" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                        </div>
+
                         <!-- Row 1: Identity -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>

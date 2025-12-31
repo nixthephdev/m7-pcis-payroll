@@ -73,7 +73,10 @@
                                             @else
                                                 <div class="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-sm mr-3">{{ substr($emp->user->name, 0, 1) }}</div>
                                             @endif
-                                            <span class="font-bold text-gray-800 dark:text-gray-200">{{ $emp->user->name }}</span>
+                                            <div>
+                                                <div class="font-bold text-gray-800 dark:text-gray-200">{{ $emp->user->name }}</div>
+                                                <div class="text-xs text-gray-400 font-mono">{{ $emp->employee_code ?? 'No ID' }}</div> <!-- ID Code Here -->
+                                            </div>
                                         </div>
                                         <a href="{{ route('employees.edit', $emp->id) }}" class="text-gray-300 dark:text-slate-600 hover:text-amber-500 dark:hover:text-amber-400 transition p-1 ml-2" title="Edit Details">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
@@ -87,18 +90,25 @@
                                 <td class="px-6 py-4 text-right font-mono font-medium text-gray-900 dark:text-gray-200">₱{{ number_format($emp->basic_salary, 2) }}</td>
                                 <td class="px-6 py-4 text-center text-xs text-gray-400 dark:text-gray-500">{{ $emp->created_at->format('M d, Y') }}</td>
                                 
-                                <!-- UPDATED ACTION BUTTONS -->
+                                <!-- ACTION BUTTONS -->
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         
-                                        <!-- Manage Salary (Wallet Icon) -->
+                                        <!-- ID Card Button (Purple) -->
+                                        <a href="{{ route('employees.idcard', $emp->id) }}" target="_blank" class="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition" title="View Digital ID">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                            </svg>
+                                        </a>
+
+                                        <!-- Manage Salary (Wallet) -->
                                         <a href="{{ route('salary.edit', $emp->id) }}" class="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-800 transition" title="Manage Salary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         </a>
 
-                                        <!-- 20th Button (Blue) -->
+                                        <!-- 20th Button -->
                                         <form action="{{ route('payroll.create', $emp->id) }}" method="POST">
                                             @csrf
                                             <input type="hidden" name="period" value="Mid-Month">
@@ -107,7 +117,7 @@
                                             </button>
                                         </form>
 
-                                        <!-- 5th Button (Green) -->
+                                        <!-- 5th Button -->
                                         <form action="{{ route('payroll.create', $emp->id) }}" method="POST">
                                             @csrf
                                             <input type="hidden" name="period" value="End-Month">

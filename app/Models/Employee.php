@@ -11,9 +11,10 @@ class Employee extends Model
 
     protected $fillable = [
         'user_id', 
+        'employee_code', // <--- ADD THIS
         'position', 
         'basic_salary',
-        'created_at' // <--- ADD THIS LINE
+        'created_at'
     ];
 
     // This links the Employee to the User (Name/Email)

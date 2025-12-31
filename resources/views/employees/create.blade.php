@@ -17,16 +17,21 @@
             
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-colors">
                 
-                <!-- Header Band -->
                 <div class="bg-gradient-to-r from-indigo-50 to-white dark:from-slate-700 dark:to-slate-800 px-8 py-6 border-b border-gray-100 dark:border-slate-600">
                     <h3 class="text-lg font-bold text-indigo-900 dark:text-white">Employee Details</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Please fill in the required information to create a new account.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Please fill in the required information.</p>
                 </div>
 
                 <div class="p-8">
                     <form action="{{ route('employees.store') }}" method="POST" class="space-y-6">
                         @csrf
                         
+                        <!-- ID NUMBER (NEW) -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Employee ID Number</label>
+                            <input type="text" name="employee_code" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm" placeholder="e.g. PCIS00059">
+                        </div>
+
                         <!-- Row 1: Identity -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -35,7 +40,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
-                                <input type="email" name="email" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm" placeholder="email@school.edu">
+                                <input type="email" name="email" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm" placeholder="email@pcis.edu.ph">
                             </div>
                         </div>
 

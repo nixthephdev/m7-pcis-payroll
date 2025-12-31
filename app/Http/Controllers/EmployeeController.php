@@ -15,15 +15,15 @@ class EmployeeController extends Controller
         return view('employees.index', compact('employees'));
     }
 
-    // Show the form to add a new employee
+    // Show Create Form
     public function create() {
         return view('employees.create');
     }
 
-    // Save the new employee
+    // Store New Employee
     public function store(Request $request) {
-        // 1. Validate Input
         $request->validate([
+            'employee_code' => 'required|string|unique:employees', // <--- Validate Unique
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'position' => 'required|string',
@@ -31,17 +31,16 @@ class EmployeeController extends Controller
             'password' => 'required|min:8'
         ]);
 
-        // 2. Create the User Login Account
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'employee' // Default role
+            'role' => 'employee'
         ]);
 
-        // 3. Create the Employee Profile
         Employee::create([
             'user_id' => $user->id,
+            'employee_code' => $request->employee_code, // <--- Save Code
             'position' => $request->position,
             'basic_salary' => $request->salary
         ]);
@@ -49,39 +48,44 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index')->with('message', 'New Employee Added Successfully!');
     }
 
-    // 1. Show Edit Form
+    // Show Edit Form
     public function edit($id) {
         $employee = Employee::with('user')->findOrFail($id);
         return view('employees.edit', compact('employee'));
     }
 
-    // 2. Save Changes
+    // Update Employee
     public function update(Request $request, $id) {
         $employee = Employee::findOrFail($id);
         $user = $employee->user;
 
-        // Validate
         $request->validate([
+            'employee_code' => 'required|string|unique:employees,employee_code,'.$employee->id, // Ignore self
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id, // Allow own email
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'position' => 'required|string',
             'salary' => 'required|numeric',
-            'joined_date' => 'required|date' // New field
+            'joined_date' => 'required|date'
         ]);
 
-        // Update User Table (Name/Email)
         $user->update([
             'name' => $request->name,
             'email' => $request->email
         ]);
 
-        // Update Employee Table (Position/Salary/Date)
         $employee->update([
+            'employee_code' => $request->employee_code, // <--- Update Code
             'position' => $request->position,
             'basic_salary' => $request->salary,
-            'created_at' => $request->joined_date // We use created_at as joined date
+            'created_at' => $request->joined_date
         ]);
 
         return redirect()->route('employees.index')->with('message', 'Employee details updated successfully.');
+    }
+
+    // --- NEW: SHOW ID CARD ---
+    public function showIdCard($id) {
+        $employee = Employee::with('user')->findOrFail($id);
+        return view('employees.id_card', compact('employee'));
     }
 }
