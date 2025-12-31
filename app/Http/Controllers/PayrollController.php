@@ -112,8 +112,31 @@ class PayrollController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $pdf = Pdf::loadView('payroll.pdf', compact('payroll'));
-        return $pdf->download('Payslip-M7-'.$payroll->id.'.pdf');
+        // Prepare Logo
+        $path = public_path('images/logo.png');
+        $logoBase64 = '';
+        if (file_exists($path)) {
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
+
+        // --- NEW FILENAME LOGIC ---
+        $user = $payroll->employee->user;
+        $date = Carbon::now()->format('m-d-Y'); // 03-11-2026 (Slashes / are not allowed in filenames)
+        
+        // Split Name (Assuming "First Last" format in DB)
+        $nameParts = explode(' ', $user->name);
+        $lastName = array_pop($nameParts); // Get last word
+        $firstName = implode(' ', $nameParts); // Get rest
+        $formattedName = $lastName . ', ' . $firstName;
+
+        // Clean Filename
+        $filename = "{$formattedName} - {$payroll->period} - Payslip - {$date}.pdf";
+        // --------------------------
+
+        $pdf = Pdf::loadView('payroll.pdf', compact('payroll', 'logoBase64'));
+        return $pdf->download($filename);
     }
     
     public function generatePayroll() {
