@@ -26,18 +26,32 @@
                     <!-- 3. ADMIN ONLY LINKS -->
                     @if(Auth::user()->role === 'admin')
                         
+                        <!-- Logic to Count Pending Leaves -->
+                        @php
+                            $pendingLeavesCount = \App\Models\LeaveRequest::where('status', 'Pending')->count();
+                        @endphp
+
                         <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-white hover:text-gray-200">
                             {{ __('Employees') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-white hover:text-gray-200">
-                            {{ __('Payroll History') }}
-                            </x-nav-link>
-                        <x-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-white hover:text-gray-200">
+
+                        <x-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-white hover:text-gray-200 flex items-center">
                             {{ __('HR Approval') }}
+                            
+                            <!-- NOTIFICATION BADGE -->
+                            @if($pendingLeavesCount > 0)
+                                <span class="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                    {{ $pendingLeavesCount }}
+                                </span>
+                            @endif
                         </x-nav-link>
 
                         <x-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-white hover:text-gray-200">
-                             {{ __('Attendance Logs') }}
+                            {{ __('Attendance Logs') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-white hover:text-gray-200">
+                            {{ __('Payroll History') }}
                         </x-nav-link>
 
                     @endif
@@ -116,12 +130,31 @@
             </x-responsive-nav-link>
 
             @if(Auth::user()->role === 'admin')
+                
+                <!-- Recalculate for Mobile (Variable scope) -->
+                @php
+                    $pendingLeavesCount = \App\Models\LeaveRequest::where('status', 'Pending')->count();
+                @endphp
+
                 <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-white">
                     {{ __('Employees') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-white">
+                <x-responsive-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-white flex justify-between items-center">
                     {{ __('HR Approval') }}
+                    @if($pendingLeavesCount > 0)
+                        <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ $pendingLeavesCount }}
+                        </span>
+                    @endif
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-white">
+                    {{ __('Attendance Logs') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-white">
+                    {{ __('Payroll History') }}
                 </x-responsive-nav-link>
             @endif
         </div>
