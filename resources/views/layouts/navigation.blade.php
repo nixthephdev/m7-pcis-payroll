@@ -39,11 +39,24 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
+            <!-- Settings Dropdown (Top Right) -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-900 hover:text-gray-200 focus:outline-none transition ease-in-out duration-150">
+                            
+                            <!-- AVATAR DISPLAY LOGIC -->
+                            <div class="me-2">
+                                @if(Auth::user()->avatar)
+                                    <img src="{{ asset('storage/' . Auth::user()->avatar) }}" class="h-8 w-8 rounded-full object-cover border-2 border-indigo-400">
+                                @else
+                                    <!-- Default Initials if no image -->
+                                    <div class="h-8 w-8 rounded-full bg-indigo-700 flex items-center justify-center text-xs font-bold text-white border-2 border-indigo-500">
+                                        {{ substr(Auth::user()->name, 0, 1) }}
+                                    </div>
+                                @endif
+                            </div>
+
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
@@ -109,9 +122,21 @@
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-indigo-700">
-            <div class="px-4">
-                <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-300">{{ Auth::user()->email }}</div>
+            <div class="px-4 flex items-center">
+                <!-- Mobile Avatar -->
+                <div class="me-3">
+                    @if(Auth::user()->avatar)
+                        <img src="{{ asset('storage/' . Auth::user()->avatar) }}" class="h-10 w-10 rounded-full object-cover border-2 border-indigo-400">
+                    @else
+                        <div class="h-10 w-10 rounded-full bg-indigo-700 flex items-center justify-center text-sm font-bold text-white border-2 border-indigo-500">
+                            {{ substr(Auth::user()->name, 0, 1) }}
+                        </div>
+                    @endif
+                </div>
+                <div>
+                    <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-300">{{ Auth::user()->email }}</div>
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
