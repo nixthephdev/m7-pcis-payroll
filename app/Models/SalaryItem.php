@@ -5,20 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Payroll extends Model
+class SalaryItem extends Model
 {
     use HasFactory;
 
+    // This was the missing part!
     protected $fillable = [
         'employee_id', 
-        'pay_date', 
-        'gross_salary', 
-        'deductions', 
-        'net_salary',
-        'status' // <--- Added this
+        'name', 
+        'amount', 
+        'type'
     ];
 
-    // This function was missing!
     public function employee()
     {
         return $this->belongsTo(Employee::class);

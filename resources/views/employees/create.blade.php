@@ -8,7 +8,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
-            <!-- Card Wrapper (Same style as Profile) -->
+            <!-- Card Wrapper -->
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="max-w-xl">
                     
@@ -48,10 +48,15 @@
                             <x-input-error class="mt-2" :messages="$errors->get('position')" />
                         </div>
 
-                        <!-- Salary -->
+                        <!-- Salary (UPDATED WITH PESO SIGN) -->
                         <div>
                             <x-input-label for="salary" :value="__('Basic Monthly Salary')" />
-                            <x-text-input id="salary" name="salary" type="number" step="0.01" class="mt-1 block w-full" required placeholder="0.00" />
+                            <div class="relative mt-1 rounded-md shadow-sm">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <span class="text-gray-500 sm:text-sm">₱</span> <!-- THIS IS THE CHANGE -->
+                                </div>
+                                <input type="number" name="salary" id="salary" step="0.01" class="block w-full rounded-md border-gray-300 pl-7 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="0.00" required>
+                            </div>
                             <x-input-error class="mt-2" :messages="$errors->get('salary')" />
                         </div>
 

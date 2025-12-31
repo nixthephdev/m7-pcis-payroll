@@ -29,7 +29,9 @@
                         <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-white hover:text-gray-200">
                             {{ __('Employees') }}
                         </x-nav-link>
-
+                        <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-white hover:text-gray-200">
+                            {{ __('Payroll History') }}
+                            </x-nav-link>
                         <x-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-white hover:text-gray-200">
                             {{ __('HR Approval') }}
                         </x-nav-link>

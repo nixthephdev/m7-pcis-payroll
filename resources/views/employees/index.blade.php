@@ -29,6 +29,7 @@
                                 <th class="py-3 px-4">Position</th>
                                 <th class="py-3 px-4 text-right">Basic Salary</th>
                                 <th class="py-3 px-4 text-center">Joined</th>
+                                <th class="py-3 px-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-700 text-sm">
@@ -39,9 +40,29 @@
                                 <td class="py-3 px-4">
                                     <span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-xs">{{ $emp->position }}</span>
                                 </td>
-                                <td class="py-3 px-4 text-right font-mono">${{ number_format($emp->basic_salary, 2) }}</td>
+                                <td class="py-3 px-4 text-right font-mono">₱{{ number_format($emp->basic_salary, 2) }}</td>
                                 <td class="py-3 px-4 text-center text-gray-400 text-xs">
                                     {{ $emp->created_at->format('M d, Y') }}
+                                </td>
+                                
+                                <!-- ACTION BUTTONS -->
+                                <td class="py-3 px-4 text-center">
+                                    <div class="flex justify-center gap-2">
+                                        
+                                        <!-- Manage Salary Items -->
+                                        <a href="{{ route('salary.edit', $emp->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold text-xs border border-indigo-600 px-2 py-1 rounded hover:bg-indigo-50 transition">
+                                            Salary Items
+                                        </a>
+
+                                        <!-- Generate Payroll -->
+                                        <form action="{{ route('payroll.create', $emp->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="text-green-600 hover:text-green-900 font-bold text-xs border border-green-600 px-2 py-1 rounded hover:bg-green-50 transition">
+                                                Generate Pay
+                                            </button>
+                                        </form>
+
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -52,3 +73,4 @@
         </div>
     </div>
 </x-app-layout>
+```

@@ -22,4 +22,10 @@ class Employee extends Model
     {
         return $this->hasMany(Payroll::class);
     }
+    
+    // Link to Salary Items (Allowances/Deductions)
+    public function salaryItems()
+    {
+        return $this->hasMany(SalaryItem::class);
+    }
 }

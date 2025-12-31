@@ -52,12 +52,7 @@
                                 Log in
                             </a>
 
-                            <!-- Register Button -->
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="px-8 py-3 bg-transparent border-2 border-white text-white font-bold rounded-full hover:bg-white/10 transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-900">
-                                    Register
-                                </a>
-                            @endif
+                        
                         @endauth
                     @endif
                 </div>

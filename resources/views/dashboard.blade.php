@@ -52,18 +52,24 @@
                     </div>
                 </div>
 
-                <!-- CARD 2: EMPLOYEE INFO (PHP LOGIC INCLUDED) -->
+                <!-- CARD 2: EMPLOYEE INFO -->
                 @php
                     $employee = Auth::user()->employee;
-                    $daysWorked = \App\Models\Attendance::where('employee_id', $employee->id)
-                                    ->whereMonth('date', \Carbon\Carbon::now()->month)
-                                    ->count();
-                    $estimatedPay = ($employee->basic_salary / 22) * $daysWorked;
+                    if($employee) {
+                        $daysWorked = \App\Models\Attendance::where('employee_id', $employee->id)
+                                        ->whereMonth('date', \Carbon\Carbon::now()->month)
+                                        ->count();
+                        $estimatedPay = ($employee->basic_salary / 22) * $daysWorked;
+                    } else {
+                        $daysWorked = 0;
+                        $estimatedPay = 0;
+                    }
                 @endphp
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-bold text-gray-700 mb-4 border-b pb-2">My Stats</h3>
                         
+                        @if($employee)
                         <div class="space-y-4">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500">Position</span>
@@ -71,7 +77,7 @@
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500">Basic Salary</span>
-                                <span class="font-semibold">${{ number_format($employee->basic_salary, 2) }}</span>
+                                <span class="font-semibold">₱{{ number_format($employee->basic_salary, 2) }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500">Days Worked</span>
@@ -79,9 +85,12 @@
                             </div>
                             <div class="mt-4 pt-4 border-t">
                                 <span class="block text-gray-500 text-sm">Est. Gross Pay (This Month)</span>
-                                <span class="block text-2xl font-bold text-green-600">${{ number_format($estimatedPay, 2) }}</span>
+                                <span class="block text-2xl font-bold text-green-600">₱{{ number_format($estimatedPay, 2) }}</span>
                             </div>
                         </div>
+                        @else
+                            <p class="text-red-500 text-sm">Please contact HR to set up your Employee Profile.</p>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -91,64 +100,86 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-bold text-gray-700">Payroll History</h3>
+                        
+                        <!-- Only Admin can see this Generate Button -->
+                        @if(Auth::user()->role === 'admin')
                         <form action="{{ route('payroll.generate') }}" method="POST">
                             @csrf
                             <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm font-medium transition">
                                 Generate Payroll (Admin Test)
                             </button>
                         </form>
+                        @endif
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
-                            <!-- Table Header -->
-<thead>
-    <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-        <th class="py-3 px-6 text-left">Pay Date</th>
-        <th class="py-3 px-6 text-right">Gross Salary</th>
-        <th class="py-3 px-6 text-right">Deductions</th>
-        <th class="py-3 px-6 text-right">Net Salary</th>
-        <th class="py-3 px-6 text-center">Status</th>
-        <th class="py-3 px-6 text-center">Action</th> <!-- NEW COLUMN HERE -->
-    </tr>
-</thead>
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left">Pay Date</th>
+                                    <th class="py-3 px-6 text-right">Gross Salary</th>
+                                    <th class="py-3 px-6 text-right">Deductions</th>
+                                    <th class="py-3 px-6 text-right">Net Salary</th>
+                                    <th class="py-3 px-6 text-center">Status</th>
+                                    <th class="py-3 px-6 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-600 text-sm font-light">
+                                @if($employee)
+                                    @php
+                                        $payrolls = \App\Models\Payroll::where('employee_id', $employee->id)->latest()->get();
+                                    @endphp
 
-<!-- Table Body -->
-<tbody class="text-gray-600 text-sm font-light">
-    @php
-        $payrolls = \App\Models\Payroll::where('employee_id', $employee->id)->latest()->get();
-    @endphp
+                                    @foreach($payrolls as $payroll)
+                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                        <td class="py-3 px-6 text-left whitespace-nowrap font-medium">
+                                            {{ \Carbon\Carbon::parse($payroll->pay_date)->format('M d, Y') }}
+                                        </td>
+                                        <td class="py-3 px-6 text-right">
+                                            ₱{{ number_format($payroll->gross_salary, 2) }}
+                                        </td>
+                                        <td class="py-3 px-6 text-right text-red-500">
+                                            -₱{{ number_format($payroll->deductions, 2) }}
+                                        </td>
+                                        <td class="py-3 px-6 text-right font-bold text-green-600 text-base">
+                                            ₱{{ number_format($payroll->net_salary, 2) }}
+                                        </td>
+                                        
+                                        <!-- DYNAMIC STATUS BADGE -->
+                                        <td class="py-3 px-6 text-center">
+                                            @if($payroll->status == 'Paid')
+                                                <span class="bg-green-200 text-green-700 py-1 px-3 rounded-full text-xs font-bold">Paid</span>
+                                            @else
+                                                <span class="bg-yellow-200 text-yellow-700 py-1 px-3 rounded-full text-xs font-bold">Pending</span>
+                                            @endif
+                                        </td>
 
-    @foreach($payrolls as $payroll)
-    <tr class="border-b border-gray-200 hover:bg-gray-50">
-        <td class="py-3 px-6 text-left whitespace-nowrap font-medium">
-            {{ \Carbon\Carbon::parse($payroll->pay_date)->format('M d, Y') }}
-        </td>
-        <td class="py-3 px-6 text-right">
-            ${{ number_format($payroll->gross_salary, 2) }}
-        </td>
-        <td class="py-3 px-6 text-right text-red-500">
-            -${{ number_format($payroll->deductions, 2) }}
-        </td>
-        <td class="py-3 px-6 text-right font-bold text-green-600 text-base">
-            ${{ number_format($payroll->net_salary, 2) }}
-        </td>
-        <td class="py-3 px-6 text-center">
-            <span class="bg-green-200 text-green-600 py-1 px-3 rounded-full text-xs">Paid</span>
-        </td>
-        
-        <!-- NEW DOWNLOAD BUTTON HERE -->
-        <td class="py-3 px-6 text-center">
-            <a href="{{ route('payroll.download', $payroll->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold underline">
-                Download PDF
-            </a>
-        </td>
-    </tr>
-    @endforeach
-</tbody>
+                                        <!-- ACTIONS -->
+                                        <td class="py-3 px-6 text-center">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <!-- Download PDF (Everyone) -->
+                                                <a href="{{ route('payroll.download', $payroll->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold underline text-xs">
+                                                    PDF
+                                                </a>
+
+                                                <!-- Mark as Paid Button (ADMIN ONLY) -->
+                                                @if(Auth::user()->role === 'admin' && $payroll->status == 'Pending')
+                                                    <form action="{{ route('payroll.paid', $payroll->id) }}" method="POST">
+                                                        @csrf
+                                                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs font-bold shadow transition">
+                                                            Mark Paid
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
                         </table>
                         
-                        @if($payrolls->isEmpty())
+                        @if(!$employee || (isset($payrolls) && $payrolls->isEmpty()))
                             <div class="text-center py-8 text-gray-400">
                                 No payroll records found.
                             </div>
@@ -160,3 +191,4 @@
         </div>
     </div>
 </x-app-layout>
+```
