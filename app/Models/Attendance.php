@@ -9,7 +9,6 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    // This allows these columns to be filled by the controller
     protected $fillable = [
         'employee_id',
         'date',
@@ -17,4 +16,10 @@ class Attendance extends Model
         'time_out',
         'status'
     ];
+
+    // This function was missing!
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

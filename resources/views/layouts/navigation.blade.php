@@ -34,6 +34,10 @@
                             {{ __('HR Approval') }}
                         </x-nav-link>
 
+                        <x-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-white hover:text-gray-200">
+                             {{ __('Attendance Logs') }}
+                        </x-nav-link>
+
                     @endif
 
                 </div>

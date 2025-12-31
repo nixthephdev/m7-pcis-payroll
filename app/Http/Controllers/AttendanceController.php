@@ -9,16 +9,15 @@ use App\Models\Attendance;
 
 class AttendanceController extends Controller
 {
-    // Function to handle Clock In
+    // --- EMPLOYEE FUNCTIONS ---
+
     public function clockIn() {
         $employee = Auth::user()->employee;
 
-        // Check if employee exists
         if (!$employee) {
-            return redirect()->back()->with('message', 'Error: No Employee Record Found for this User.');
+            return redirect()->back()->with('message', 'Error: No Employee Record Found.');
         }
 
-        // Check if already clocked in today
         $existingAttendance = Attendance::where('employee_id', $employee->id)
                                         ->where('date', Carbon::today())
                                         ->first();
@@ -27,7 +26,6 @@ class AttendanceController extends Controller
             return redirect()->back()->with('message', 'You have already clocked in today!');
         }
 
-        // Create Attendance Record
         Attendance::create([
             'employee_id' => $employee->id,
             'date' => Carbon::today(),
@@ -38,7 +36,6 @@ class AttendanceController extends Controller
         return redirect()->back()->with('message', 'Clocked In Successfully!');
     }
 
-    // Function to handle Clock Out
     public function clockOut() {
         $employee = Auth::user()->employee;
 
@@ -52,5 +49,42 @@ class AttendanceController extends Controller
         }
 
         return redirect()->back()->with('message', 'You have not clocked in yet!');
+    }
+
+    // --- ADMIN FUNCTIONS (NEW) ---
+
+    // 1. Show All Attendance Records
+    public function index() {
+        $attendances = Attendance::with('employee.user')
+                                 ->orderBy('date', 'desc')
+                                 ->orderBy('time_in', 'desc')
+                                 ->get();
+                                 
+        return view('attendance.index', compact('attendances'));
+    }
+
+    // 2. Show the Edit Form
+    public function edit($id) {
+        $attendance = Attendance::with('employee.user')->findOrFail($id);
+        return view('attendance.edit', compact('attendance'));
+    }
+
+    // 3. Save Changes
+    public function update(Request $request, $id) {
+        $request->validate([
+            'time_in' => 'required',
+            'time_out' => 'nullable',
+            'status' => 'required|string'
+        ]);
+
+        $attendance = Attendance::findOrFail($id);
+        
+        $attendance->update([
+            'time_in' => $request->time_in,
+            'time_out' => $request->time_out,
+            'status' => $request->status
+        ]);
+
+        return redirect()->route('attendance.index')->with('message', 'Attendance record updated successfully.');
     }
 }

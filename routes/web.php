@@ -57,6 +57,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Payroll Generation (Calculate Salaries)
     Route::post('/generate-payroll', [PayrollController::class, 'generatePayroll'])->name('payroll.generate');
+
+    // Attendance Monitoring
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/attendance/{id}/edit', [AttendanceController::class, 'edit'])->name('attendance.edit');
+    Route::put('/attendance/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
 });
 
 require __DIR__.'/auth.php';
