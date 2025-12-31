@@ -6,7 +6,8 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\SalaryItemController; // <--- THIS WAS MISSING
+use App\Http\Controllers\SalaryItemController; 
+use App\Http\Controllers\DashboardController; 
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +21,11 @@ Route::get('/', function () {
 });
 
 // 2. Dashboard (Accessible by all logged-in users)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// NEW CODE - Uses the Controller
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // 3. GENERAL ROUTES (For ALL Logged-in Users: Employees & Admin)
 Route::middleware('auth')->group(function () {
@@ -75,6 +78,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/payroll/{id}/pay', [PayrollController::class, 'markAsPaid'])->name('payroll.paid');
     // View All Payroll History
     Route::get('/payroll/history', [PayrollController::class, 'history'])->name('payroll.history');
+    // Bulk Pay (This was missing)
+    Route::post('/payroll/pay-all', [PayrollController::class, 'markAllAsPaid'])->name('payroll.payAll');
+    // Bulk Generate
+    Route::post('/payroll/generate-all', [PayrollController::class, 'generateAll'])->name('payroll.generateAll');
+    // Edit Employee
+    Route::get('/employees/{id}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
+    Route::put('/employees/{id}', [EmployeeController::class, 'update'])->name('employees.update');
+    // Delete Payroll
+    Route::delete('/payroll/{id}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
 });
 
 require __DIR__.'/auth.php';

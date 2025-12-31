@@ -5,8 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'M7 PCIS') }}</title>
+        
+        <!-- Favicon -->
         <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -15,6 +18,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
+        
         <div class="min-h-screen bg-gray-100">
             @include('layouts.navigation')
 
@@ -32,5 +36,16 @@
                 {{ $slot }}
             </main>
         </div>
+
+        <!-- === HIDDEN DEVELOPER SIGNATURE (Console Only) === -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // "System Developed by Nikko Calumpiano" (Encoded)
+                const signature = "U3lzdGVtIERldmVsb3BlZCBieSBOaWtrbyBDYWx1bXBpYW5v";
+                const decoded = atob(signature);
+                
+                console.log("%c " + decoded + " ", "background: #312e81; color: #ffffff; font-size: 12px; padding: 5px 10px; border-radius: 4px; font-weight: bold;");
+            });
+        </script>
     </body>
 </html>

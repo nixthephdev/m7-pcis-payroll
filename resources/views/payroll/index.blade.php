@@ -9,87 +9,101 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @if(session('message'))
-                <div class="mb-6 p-4 rounded-lg bg-green-100 border-l-4 border-green-500 text-green-700 font-bold">
+                <div class="mb-6 p-4 rounded-lg bg-green-100 border-l-4 border-green-500 text-green-700 font-bold shadow-sm">
                     {{ session('message') }}
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-2xl sm:rounded-lg">
-                <div class="p-6">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-indigo-900 text-white uppercase text-xs font-bold">
-                                    <th class="py-3 px-4">Employee</th>
-                                    <th class="py-3 px-4">Pay Period</th>
-                                    <th class="py-3 px-4 text-right">Gross</th>
-                                    <th class="py-3 px-4 text-right">Deductions</th>
-                                    <th class="py-3 px-4 text-right">Net Pay</th>
-                                    <th class="py-3 px-4 text-center">Status</th>
-                                    <th class="py-3 px-4 text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-700 text-sm">
-                                @foreach($payrolls as $payroll)
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                                    
-                                    <!-- Employee Name -->
-                                    <td class="py-3 px-4 font-bold text-indigo-900">
-                                        {{ optional($payroll->employee->user)->name ?? 'Unknown' }}
-                                        <div class="text-xs text-gray-400 font-normal">{{ $payroll->employee->position }}</div>
-                                    </td>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-800">All Records</h3>
+                    
+                    <form action="{{ route('payroll.payAll') }}" method="POST" onsubmit="return confirm('Mark ALL pending records as PAID?');">
+                        @csrf
+                        <button type="submit" class="text-emerald-600 hover:text-emerald-800 font-bold text-sm flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Mark All Paid
+                        </button>
+                    </form>
+                </div>
 
-                                    <!-- Date -->
-                                    <td class="py-3 px-4">
-                                        {{ \Carbon\Carbon::parse($payroll->pay_date)->format('M d, Y') }}
-                                    </td>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-600">
+                        <thead class="bg-white text-xs uppercase text-gray-400 font-bold tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4 border-b">Employee</th>
+                                <th class="px-6 py-4 border-b">Pay Period</th>
+                                <th class="px-6 py-4 border-b text-right">Gross</th>
+                                <th class="px-6 py-4 border-b text-right">Deductions</th>
+                                <th class="px-6 py-4 border-b text-right">Net Pay</th>
+                                <th class="px-6 py-4 border-b text-center">Status</th>
+                                <th class="px-6 py-4 border-b text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @foreach($payrolls as $payroll)
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-bold text-indigo-900">
+                                    {{ optional($payroll->employee->user)->name ?? 'Unknown' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="block font-medium text-gray-800">{{ $payroll->period }}</span>
+                                    <span class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($payroll->pay_date)->format('M d, Y') }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">₱{{ number_format($payroll->gross_salary, 2) }}</td>
+                                <td class="px-6 py-4 text-right text-rose-500">-₱{{ number_format($payroll->deductions, 2) }}</td>
+                                <td class="px-6 py-4 text-right font-bold text-emerald-600">₱{{ number_format($payroll->net_salary, 2) }}</td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($payroll->status == 'Paid')
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Paid</span>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Pending</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <div class="flex justify-center gap-2">
+                                        
+                                        <!-- Download PDF -->
+                                        <a href="{{ route('payroll.download', $payroll->id) }}" class="p-2 bg-gray-100 rounded-lg text-gray-600 hover:bg-indigo-100 hover:text-indigo-600 transition" title="Download PDF">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                        </a>
+                                        
+                                        @if($payroll->status == 'Pending')
+                                            <!-- Mark as Paid -->
+                                            <form action="{{ route('payroll.paid', $payroll->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="p-2 bg-emerald-100 rounded-lg text-emerald-600 hover:bg-emerald-200 transition" title="Mark Paid">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </button>
+                                            </form>
 
-                                    <!-- Money Columns -->
-                                    <td class="py-3 px-4 text-right">₱{{ number_format($payroll->gross_salary, 2) }}</td>
-                                    <td class="py-3 px-4 text-right text-red-500">-₱{{ number_format($payroll->deductions, 2) }}</td>
-                                    <td class="py-3 px-4 text-right font-bold text-green-600">₱{{ number_format($payroll->net_salary, 2) }}</td>
-
-                                    <!-- Status -->
-                                    <td class="py-3 px-4 text-center">
-                                        @if($payroll->status == 'Paid')
-                                            <span class="bg-green-100 text-green-700 py-1 px-3 rounded-full text-xs font-bold">Paid</span>
-                                        @else
-                                            <span class="bg-yellow-100 text-yellow-700 py-1 px-3 rounded-full text-xs font-bold">Pending</span>
+                                            <!-- DELETE BUTTON (New) -->
+                                            <form action="{{ route('payroll.destroy', $payroll->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to DELETE this record?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-2 bg-rose-100 rounded-lg text-rose-600 hover:bg-rose-200 transition" title="Delete Record">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
                                         @endif
-                                    </td>
 
-                                    <!-- Actions -->
-                                    <td class="py-3 px-4 text-center">
-                                        <div class="flex justify-center items-center gap-2">
-                                            
-                                            <!-- Download PDF -->
-                                            <a href="{{ route('payroll.download', $payroll->id) }}" class="text-gray-500 hover:text-indigo-600" title="Download PDF">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                                                </svg>
-                                            </a>
-
-                                            <!-- Mark as Paid Button -->
-                                            @if($payroll->status == 'Pending')
-                                                <form action="{{ route('payroll.paid', $payroll->id) }}" method="POST">
-                                                    @csrf
-                                                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs font-bold shadow transition" title="Mark as Paid">
-                                                        Pay
-                                                    </button>
-                                                </form>
-                                            @endif
-
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-
-                        @if($payrolls->isEmpty())
-                            <div class="text-center py-8 text-gray-400">No payroll records found.</div>
-                        @endif
-                    </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @if($payrolls->isEmpty())
+                        <div class="text-center py-12 text-gray-400">No records found.</div>
+                    @endif
                 </div>
             </div>
         </div>

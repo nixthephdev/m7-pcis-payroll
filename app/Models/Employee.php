@@ -9,7 +9,12 @@ class Employee extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'position', 'basic_salary'];
+    protected $fillable = [
+        'user_id', 
+        'position', 
+        'basic_salary',
+        'created_at' // <--- ADD THIS LINE
+    ];
 
     // This links the Employee to the User (Name/Email)
     public function user()
@@ -22,7 +27,7 @@ class Employee extends Model
     {
         return $this->hasMany(Payroll::class);
     }
-    
+
     // Link to Salary Items (Allowances/Deductions)
     public function salaryItems()
     {

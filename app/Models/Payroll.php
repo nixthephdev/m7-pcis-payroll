@@ -15,10 +15,11 @@ class Payroll extends Model
         'gross_salary', 
         'deductions', 
         'net_salary',
-        'status' // <--- Added this
+        'status',
+        'period' // <--- Added comma on previous line and added 'period' here
     ];
 
-    // This function was missing!
+    // This function links Payroll to Employee
     public function employee()
     {
         return $this->belongsTo(Employee::class);

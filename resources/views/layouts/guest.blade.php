@@ -35,9 +35,13 @@
             </div>
 
             <!-- Footer -->
-            <div class="mt-8 text-indigo-300 text-xs">
-                &copy; {{ date('Y') }} M7 PCIS. Secure System.
-            </div>
+            <div class="mt-8 text-center text-xs text-indigo-300">
+    <p>&copy; {{ date('Y') }} M7 PCIS. All rights reserved.</p>
+    <p class="mt-1 opacity-70">
+        System Architecture & Development by 
+        <span class="font-bold text-white">Nikko Calumpiano</span>
+    </p>
+</div>
         </div>
     </body>
 </html>

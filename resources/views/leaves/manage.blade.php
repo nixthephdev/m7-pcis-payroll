@@ -1,128 +1,86 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Leave Requests') }}
+            {{ __('Leave Approvals') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            <!-- Success Message -->
-            @if(session('message'))
-                <div class="mb-6 p-4 rounded-md bg-green-50 border border-green-200 text-green-600 text-sm font-medium">
-                    {{ session('message') }}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-100 bg-gray-50">
+                    <h3 class="text-lg font-bold text-gray-800">Pending Requests</h3>
                 </div>
-            @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    <header class="mb-6">
-                        <h2 class="text-lg font-medium text-gray-900">Pending Approvals</h2>
-                        <p class="mt-1 text-sm text-gray-600">Review and manage employee leave applications.</p>
-                    </header>
-
-                    <!-- Table -->
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-gray-500">
-                            <thead class="bg-gray-50 text-xs uppercase text-gray-700">
-                                <tr>
-                                    <th class="px-6 py-3">Employee</th>
-                                    <th class="px-6 py-3">Leave Details</th>
-                                    <th class="px-6 py-3">Duration</th>
-                                    <th class="px-6 py-3 text-center">Status</th>
-                                    <th class="px-6 py-3 text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white">
-                                @foreach($leaves as $leave)
-                                <tr class="hover:bg-gray-50 transition">
-                                    
-                                    <!-- Employee Info -->
-                                    <td class="px-6 py-4 font-medium text-gray-900">
-                                        {{ optional($leave->employee->user)->name ?? 'Unknown' }}
-                                        <div class="text-xs text-gray-500 font-normal mt-1">
-                                            {{ $leave->employee->position ?? 'N/A' }}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-600">
+                        <thead class="bg-white text-xs uppercase text-gray-400 font-bold tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4 border-b">Employee</th>
+                                <th class="px-6 py-4 border-b">Leave Details</th>
+                                <th class="px-6 py-4 border-b">Duration</th>
+                                <th class="px-6 py-4 border-b text-center">Status</th>
+                                <th class="px-6 py-4 border-b text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @foreach($leaves as $leave)
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <p class="font-bold text-gray-900">{{ optional($leave->employee->user)->name ?? 'Unknown' }}</p>
+                                    <p class="text-xs text-gray-400">{{ $leave->employee->position ?? 'N/A' }}</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-block px-2 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700 mb-1">{{ $leave->leave_type }}</span>
+                                    <p class="italic text-gray-500">"{{ $leave->reason }}"</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="font-medium">{{ \Carbon\Carbon::parse($leave->start_date)->format('M d') }} - {{ \Carbon\Carbon::parse($leave->end_date)->format('M d') }}</p>
+                                    <p class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }} Days</p>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($leave->status == 'Pending')
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Pending</span>
+                                    @elseif($leave->status == 'Approved')
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Approved</span>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">Rejected</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($leave->status == 'Pending')
+                                        <div class="flex justify-center gap-2">
+                                            <form action="{{ route('leave.update', $leave->id) }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="status" value="Approved">
+                                                <button class="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition" title="Approve">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('leave.update', $leave->id) }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="status" value="Rejected">
+                                                <button class="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition" title="Reject">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </form>
                                         </div>
-                                    </td>
-
-                                    <!-- Reason -->
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mb-1">
-                                            {{ $leave->leave_type }}
-                                        </span>
-                                        <div class="text-gray-600 italic">"{{ $leave->reason }}"</div>
-                                    </td>
-
-                                    <!-- Dates -->
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        {{ \Carbon\Carbon::parse($leave->start_date)->format('M d') }} 
-                                        - 
-                                        {{ \Carbon\Carbon::parse($leave->end_date)->format('M d, Y') }}
-                                        <div class="text-xs text-gray-400 mt-1">
-                                            {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }} Days
-                                        </div>
-                                    </td>
-
-                                    <!-- Status Badge -->
-                                    <td class="px-6 py-4 text-center">
-                                        @if($leave->status == 'Pending')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                Pending
-                                            </span>
-                                        @elseif($leave->status == 'Approved')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                Approved
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                Rejected
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <!-- Action Buttons -->
-                                    <td class="px-6 py-4 text-center">
-                                        @if($leave->status == 'Pending')
-                                            <div class="flex justify-center gap-2">
-                                                <!-- Approve -->
-                                                <form action="{{ route('leave.update', $leave->id) }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="status" value="Approved">
-                                                    <button type="submit" class="text-green-600 hover:text-green-900 font-medium hover:underline">
-                                                        Approve
-                                                    </button>
-                                                </form>
-                                                
-                                                <span class="text-gray-300">|</span>
-
-                                                <!-- Reject -->
-                                                <form action="{{ route('leave.update', $leave->id) }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="status" value="Rejected">
-                                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium hover:underline">
-                                                        Reject
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        @else
-                                            <span class="text-xs text-gray-400">Locked</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-
-                        <!-- Empty State -->
-                        @if($leaves->isEmpty())
-                            <div class="text-center py-10">
-                                <p class="text-gray-500">No leave requests found.</p>
-                            </div>
-                        @endif
-                    </div>
-
+                                    @else
+                                        <span class="text-xs text-gray-300 font-medium uppercase tracking-wider">Closed</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @if($leaves->isEmpty())
+                        <div class="text-center py-12 text-gray-400">No pending requests.</div>
+                    @endif
                 </div>
             </div>
         </div>
