@@ -13,7 +13,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8"> {{-- Changed max-w-3xl to 4xl to fit 3 columns better --}}
             
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-colors">
                 
@@ -26,7 +26,7 @@
                     <form action="{{ route('employees.store') }}" method="POST" class="space-y-6">
                         @csrf
                         
-                        <!-- ID NUMBER (NEW) -->
+                        <!-- ID NUMBER -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Employee ID Number</label>
                             <input type="text" name="employee_code" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm" placeholder="e.g. PCIS00059">
@@ -44,24 +44,57 @@
                             </div>
                         </div>
 
-                        <!-- Row 2: Job Details -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Row 2: Position, Schedule, and Salary (Merged Here) -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
+                            <!-- Job Position -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Job Position</label>
-                                <input type="text" name="position" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm" placeholder="e.g. Senior Teacher">
+                                <input type="text" name="job_position" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm" placeholder="e.g. IT Support">
                             </div>
+
+                            <!-- Schedule Dropdown -->
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Basic Monthly Salary</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Assigned Schedule</label>
+                                <select name="schedule_id" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                                    <option value="" disabled selected>Select Schedule</option>
+                                    @foreach($schedules as $schedule)
+                                        <option value="{{ $schedule->id }}">
+                                            {{ $schedule->name }} 
+                                            @if($schedule->is_flexible)
+                                                (Flexible / CEO)
+                                            @else
+                                                ({{ \Carbon\Carbon::parse($schedule->time_in)->format('g:i A') }} - 
+                                                 {{ \Carbon\Carbon::parse($schedule->time_out)->format('g:i A') }})
+                                            @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Basic Salary -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Basic Salary</label>
                                 <div class="relative">
                                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                         <span class="text-gray-500 dark:text-gray-400 sm:text-sm">₱</span>
                                     </div>
-                                    <input type="number" step="0.01" name="salary" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white pl-7 focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm" placeholder="0.00">
+                                    <input type="number" step="0.01" name="basic_salary" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white pl-7 focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm" placeholder="0.00">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Row 3: Security -->
+                        <!-- Row 3: System Role -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">System Role</label>
+                            <select name="role" class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                                <option value="employee">Regular Employee</option>
+                                <option value="guard">Security Guard (Scanner Access)</option>
+                                <option value="admin">HR / Administrator</option>
+                            </select>
+                        </div>
+
+                        <!-- Row 4: Security -->
                         <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-100 dark:border-yellow-800/30">
                             <label class="block text-xs font-bold text-yellow-700 dark:text-yellow-500 uppercase tracking-wider mb-2">Default Password</label>
                             <div class="flex items-center gap-3">

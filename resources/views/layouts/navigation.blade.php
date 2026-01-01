@@ -23,6 +23,9 @@
                         @php $pendingLeavesCount = \App\Models\LeaveRequest::where('status', 'Pending')->count(); @endphp
                         <div class="h-6 w-px bg-indigo-700/50 mx-2"></div>
                         <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Employees') }}</x-nav-link>
+                        <x-nav-link :href="route('students.index')" :active="request()->routeIs('students.*')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">
+    {{ __('Students') }}
+</x-nav-link>
                         <x-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto flex items-center relative">
                             {{ __('Approvals') }}
                             @if($pendingLeavesCount > 0)
@@ -31,6 +34,17 @@
                         </x-nav-link>
                         <x-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Attendance') }}</x-nav-link>
                         <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Payroll') }}</x-nav-link>
+                    @endif
+
+                    <!-- GUARD ONLY: Kiosk Link -->
+                    @if(Auth::user()->role === 'guard')
+                        <x-nav-link :href="route('attendance.scanPage')" target="_blank" :active="request()->routeIs('attendance.scanPage')" 
+                            class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                            {{ __('Launch Kiosk') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>

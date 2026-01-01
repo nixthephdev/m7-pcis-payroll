@@ -8,6 +8,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\SalaryItemController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StudentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,15 +21,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// --- KIOSK MODE (Scanner) - Public Access ---
-Route::get('/scan', function () {
-    return view('attendance.scan');
-})->name('attendance.scanPage');
-
-Route::post('/scan/process', [AttendanceController::class, 'scan'])->name('attendance.scan');
-
-
-// 2. Dashboard (Uses DashboardController for logic)
+// 2. Dashboard (Smart Redirect Logic)
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -41,7 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Attendance (Manual Clock In/Out Buttons)
+    // Attendance (Manual Clock In/Out Buttons for Dashboard)
     Route::post('/clock-in', [AttendanceController::class, 'clockIn'])->name('clock.in');
     Route::post('/clock-out', [AttendanceController::class, 'clockOut'])->name('clock.out');
 
@@ -89,6 +82,24 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/payroll/pay-all', [PayrollController::class, 'markAllAsPaid'])->name('payroll.payAll');
     Route::post('/payroll/{id}/pay', [PayrollController::class, 'markAsPaid'])->name('payroll.paid');
     Route::delete('/payroll/{id}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+});
+
+// 5. GUARD / SCANNER ROUTES (For Guard OR Admin)
+// Note: This uses 'guard' middleware which allows both roles.
+Route::middleware(['auth', 'guard'])->group(function () {
+    Route::get('/scan', function () {
+        return view('attendance.scan');
+    })->name('attendance.scanPage');
+
+    Route::post('/scan/process', [AttendanceController::class, 'scan'])->name('attendance.scan');
+
+    // Student Management
+    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+    Route::get('/students/create', [StudentController::class, 'create'])->name('students.create');
+    Route::post('/students', [StudentController::class, 'store'])->name('students.store');
+    Route::get('/students/{id}/id-card', [StudentController::class, 'showIdCard'])->name('students.idcard');
+    Route::get('/students/{id}/edit', [StudentController::class, 'edit'])->name('students.edit');
+    Route::put('/students/{id}', [StudentController::class, 'update'])->name('students.update');
 });
 
 require __DIR__.'/auth.php';

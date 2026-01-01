@@ -13,8 +13,13 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::table('students', function (Blueprint $table) {
-        $table->time('schedule_time_in')->default('07:00:00')->after('section');
+    Schema::create('schedules', function (Blueprint $table) {
+        $table->id();
+        $table->string('name'); // e.g. "Admin Shift", "Guard Night"
+        $table->time('time_in')->nullable();
+        $table->time('time_out')->nullable();
+        $table->boolean('is_flexible')->default(false); // For the CEO
+        $table->timestamps();
     });
 }
 
@@ -25,9 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('payrolls', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('schedules');
     }
-    
 };

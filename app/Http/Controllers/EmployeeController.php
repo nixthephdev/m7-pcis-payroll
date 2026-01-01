@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Schedule;
 
 class EmployeeController extends Controller
 {
@@ -16,71 +17,89 @@ class EmployeeController extends Controller
     }
 
     // Show Create Form
-    public function create() {
-        return view('employees.create');
-    }
+    public function create()
+{
+    // Make sure this line is here!
+    $schedules = \App\Models\Schedule::all(); 
+    
+    return view('employees.create', compact('schedules'));
+}
 
-    // Store New Employee
-    public function store(Request $request) {
-        $request->validate([
-            'employee_code' => 'required|string|unique:employees', // <--- Validate Unique
+public function edit($id)
+{
+    $employee = Employee::find($id);
+    $schedules = Schedule::all(); // Fetch here too
+    return view('employees.edit', compact('employee', 'schedules'));
+}
+
+    public function store(Request $request)
+    {
+        // Validate the incoming data
+        $validated = $request->validate([
+            'employee_code' => 'required|string|max:255|unique:employees,employee_code',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'position' => 'required|string',
-            'salary' => 'required|numeric',
-            'password' => 'required|min:8'
+            'email' => 'required|email|max:255|unique:users,email',
+            'job_position' => 'required|string|max:255',
+            'schedule_id' => 'required|exists:schedules,id',
+            'basic_salary' => 'required|numeric|min:0',
+            'role' => 'required|in:employee,guard,admin',
+            'password' => 'required|string|min:6',
         ]);
 
+        // Create the User account first
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'employee'
+            'role' => $request->role,
         ]);
 
+        // Create the Employee record linked to the User
         Employee::create([
             'user_id' => $user->id,
-            'employee_code' => $request->employee_code, // <--- Save Code
-            'position' => $request->position,
-            'basic_salary' => $request->salary
+            'employee_code' => $request->employee_code,
+            'position' => $request->job_position,
+            'basic_salary' => $request->basic_salary,
+            'schedule_id' => $request->schedule_id,
         ]);
 
-        return redirect()->route('employees.index')->with('message', 'New Employee Added Successfully!');
+        return redirect()->route('employees.index')->with('success', 'Employee created successfully!');
     }
 
     // Show Edit Form
-    public function edit($id) {
-        $employee = Employee::with('user')->findOrFail($id);
-        return view('employees.edit', compact('employee'));
-    }
+    // public function edit($id) {
+    //     $employee = Employee::with('user')->findOrFail($id);
+    //     return view('employees.edit', compact('employee'));
+    // }
 
-    // Update Employee
-    public function update(Request $request, $id) {
-        $employee = Employee::findOrFail($id);
-        $user = $employee->user;
-
-        $request->validate([
-            'employee_code' => 'required|string|unique:employees,employee_code,'.$employee->id, // Ignore self
+    public function update(Request $request, $id)
+    {
+        // Validate the incoming data
+        $validated = $request->validate([
+            'employee_code' => 'required|string|max:255',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
-            'position' => 'required|string',
-            'salary' => 'required|numeric',
-            'joined_date' => 'required|date'
+            'email' => 'required|email|max:255',
+            'position' => 'required|string|max:255',
+            'schedule_id' => 'required|exists:schedules,id',
         ]);
 
-        $user->update([
+        // Find the employee
+        $employee = Employee::findOrFail($id);
+
+        // Update the User model (name and email)
+        $employee->user->update([
             'name' => $request->name,
-            'email' => $request->email
+            'email' => $request->email,
         ]);
 
+        // Update the Employee model (employee_code, position, schedule_id)
         $employee->update([
-            'employee_code' => $request->employee_code, // <--- Update Code
+            'employee_code' => $request->employee_code,
             'position' => $request->position,
-            'basic_salary' => $request->salary,
-            'created_at' => $request->joined_date
+            'schedule_id' => $request->schedule_id,
         ]);
 
-        return redirect()->route('employees.index')->with('message', 'Employee details updated successfully.');
+        return redirect()->route('employees.index')->with('success', 'Employee updated successfully!');
     }
 
     // --- NEW: SHOW ID CARD ---

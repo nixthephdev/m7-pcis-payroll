@@ -45,24 +45,38 @@
                             </div>
                         </div>
 
-                        <!-- Row 2: Job Details -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Row 2: Job Position & Schedule (CONVERTED TO TAILWIND) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Job Position -->
+<div>
+    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Job Position</label>
+    <input 
+        type="text" 
+        name="position" 
+        value="{{ old('position', $employee->position) }}" 
+        placeholder="e.g. Software Engineer" 
+        required 
+        class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm"
+    >
+</div>
+
+                            <!-- Schedule Dropdown -->
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Job Position</label>
-                                <input type="text" name="position" value="{{ $employee->position }}" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Basic Salary</label>
-                                <div class="relative">
-                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <span class="text-gray-500 dark:text-gray-400 sm:text-sm">₱</span>
-                                    </div>
-                                    <input type="number" step="0.01" name="salary" value="{{ $employee->basic_salary }}" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white pl-7 focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Date Joined</label>
-                                <input type="date" name="joined_date" value="{{ $employee->created_at->format('Y-m-d') }}" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Assigned Schedule</label>
+                                <select name="schedule_id" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                                    <option value="" disabled>Select a Schedule</option>
+                                    @foreach($schedules as $schedule)
+                                        <option value="{{ $schedule->id }}" {{ (isset($employee) && $employee->schedule_id == $schedule->id) ? 'selected' : '' }}>
+                                            {{ $schedule->name }} 
+                                            @if($schedule->is_flexible)
+                                                (Flexible Time)
+                                            @else
+                                                ({{ \Carbon\Carbon::parse($schedule->time_in)->format('g:i A') }} - 
+                                                 {{ \Carbon\Carbon::parse($schedule->time_out)->format('g:i A') }})
+                                            @endif
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 

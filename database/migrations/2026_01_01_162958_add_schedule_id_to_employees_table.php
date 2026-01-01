@@ -12,11 +12,11 @@ return new class extends Migration
      * @return void
      */
     public function up()
-{
-    Schema::table('students', function (Blueprint $table) {
-        $table->time('schedule_time_in')->default('07:00:00')->after('section');
-    });
-}
+    {
+        Schema::table('employees', function (Blueprint $table) {
+            $table->foreignId('schedule_id')->nullable()->constrained('schedules')->onDelete('set null');
+        });
+    }
 
     /**
      * Reverse the migrations.
@@ -25,9 +25,9 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('payrolls', function (Blueprint $table) {
-            //
+        Schema::table('employees', function (Blueprint $table) {
+            $table->dropForeign(['schedule_id']);
+            $table->dropColumn('schedule_id');
         });
     }
-    
 };

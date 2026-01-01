@@ -7,84 +7,118 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Student;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
-    // --- API: KIOSK SCANNER LOGIC (Uses Employee Code) ---
+    // --- API: KIOSK SCANNER LOGIC ---
     public function scan(Request $request) {
-        $scannedCode = $request->input('employee_id'); // This gets the QR text (e.g. "2025-001")
-        
-        // 1. Find Employee by their UNIQUE CODE (Not ID)
-        $employee = Employee::with('user')->where('employee_code', $scannedCode)->first();
-
-        if (!$employee) {
-            return response()->json(['status' => 'error', 'message' => 'Invalid QR Code. User not found.']);
-        }
-
-        $today = Carbon::today();
-        $now = Carbon::now();
-
-        // 2. Check existing attendance for today
-        $attendance = Attendance::where('employee_id', $employee->id)
-                                ->where('date', $today)
-                                ->first();
-
-        if (!$attendance) {
-            // --- CLOCK IN ---
-            // Logic: Mark Late if after 9:00 AM
-            $status = $now->format('H:i') > '09:00' ? 'Late' : 'Present';
-
-            Attendance::create([
-                'employee_id' => $employee->id,
-                'date' => $today,
-                'time_in' => $now,
-                'status' => $status
-            ]);
+        try {
+            $scannedCode = $request->input('employee_id');
             
-            return response()->json([
-                'status' => 'success', 
-                'message' => "Welcome, " . $employee->user->name . "! Clocked In."
-            ]);
-        } 
-        elseif ($attendance->time_out == null) {
-            // --- CLOCK OUT ---
-            // Prevent double scanning (must wait 1 minute between scans)
-            if ($now->diffInMinutes($attendance->time_in) < 1) {
-                return response()->json(['status' => 'error', 'message' => 'Already scanned. Please wait a moment.']);
+            $person = null;
+            $type = '';
+
+            // 1. Search in Employees
+            $employee = Employee::with('user')->where('employee_code', $scannedCode)->first();
+            if ($employee) {
+                $person = $employee;
+                $type = 'App\Models\Employee';
+            } else {
+                // 2. Search in Students
+                $student = Student::with('user')->where('student_id', $scannedCode)->first();
+                if ($student) {
+                    $person = $student;
+                    $type = 'App\Models\Student';
+                }
             }
 
-            $attendance->update(['time_out' => $now]);
-            
+            if (!$person) {
+                return response()->json(['status' => 'error', 'message' => 'ID not found: ' . $scannedCode]);
+            }
+
+            $today = Carbon::today();
+            $now = Carbon::now();
+
+            // 3. Find Latest Record
+            $latestAttendance = Attendance::where('attendable_id', $person->id)
+                                          ->where('attendable_type', $type)
+                                          ->orderBy('created_at', 'desc')
+                                          ->first();
+
+            // 4. Logic: Clock In or Out
+            // Case A: No record ever, OR last record is finished (has time_out) -> CLOCK IN
+            if (!$latestAttendance || $latestAttendance->time_out != null) {
+                
+                // --- UNIVERSAL SCHEDULE LOGIC ---
+                // Get schedule from DB (Employee or Student)
+                // If null, default to 08:00:00
+                $scheduleStart = $person->schedule_time_in ?? '08:00:00';
+                
+                // Check Late Status
+                $status = $now->format('H:i:s') > $scheduleStart ? 'Late' : 'Present';
+
+                Attendance::create([
+                    'attendable_id' => $person->id,
+                    'attendable_type' => $type,
+                    'date' => $today,
+                    'time_in' => $now->format('H:i:s'),
+                    'status' => $status
+                ]);
+                
+                return response()->json([
+                    'status' => 'success', 
+                    'message' => "Welcome, " . $person->user->name . "! Clocked In."
+                ]);
+            } 
+            // Case B: Last record is OPEN (no time_out) -> CLOCK OUT
+            else {
+                // Check cooldown (1 minute)
+                $lastTime = Carbon::parse($latestAttendance->date . ' ' . $latestAttendance->time_in);
+                if ($now->diffInMinutes($lastTime) < 1) {
+                    return response()->json(['status' => 'error', 'message' => 'Already scanned. Please wait.']);
+                }
+
+                $latestAttendance->update(['time_out' => $now->format('H:i:s')]);
+                
+                return response()->json([
+                    'status' => 'success', 
+                    'message' => "Goodbye, " . $person->user->name . "! Clocked Out."
+                ]);
+            }
+
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => 'success', 
-                'message' => "Goodbye, " . $employee->user->name . "! Clocked Out."
+                'status' => 'error', 
+                'message' => 'System Error: ' . $e->getMessage()
             ]);
-        } 
-        else {
-            // --- ALREADY DONE ---
-            return response()->json(['status' => 'error', 'message' => 'You have already completed your shift today.']);
         }
     }
 
-    // --- DASHBOARD: MANUAL BUTTONS (Uses Auth User) ---
+    // --- DASHBOARD: MANUAL BUTTONS ---
     public function clockIn() {
         $employee = Auth::user()->employee;
+        if (!$employee) return redirect()->back()->with('message', 'Error: No Employee Record Found.');
 
-        if (!$employee) {
-            return redirect()->back()->with('message', 'Error: No Employee Record Found.');
-        }
+        $existing = Attendance::where('attendable_id', $employee->id)
+                              ->where('attendable_type', 'App\Models\Employee')
+                              ->where('date', Carbon::today())
+                              ->first();
 
-        $existingAttendance = Attendance::where('employee_id', $employee->id)->where('date', Carbon::today())->first();
+        if ($existing) return redirect()->back()->with('message', 'You have already clocked in today!');
 
-        if ($existingAttendance) {
-            return redirect()->back()->with('message', 'You have already clocked in today!');
-        }
+        // Manual Clock In Logic
+        $scheduleStart = $employee->schedule_time_in ?? '08:00:00';
+        $now = Carbon::now();
+        $status = $now->format('H:i:s') > $scheduleStart ? 'Late' : 'Present';
 
         Attendance::create([
-            'employee_id' => $employee->id,
+            'attendable_id' => $employee->id,
+            'attendable_type' => 'App\Models\Employee',
             'date' => Carbon::today(),
-            'time_in' => Carbon::now(),
-            'status' => 'Present'
+            'time_in' => $now->format('H:i:s'),
+            'status' => $status
         ]);
 
         return redirect()->back()->with('message', 'Clocked In Successfully!');
@@ -92,10 +126,13 @@ class AttendanceController extends Controller
 
     public function clockOut() {
         $employee = Auth::user()->employee;
-        $attendance = Attendance::where('employee_id', $employee->id)->where('date', Carbon::today())->first();
+        $attendance = Attendance::where('attendable_id', $employee->id)
+                                ->where('attendable_type', 'App\Models\Employee')
+                                ->where('date', Carbon::today())
+                                ->first();
 
         if ($attendance) {
-            $attendance->update(['time_out' => Carbon::now()]);
+            $attendance->update(['time_out' => Carbon::now()->format('H:i:s')]);
             return redirect()->back()->with('message', 'Clocked Out Successfully!');
         }
 
@@ -104,33 +141,25 @@ class AttendanceController extends Controller
 
     // --- ADMIN: ATTENDANCE MANAGEMENT ---
     public function index() {
-        $attendances = Attendance::with('employee.user')
+        $attendances = Attendance::with('attendable.user')
                                  ->orderBy('date', 'desc')
                                  ->orderBy('time_in', 'desc')
                                  ->get();
-                                 
         return view('attendance.index', compact('attendances'));
     }
 
     public function edit($id) {
-        $attendance = Attendance::with('employee.user')->findOrFail($id);
+        $attendance = Attendance::with('attendable.user')->findOrFail($id);
         return view('attendance.edit', compact('attendance'));
     }
 
     public function update(Request $request, $id) {
-        $request->validate([
-            'time_in' => 'required',
-            'time_out' => 'nullable',
-            'status' => 'required|string'
-        ]);
-
         $attendance = Attendance::findOrFail($id);
         
-        $attendance->update([
-            'time_in' => $request->time_in,
-            'time_out' => $request->time_out,
-            'status' => $request->status
-        ]);
+        $attendance->time_in = $request->time_in . ':00';
+        $attendance->time_out = $request->time_out ? $request->time_out . ':00' : null;
+        $attendance->status = $request->status;
+        $attendance->save();
 
         return redirect()->route('attendance.index')->with('message', 'Attendance record updated successfully.');
     }

@@ -112,7 +112,7 @@
                         <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
                             <thead class="bg-gray-50 dark:bg-slate-700/50 text-xs uppercase text-gray-400 dark:text-gray-500 font-bold">
                                 <tr>
-                                    <th class="px-4 py-3 rounded-l-lg">Employee</th>
+                                    <th class="px-4 py-3 rounded-l-lg">User</th>
                                     <th class="px-4 py-3">Time In</th>
                                     <th class="px-4 py-3 rounded-r-lg text-center">Status</th>
                                 </tr>
@@ -122,17 +122,27 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                                     <td class="px-4 py-3">
                                         <div class="flex items-center">
-                                            @if($log->employee->user->avatar)
-                                                <img src="{{ asset('storage/' . $log->employee->user->avatar) }}" class="h-8 w-8 rounded-full object-cover mr-3">
-                                            @else
-                                                <div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-xs mr-3">
-                                                    {{ substr($log->employee->user->name, 0, 1) }}
+                                            @if($log->attendable && $log->attendable->user)
+                                                @if($log->attendable->user->avatar)
+                                                    <img src="{{ asset('storage/' . $log->attendable->user->avatar) }}" class="h-8 w-8 rounded-full object-cover mr-3">
+                                                @else
+                                                    <div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-xs mr-3">
+                                                        {{ substr($log->attendable->user->name, 0, 1) }}
+                                                    </div>
+                                                @endif
+                                                <div>
+                                                    <p class="font-bold text-gray-800 dark:text-gray-200">{{ $log->attendable->user->name }}</p>
+                                                    <p class="text-xs text-gray-400 dark:text-gray-500">
+                                                        @if($log->attendable_type == 'App\Models\Student')
+                                                            Student
+                                                        @else
+                                                            {{ $log->attendable->position ?? 'Employee' }}
+                                                        @endif
+                                                    </p>
                                                 </div>
+                                            @else
+                                                <span class="text-gray-400 italic">Unknown</span>
                                             @endif
-                                            <div>
-                                                <p class="font-bold text-gray-800 dark:text-gray-200">{{ $log->employee->user->name }}</p>
-                                                <p class="text-xs text-gray-400 dark:text-gray-500">{{ $log->employee->position }}</p>
-                                            </div>
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold">
@@ -199,7 +209,6 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-3 text-center">
-                                            <!-- DOWNLOAD ICON BUTTON -->
                                             <a href="{{ route('payroll.download', $payroll->id) }}" class="inline-block p-2 bg-gray-100 dark:bg-slate-700 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 hover:text-indigo-600 dark:hover:text-indigo-300 transition" title="Download PDF">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

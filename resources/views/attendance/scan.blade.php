@@ -24,7 +24,7 @@
             box-shadow: 0 0 4px #4f46e5;
             top: 0;
             left: 0;
-            animation: scan 3s linear infinite;
+            animation: scan 2.5s linear infinite;
             opacity: 0.6;
         }
         @keyframes scan {
@@ -46,13 +46,13 @@
             
             <!-- Header Section -->
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center p-3 bg-indigo-50 rounded-full mb-4 shadow-sm">
-                    <img src="{{ asset('images/logo.png') }}" class="h-24 w-auto drop-shadow-md">
+                <div class="inline-flex items-center justify-center p-4 bg-white rounded-full mb-4 shadow-lg border border-indigo-50">
+                    <img src="{{ asset('images/logo.png') }}" class="h-24 w-auto drop-shadow-xl hover:scale-105 transition transform duration-500">
                 </div>
-                <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">M7 PCIS ATTENDANCE</h1>
-                <div class="flex items-center justify-center gap-2 mt-2">
-                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <p class="text-indigo-500 text-xs font-bold uppercase tracking-widest">Kiosk Terminal Active</p>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight mt-2">M7 PCIS ATTENDANCE</h1>
+                <div class="flex items-center justify-center gap-2 mt-2 bg-indigo-50 w-fit mx-auto px-4 py-1 rounded-full border border-indigo-100">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                    <p class="text-indigo-600 text-xs font-bold uppercase tracking-widest">Kiosk Terminal Active</p>
                 </div>
             </div>
 
@@ -174,9 +174,9 @@
             fetch("{{ route('attendance.scan') }}", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
+    "Content-Type": "application/json",
+    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+},
                 body: JSON.stringify({ employee_id: decodedText })
             })
             .then(response => response.json())
@@ -210,10 +210,23 @@
             });
         }
 
+        // --- OPTIMIZED SCANNER SETTINGS ---
+        let config = {
+            fps: 30, // Scans 30 times per second (Faster)
+            qrbox: { width: 250, height: 250 }, // Focused scanning area
+            aspectRatio: 1.0,
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true // Hardware acceleration
+            }
+        };
+
         let html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: 250 }
+            "reader", config, /* verbose= */ false
         );
-        html5QrcodeScanner.render(onScanSuccess);
+        
+        html5QrcodeScanner.render(onScanSuccess, (errorMessage) => {
+            // parse error, ignore it to prevent console spam
+        });
     </script>
 
 </body>

@@ -20,21 +20,29 @@
                 <!-- Header Band -->
                 <div class="bg-gradient-to-r from-indigo-50 to-white dark:from-slate-700 dark:to-slate-800 px-8 py-6 border-b border-gray-100 dark:border-slate-600">
                     <div class="flex items-center gap-4">
-                        <!-- Avatar -->
-                        @if($attendance->employee->user->avatar)
-                            <img src="{{ asset('storage/' . $attendance->employee->user->avatar) }}" class="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-slate-500 shadow-sm">
+                        <!-- Avatar Logic -->
+                        @if($attendance->attendable && $attendance->attendable->user)
+                            @if($attendance->attendable->user->avatar)
+                                <img src="{{ asset('storage/' . $attendance->attendable->user->avatar) }}" class="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-slate-500 shadow-sm">
+                            @else
+                                <div class="h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-lg">
+                                    {{ substr($attendance->attendable->user->name, 0, 1) }}
+                                </div>
+                            @endif
+                            
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $attendance->attendable->user->name }}</h3>
+                                <p class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
+                                    {{ \Carbon\Carbon::parse($attendance->date)->format('l, F d, Y') }}
+                                </p>
+                            </div>
                         @else
-                            <div class="h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-lg">
-                                {{ substr($attendance->employee->user->name, 0, 1) }}
+                            <div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">?</div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Unknown User</h3>
+                                <p class="text-sm text-red-500">User may have been deleted</p>
                             </div>
                         @endif
-                        
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $attendance->employee->user->name }}</h3>
-                            <p class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
-                                {{ \Carbon\Carbon::parse($attendance->date)->format('l, F d, Y') }}
-                            </p>
-                        </div>
                     </div>
                 </div>
 
@@ -60,10 +68,10 @@
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</label>
                             <div class="relative">
                                 <select name="status" class="w-full rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition appearance-none">
-                                    <option value="Present" {{ $attendance->status == 'Present' ? 'selected' : '' }}>Present (On Time)</option>
-                                    <option value="Late" {{ $attendance->status == 'Late' ? 'selected' : '' }}>Late</option>
-                                    <option value="Half Day" {{ $attendance->status == 'Half Day' ? 'selected' : '' }}>Half Day</option>
-                                    <option value="Absent" {{ $attendance->status == 'Absent' ? 'selected' : '' }}>Absent</option>
+                                    <option value="Present" {{ $attendance->status == 'Present' ? 'selected' : '' }}>✅ Present (On Time)</option>
+                                    <option value="Late" {{ $attendance->status == 'Late' ? 'selected' : '' }}>⏰ Late</option>
+                                    <option value="Half Day" {{ $attendance->status == 'Half Day' ? 'selected' : '' }}>🌓 Half Day</option>
+                                    <option value="Absent" {{ $attendance->status == 'Absent' ? 'selected' : '' }}>❌ Absent</option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>

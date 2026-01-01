@@ -20,6 +20,12 @@ class PayrollController extends Controller
         $totalDeductions = 0;
         $netSalary = 0;
 
+        // Count Days Worked (Polymorphic Fix)
+        $daysWorked = Attendance::where('attendable_id', $employee->id)
+                                ->where('attendable_type', 'App\Models\Employee')
+                                ->whereMonth('date', Carbon::now()->month)
+                                ->count();
+
         if ($period == 'Mid-Month') {
             $grossSalary = $monthlyBasic / 2;
             $netSalary = $grossSalary;
@@ -46,34 +52,28 @@ class PayrollController extends Controller
         return redirect()->back()->with('message', "$period Payroll Generated.");
     }
 
-    // --- ADMIN: Generate Payroll for ALL Employees (Bulk) ---
     public function generateAll(Request $request) {
         $employees = Employee::with('salaryItems')->get();
-        $period = $request->input('period'); // Get 'Mid-Month' or 'End-Month' from the button
+        $period = $request->input('period');
         $count = 0;
 
         foreach($employees as $employee) {
-            // 1. Calculate Basic
             $monthlyBasic = $employee->basic_salary;
             $grossSalary = 0;
             $totalDeductions = 0;
             $netSalary = 0;
 
-            // 2. Apply Logic based on Period
             if ($period == 'Mid-Month') {
                 $grossSalary = $monthlyBasic / 2;
                 $netSalary = $grossSalary;
-            } 
-            elseif ($period == 'End-Month') {
+            } elseif ($period == 'End-Month') {
                 $basicHalf = $monthlyBasic / 2;
                 $totalAllowances = $employee->salaryItems->where('type', 'earning')->sum('amount');
                 $totalDeductions = $employee->salaryItems->where('type', 'deduction')->sum('amount');
-
                 $grossSalary = $basicHalf + $totalAllowances;
                 $netSalary = $grossSalary - $totalDeductions;
             }
 
-            // 3. Save
             Payroll::create([
                 'employee_id' => $employee->id,
                 'pay_date' => Carbon::now(),
@@ -105,6 +105,12 @@ class PayrollController extends Controller
         return redirect()->back()->with('message', 'Payroll marked as PAID.');
     }
 
+    public function destroy($id) {
+        $payroll = Payroll::findOrFail($id);
+        $payroll->delete();
+        return redirect()->back()->with('message', 'Payroll record deleted successfully.');
+    }
+
     public function downloadPdf($id) {
         $payroll = Payroll::with(['employee.user', 'employee.salaryItems'])->findOrFail($id);
 
@@ -112,7 +118,6 @@ class PayrollController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // Prepare Logo
         $path = public_path('images/logo.png');
         $logoBase64 = '';
         if (file_exists($path)) {
@@ -121,33 +126,40 @@ class PayrollController extends Controller
             $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
         }
 
-        // --- NEW FILENAME LOGIC ---
         $user = $payroll->employee->user;
-        $date = Carbon::now()->format('m-d-Y'); // 03-11-2026 (Slashes / are not allowed in filenames)
-        
-        // Split Name (Assuming "First Last" format in DB)
+        $date = Carbon::now()->format('m-d-Y');
         $nameParts = explode(' ', $user->name);
-        $lastName = array_pop($nameParts); // Get last word
-        $firstName = implode(' ', $nameParts); // Get rest
+        $lastName = array_pop($nameParts);
+        $firstName = implode(' ', $nameParts);
         $formattedName = $lastName . ', ' . $firstName;
-
-        // Clean Filename
         $filename = "{$formattedName} - {$payroll->period} - Payslip - {$date}.pdf";
-        // --------------------------
 
         $pdf = Pdf::loadView('payroll.pdf', compact('payroll', 'logoBase64'));
         return $pdf->download($filename);
     }
-    
-    public function generatePayroll() {
-        return redirect()->route('dashboard');
-    }
-    // ADMIN: Delete a Payroll Record (Undo)
-    public function destroy($id) {
-        $payroll = Payroll::findOrFail($id);
-        
-        $payroll->delete();
+    public function index()
+    {
+        $user = Auth::user();
 
-        return redirect()->back()->with('message', 'Payroll record deleted successfully.');
+        // 1. If ADMIN, gather Executive Stats & Show Admin Dashboard
+        if ($user->role === 'admin') {
+            // ... (Keep all your existing Admin Logic here) ...
+            
+            // (Make sure you keep the admin logic we wrote before!)
+            
+            return view('admin_dashboard', compact(
+                'totalEmployees', 
+                'presentToday', 
+                'pendingLeaves', 
+                'monthlyCost', 
+                'recentAttendance', 
+                'myPayrolls', 
+                'adminEmployee'
+            ));
+        }
+
+        // 2. If GUARD or EMPLOYEE, show the Standard Dashboard
+        // (This allows Guards to see their own stats/leaves)
+        return view('dashboard');
     }
 }

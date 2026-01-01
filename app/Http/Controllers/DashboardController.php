@@ -16,54 +16,55 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // 1. If user is an EMPLOYEE, show the standard dashboard
-        if ($user->role !== 'admin') {
-            return view('dashboard');
+        // 1. If ADMIN, gather Executive Stats & Show Admin Dashboard
+        if ($user->role === 'admin') {
+            
+            // Card 1: Total Employees
+            $totalEmployees = Employee::count();
+
+            // Card 2: Present Today
+            $presentToday = Attendance::where('date', Carbon::today())
+                                      ->where('status', '!=', 'Absent')
+                                      ->count();
+
+            // Card 3: Pending Leave Requests
+            $pendingLeaves = LeaveRequest::where('status', 'Pending')->count();
+
+            // Card 4: Total Payroll Cost (This Month)
+            $monthlyCost = Payroll::whereMonth('pay_date', Carbon::now()->month)
+                                  ->sum('net_salary');
+
+            // Table: Recent Attendance
+            $recentAttendance = Attendance::with('attendable.user')
+                                          ->where('date', Carbon::today())
+                                          ->orderBy('time_in', 'desc')
+                                          ->take(5)
+                                          ->get();
+
+            // Admin's Personal Data (For "My Payslips" section)
+            $adminEmployee = $user->employee;
+            $myPayrolls = collect();
+
+            if ($adminEmployee) {
+                $myPayrolls = Payroll::where('employee_id', $adminEmployee->id)
+                                     ->orderBy('created_at', 'desc')
+                                     ->take(5)
+                                     ->get();
+            }
+
+            return view('admin_dashboard', compact(
+                'totalEmployees', 
+                'presentToday', 
+                'pendingLeaves', 
+                'monthlyCost', 
+                'recentAttendance', 
+                'myPayrolls', 
+                'adminEmployee'
+            ));
         }
 
-        // 2. If user is ADMIN, gather Executive Stats
-        
-        // Card 1: Total Employees
-        $totalEmployees = Employee::count();
-
-        // Card 2: Present Today
-        $presentToday = Attendance::where('date', Carbon::today())
-                                  ->where('status', '!=', 'Absent')
-                                  ->count();
-
-        // Card 3: Pending Leave Requests
-        $pendingLeaves = LeaveRequest::where('status', 'Pending')->count();
-
-        // Card 4: Total Payroll Cost (This Month)
-        $monthlyCost = Payroll::whereMonth('pay_date', Carbon::now()->month)
-                              ->sum('net_salary');
-
-        // Table: Recent Attendance (Who clocked in recently?)
-        $recentAttendance = Attendance::with('employee.user')
-                                      ->where('date', Carbon::today())
-                                      ->orderBy('time_in', 'desc')
-                                      ->take(5)
-                                      ->get();
-
-        // --- NEW: Admin's Personal Data ---
-        $adminEmployee = $user->employee; // Get Admin's employee record
-        $myPayrolls = collect(); // Empty collection by default
-
-        if ($adminEmployee) {
-            $myPayrolls = Payroll::where('employee_id', $adminEmployee->id)
-                                 ->orderBy('created_at', 'desc')
-                                 ->take(5)
-                                 ->get();
-        }
-
-        return view('admin_dashboard', compact(
-            'totalEmployees', 
-            'presentToday', 
-            'pendingLeaves', 
-            'monthlyCost',
-            'recentAttendance',
-            'myPayrolls', // <--- This was missing before
-            'adminEmployee' // <--- This was missing before
-        ));
+        // 2. ALL OTHER ROLES (Employee AND Guard)
+        // They go to the standard dashboard
+        return view('dashboard');
     }
 }

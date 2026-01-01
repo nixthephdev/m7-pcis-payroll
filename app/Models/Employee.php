@@ -11,9 +11,10 @@ class Employee extends Model
 
     protected $fillable = [
         'user_id', 
-        'employee_code', // <--- ADD THIS
+        'employee_code',
         'position', 
         'basic_salary',
+        'schedule_id',
         'created_at'
     ];
 
@@ -21,6 +22,12 @@ class Employee extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    // This links the Employee to their Schedule
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class);
     }
     
     // This links the Employee to their Payrolls
@@ -33,5 +40,11 @@ class Employee extends Model
     public function salaryItems()
     {
         return $this->hasMany(SalaryItem::class);
+    }
+    
+    // Link to Attendance (Polymorphic)
+    public function attendances()
+    {
+        return $this->morphMany(Attendance::class, 'attendable');
     }
 }

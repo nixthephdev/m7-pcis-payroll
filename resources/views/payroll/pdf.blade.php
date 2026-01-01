@@ -91,7 +91,7 @@
                     </td>
                     <td width="30%">
                         <div class="label">Employee ID</div>
-                        <div class="value">{{ str_pad($payroll->employee->id, 4, '0', STR_PAD_LEFT) }}</div>
+                        <div class="value">{{ str_pad($payroll->employee->employee_code, 4, '0', STR_PAD_LEFT) }}</div>
                     </td>
                 </tr>
                 <tr>

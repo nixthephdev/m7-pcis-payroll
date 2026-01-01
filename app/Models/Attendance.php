@@ -10,16 +10,17 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'employee_id',
+        'attendable_id',   // <--- This was likely missing or named employee_id
+        'attendable_type', // <--- This too
         'date',
         'time_in',
         'time_out',
         'status'
     ];
 
-    // This function was missing!
-    public function employee()
+    // Polymorphic Relationship
+    public function attendable()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->morphTo();
     }
 }
