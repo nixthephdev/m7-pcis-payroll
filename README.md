@@ -52,7 +52,7 @@ The **M7 PCIS Payroll System** is a specialized payroll management solution deve
 
 ## Screenshots
 
-*The screenshots for the system are located locally at: `C:\xampp\htdocs\payroll-system\screenshots`*
+*The screenshots for the system are located locally at: `screenshots`*
 
 ## 📸 System Screenshots
 
