@@ -13,7 +13,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8"> {{-- Changed max-w-3xl to 4xl to fit 3 columns better --}}
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-colors">
                 
@@ -44,7 +44,7 @@
                             </div>
                         </div>
 
-                        <!-- Row 2: Position, Schedule, and Salary (Merged Here) -->
+                        <!-- Row 2: Position, Schedule, and Salary -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             
                             <!-- Job Position -->
@@ -58,17 +58,19 @@
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Assigned Schedule</label>
                                 <select name="schedule_id" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
                                     <option value="" disabled selected>Select Schedule</option>
-                                    @foreach($schedules as $schedule)
-                                        <option value="{{ $schedule->id }}">
-                                            {{ $schedule->name }} 
-                                            @if($schedule->is_flexible)
-                                                (Flexible / CEO)
-                                            @else
-                                                ({{ \Carbon\Carbon::parse($schedule->time_in)->format('g:i A') }} - 
-                                                 {{ \Carbon\Carbon::parse($schedule->time_out)->format('g:i A') }})
-                                            @endif
-                                        </option>
-                                    @endforeach
+                                    @if(isset($schedules))
+                                        @foreach($schedules as $schedule)
+                                            <option value="{{ $schedule->id }}">
+                                                {{ $schedule->name }} 
+                                                @if($schedule->is_flexible)
+                                                    (Flexible)
+                                                @else
+                                                    ({{ \Carbon\Carbon::parse($schedule->time_in)->format('g:i A') }} - 
+                                                     {{ \Carbon\Carbon::parse($schedule->time_out)->format('g:i A') }})
+                                                @endif
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
 
@@ -94,8 +96,20 @@
                             </select>
                         </div>
 
-                        <!-- Row 4: Security -->
-                        <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-100 dark:border-yellow-800/30">
+                        <!-- Row 4: Leave Credits (ADDED THIS SECTION) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vacation Leave Credits</label>
+                                <input type="number" name="vacation_credits" value="15" class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Sick Leave Credits</label>
+                                <input type="number" name="sick_credits" value="15" class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                            </div>
+                        </div>
+
+                        <!-- Row 5: Security -->
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-100 dark:border-yellow-800/30 mt-6">
                             <label class="block text-xs font-bold text-yellow-700 dark:text-yellow-500 uppercase tracking-wider mb-2">Default Password</label>
                             <div class="flex items-center gap-3">
                                 <input type="text" name="password" value="password123" readonly class="w-full rounded-lg border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm">

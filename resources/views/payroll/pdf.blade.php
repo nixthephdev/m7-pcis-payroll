@@ -130,19 +130,64 @@
                     <table class="details-table">
                         <thead><tr><th>EARNINGS</th><th style="text-align:right;">AMOUNT</th></tr></thead>
                         <tbody>
+                        <!-- SPECIAL LAYOUT FOR 13TH MONTH -->
+                        @if($payroll->period == '13th-Month')
                             <tr>
-                                <td>Basic Pay</td>
-                                <td class="amount">PHP {{ number_format($displayBasic, 2) }}</td>
+                                <td colspan="2" style="padding: 20px; text-align: center;">
+                                    <h3 style="margin: 0; color: #312e81;">13th Month Pay / Year-End Bonus</h3>
+                                    <p style="margin: 5px 0; color: #666;">Computed based on Total Basic Salary Earned / 12</p>
+                                </td>
                             </tr>
-                            @if($payroll->period == 'End-Month')
-                                @foreach($allowances as $item)
-                                <tr>
-                                    <td>{{ $item->name }}</td>
-                                    <td class="amount">PHP {{ number_format($item->amount, 2) }}</td>
-                                </tr>
-                                @endforeach
-                            @endif
-                        </tbody>
+                            <tr>
+                                <td><strong>Total Bonus Amount</strong></td>
+                                <td class="amount" style="font-size: 16px;">PHP {{ number_format($payroll->net_salary, 2) }}</td>
+                            </tr>
+                        
+                        <!-- STANDARD LAYOUT (Mid/End Month) -->
+                        @else
+                            <tr>
+                                <!-- EARNINGS COLUMN -->
+                                <td class="col-left">
+                                    <table class="details-table">
+                                        <thead><tr><th>EARNINGS</th><th style="text-align:right;">AMOUNT</th></tr></thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Basic Pay</td>
+                                                <td class="amount">PHP {{ number_format($displayBasic, 2) }}</td>
+                                            </tr>
+                                            @if($payroll->period == 'End-Month')
+                                                @foreach($allowances as $item)
+                                                <tr>
+                                                    <td>{{ $item->name }}</td>
+                                                    <td class="amount">PHP {{ number_format($item->amount, 2) }}</td>
+                                                </tr>
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </td>
+
+                                <!-- DEDUCTIONS COLUMN -->
+                                <td class="col-right">
+                                    <table class="details-table">
+                                        <thead><tr><th>DEDUCTIONS</th><th style="text-align:right;">AMOUNT</th></tr></thead>
+                                        <tbody>
+                                            @if($payroll->period == 'End-Month')
+                                                @foreach($deductions as $item)
+                                                <tr>
+                                                    <td>{{ $item->name }}</td>
+                                                    <td class="amount text-red">PHP {{ number_format($item->amount, 2) }}</td>
+                                                </tr>
+                                                @endforeach
+                                            @else
+                                                <tr><td colspan="2" style="color:#999; font-style:italic;">No deductions</td></tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        @endif
+                    </tbody>
                     </table>
                     
                     <div class="total-box">

@@ -82,6 +82,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/payroll/pay-all', [PayrollController::class, 'markAllAsPaid'])->name('payroll.payAll');
     Route::post('/payroll/{id}/pay', [PayrollController::class, 'markAsPaid'])->name('payroll.paid');
     Route::delete('/payroll/{id}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+
+    // 13th Month Pay
+    Route::get('/payroll/13th-month', [PayrollController::class, 'index13th'])->name('payroll.13th');
+    Route::post('/payroll/13th-month/{id}', [PayrollController::class, 'generate13th'])->name('payroll.13th.generate');
 });
 
 // 5. GUARD / SCANNER ROUTES (For Guard OR Admin)
