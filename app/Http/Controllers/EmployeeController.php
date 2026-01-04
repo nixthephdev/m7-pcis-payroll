@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Schedule;
+use App\Models\AuditLog; // Add import
 
 class EmployeeController extends Controller
 {
@@ -60,14 +61,14 @@ public function edit($id)
         Employee::create([
             'user_id' => $user->id,
             'employee_code' => $request->employee_code,
-            'position' => $request->job_position, // Make sure this matches form name
-            'basic_salary' => $request->basic_salary, // Make sure this matches form name
-            'schedule_id' => $request->schedule_id,
-            
-            // If input is present, use it. If empty, use 15.
-            'vacation_credits' => $request->filled('vacation_credits') ? $request->vacation_credits : 15,
-            'sick_credits' => $request->filled('sick_credits') ? $request->sick_credits : 15,
+            'position' => $request->position, // Ensure this matches form name="position"
+            'basic_salary' => $request->salary, // Ensure this matches form name="salary"
+            'schedule_id' => $request->schedule_id, // <--- Save Schedule ID
+            'vacation_credits' => $request->vacation_credits ?? 15,
+            'sick_credits' => $request->sick_credits ?? 15,
         ]);
+
+        \App\Models\AuditLog::record('Created Employee', 'Added new employee: ' . $request->name);
 
         return redirect()->route('employees.index')->with('success', 'Employee created successfully!');
     }
@@ -89,6 +90,7 @@ public function edit($id)
             'schedule_id' => 'required|exists:schedules,id',
             'vacation_credits' => 'required|integer',
             'sick_credits' => 'required|integer',
+
         ]);
 
         // Find the employee
@@ -105,6 +107,7 @@ public function edit($id)
             'employee_code' => $request->employee_code,
             'position' => $request->position,
             'basic_salary' => $request->salary,
+            'schedule_id' => $request->schedule_id, // <--- Save the Schedule ID
             'vacation_credits' => $request->vacation_credits, // <--- Make sure this is here!
             'sick_credits' => $request->sick_credits,         // <--- And this!
             'schedule_time_in' => $request->schedule_time_in,
@@ -112,6 +115,8 @@ public function edit($id)
             'created_at' => $request->joined_date  
         ]);
 
+
+        \App\Models\AuditLog::record('Updated Employee', 'Updated profile of ' . $request->name);
         return redirect()->route('employees.index')->with('success', 'Employee updated successfully!');
     }
 

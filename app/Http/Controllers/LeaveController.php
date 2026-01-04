@@ -94,6 +94,8 @@ class LeaveController extends Controller
 
         $leave->update(['status' => $request->status]);
 
+        \App\Models\AuditLog::record('Leave Decision', 'Set leave status to ' . $request->status . ' for ' . $employee->user->name);
+
         return redirect()->back()->with('message', 'Leave request updated successfully.');
     }
 }

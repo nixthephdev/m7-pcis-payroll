@@ -86,6 +86,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // 13th Month Pay
     Route::get('/payroll/13th-month', [PayrollController::class, 'index13th'])->name('payroll.13th');
     Route::post('/payroll/13th-month/{id}', [PayrollController::class, 'generate13th'])->name('payroll.13th.generate');
+
+    // SECRET AUDIT TRAIL
+    Route::get('/audit', [App\Http\Controllers\AuditController::class, 'index'])->name('audit.index');
 });
 
 // 5. GUARD / SCANNER ROUTES (For Guard OR Admin)
