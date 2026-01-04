@@ -48,16 +48,43 @@ class AttendanceController extends Controller
                                           ->first();
 
             // 4. Logic: Clock In or Out
-            // Case A: No record ever, OR last record is finished (has time_out) -> CLOCK IN
             if (!$latestAttendance || $latestAttendance->time_out != null) {
                 
                 // --- UNIVERSAL SCHEDULE LOGIC ---
-                // Get schedule from DB (Employee or Student)
-                // If null, default to 08:00:00
-                $scheduleStart = $person->schedule_time_in ?? '08:00:00';
+                $status = 'Present'; // Default
                 
-                // Check Late Status
-                $status = $now->format('H:i:s') > $scheduleStart ? 'Late' : 'Present';
+                // 1. STUDENT LOGIC
+                if ($type == 'App\Models\Student') {
+                    if ($now->format('H:i:s') > '07:30:00') {
+                        $status = 'Late';
+                    }
+                }
+                
+                // 2. EMPLOYEE LOGIC (Using Schedule Relationship)
+                elseif ($type == 'App\Models\Employee') {
+                    
+                    $person->load('schedule'); 
+                    $schedule = $person->schedule;
+
+                    if ($schedule) {
+                        // CASE A: Flexible Schedule -> Always Present
+                        if ($schedule->is_flexible || $schedule->name === 'Flexible') {
+                            $status = 'Present';
+                        }
+                        // CASE B: Fixed Schedule -> Check Time
+                        else {
+                            $graceTime = Carbon::parse($schedule->time_in)->addMinutes(15)->format('H:i:s');
+                            if ($now->format('H:i:s') > $graceTime) {
+                                $status = 'Late';
+                            }
+                        }
+                    } else {
+                        // Fallback if no schedule assigned
+                        if ($now->format('H:i:s') > '08:15:00') {
+                            $status = 'Late';
+                        }
+                    }
+                }
 
                 Attendance::create([
                     'attendable_id' => $person->id,
@@ -72,9 +99,8 @@ class AttendanceController extends Controller
                     'message' => "Welcome, " . $person->user->name . "! Clocked In."
                 ]);
             } 
-            // Case B: Last record is OPEN (no time_out) -> CLOCK OUT
             else {
-                // Check cooldown (1 minute)
+                // --- CLOCK OUT ---
                 $lastTime = Carbon::parse($latestAttendance->date . ' ' . $latestAttendance->time_in);
                 if ($now->diffInMinutes($lastTime) < 1) {
                     return response()->json(['status' => 'error', 'message' => 'Already scanned. Please wait.']);
@@ -109,9 +135,20 @@ class AttendanceController extends Controller
         if ($existing) return redirect()->back()->with('message', 'You have already clocked in today!');
 
         // Manual Clock In Logic
-        $scheduleStart = $employee->schedule_time_in ?? '08:00:00';
+        $schedule = $employee->schedule;
+        $status = 'Present';
         $now = Carbon::now();
-        $status = $now->format('H:i:s') > $scheduleStart ? 'Late' : 'Present';
+
+        if ($schedule && !$schedule->is_flexible) {
+            $graceTime = Carbon::parse($schedule->time_in)->addMinutes(15)->format('H:i:s');
+            if ($now->format('H:i:s') > $graceTime) {
+                $status = 'Late';
+            }
+        } elseif (!$schedule) {
+             if ($now->format('H:i:s') > '08:15:00') {
+                $status = 'Late';
+            }
+        }
 
         Attendance::create([
             'attendable_id' => $employee->id,
@@ -160,6 +197,8 @@ class AttendanceController extends Controller
         $attendance->time_out = $request->time_out ? $request->time_out . ':00' : null;
         $attendance->status = $request->status;
         $attendance->save();
+
+        \App\Models\AuditLog::record('Edited Attendance', 'Manually modified attendance for ID: ' . $id);
 
         return redirect()->route('attendance.index')->with('message', 'Attendance record updated successfully.');
     }

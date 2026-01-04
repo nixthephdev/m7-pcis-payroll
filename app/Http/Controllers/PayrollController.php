@@ -9,6 +9,7 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\AuditLog; // Add import
 
 class PayrollController extends Controller
 {
@@ -48,6 +49,8 @@ class PayrollController extends Controller
             'net_salary' => number_format($netSalary, 2, '.', ''),
             'status' => 'Pending'
         ]);
+
+        \App\Models\AuditLog::record('Generated Payroll', 'Generated ' . $period . ' payroll for ' . $employee->user->name);
 
         return redirect()->back()->with('message', "$period Payroll Generated.");
     }
@@ -102,12 +105,18 @@ class PayrollController extends Controller
     public function markAsPaid($id) {
         $payroll = Payroll::findOrFail($id);
         $payroll->update(['status' => 'Paid']);
+
+        \App\Models\AuditLog::record('Paid Salary', 'Marked payroll #' . $id . ' as Paid');
+
         return redirect()->back()->with('message', 'Payroll marked as PAID.');
     }
 
     public function destroy($id) {
         $payroll = Payroll::findOrFail($id);
         $payroll->delete();
+
+        \App\Models\AuditLog::record('Deleted Payroll', 'Deleted a payroll record.');
+        
         return redirect()->back()->with('message', 'Payroll record deleted successfully.');
     }
 
@@ -233,4 +242,6 @@ class PayrollController extends Controller
 
         return redirect()->back()->with('message', '13th Month Pay generated for ' . $employee->user->name);
     }
+
+
 }

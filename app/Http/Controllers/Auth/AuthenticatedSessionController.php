@@ -29,6 +29,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        \App\Models\AuditLog::record('Login', 'User logged into the system.');
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
@@ -42,6 +44,8 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        \App\Models\AuditLog::record('Logout', 'User logged out.');
 
         return redirect('/');
     }
