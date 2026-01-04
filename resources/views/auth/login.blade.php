@@ -43,7 +43,7 @@
                 </div>
                 <input id="email" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" 
                     class="pl-10 block w-full rounded-xl border border-white/10 bg-slate-900/50 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition duration-200 sm:text-sm py-3" 
-                    placeholder="admin@school.edu">
+                    placeholder="admin@pcis.edu.ph">
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>

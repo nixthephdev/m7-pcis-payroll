@@ -66,7 +66,7 @@
                 
                 <!-- COMPANY INFO (Center/Right) -->
                 <td style="width: 75%; vertical-align: top; padding-left: 15px;">
-                    <h1 class="company-name">M7 Philippine Cambridge School</h1>
+                    <h1 class="company-name">M7 Philippine Cambridge International School</h1>
                     <div class="company-info">
                         Km. 25 Gen. Aguinaldo Highway, Anabu II-D, City of Imus, Cavite, Philippines<br>
                         Cavite: +6346 458 6588 &nbsp;|&nbsp; Mobile: +63 917 7217 800<br>
