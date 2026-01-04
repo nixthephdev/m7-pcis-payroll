@@ -162,4 +162,75 @@ class PayrollController extends Controller
         // (This allows Guards to see their own stats/leaves)
         return view('dashboard');
     }
+
+    // --- 13TH MONTH PAY MODULE ---
+
+    // 1. View the 13th Month Dashboard
+    public function index13th() {
+        $employees = Employee::with('user')->get();
+        $currentYear = Carbon::now()->year;
+        
+        $data = [];
+
+        foreach($employees as $emp) {
+            // Calculate Total Days Worked this Year
+            $daysWorked = Attendance::where('attendable_id', $emp->id)
+                                    ->where('attendable_type', 'App\Models\Employee')
+                                    ->whereYear('date', $currentYear)
+                                    ->count();
+            
+            // Daily Rate
+            $dailyRate = $emp->basic_salary / 22;
+
+            // Total Basic Earned (Year to Date)
+            $totalBasicEarned = $daysWorked * $dailyRate;
+
+            // 13th Month Calculation
+            $thirteenthMonth = $totalBasicEarned / 12;
+
+            // Check if already paid this year
+            $isPaid = Payroll::where('employee_id', $emp->id)
+                             ->where('period', '13th-Month')
+                             ->whereYear('pay_date', $currentYear)
+                             ->exists();
+
+            $data[] = [
+                'employee' => $emp,
+                'total_basic' => $totalBasicEarned,
+                'thirteenth_pay' => $thirteenthMonth,
+                'is_paid' => $isPaid
+            ];
+        }
+
+        return view('payroll.13th_month', compact('data', 'currentYear'));
+    }
+
+    // 2. Generate the 13th Month Record
+    public function generate13th($id) {
+        $employee = Employee::findOrFail($id);
+        $currentYear = Carbon::now()->year;
+
+        // Recalculate to be safe
+        $daysWorked = Attendance::where('attendable_id', $employee->id)
+                                ->where('attendable_type', 'App\Models\Employee')
+                                ->whereYear('date', $currentYear)
+                                ->count();
+        
+        $dailyRate = $employee->basic_salary / 22;
+        $totalBasicEarned = $daysWorked * $dailyRate;
+        $amount = $totalBasicEarned / 12;
+
+        // Save as a Payroll Record
+        Payroll::create([
+            'employee_id' => $employee->id,
+            'pay_date' => Carbon::now(),
+            'period' => '13th-Month', // Special Period Name
+            'gross_salary' => number_format($amount, 2, '.', ''),
+            'deductions' => 0, // 13th Month is usually non-taxable (up to 90k)
+            'net_salary' => number_format($amount, 2, '.', ''),
+            'status' => 'Pending'
+        ]);
+
+        return redirect()->back()->with('message', '13th Month Pay generated for ' . $employee->user->name);
+    }
 }

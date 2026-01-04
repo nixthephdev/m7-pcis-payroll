@@ -27,7 +27,7 @@
                         @csrf
                         @method('PUT')
                         
-                        <!-- ID NUMBER -->
+                        <!-- Employee ID -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Employee ID Number</label>
                             <input type="text" name="employee_code" value="{{ $employee->employee_code }}" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
@@ -45,26 +45,39 @@
                             </div>
                         </div>
 
-                        <!-- Row 2: Job Position & Schedule (CONVERTED TO TAILWIND) -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Job Position -->
-<div>
-    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Job Position</label>
-    <input 
-        type="text" 
-        name="position" 
-        value="{{ old('position', $employee->position) }}" 
-        placeholder="e.g. Software Engineer" 
-        required 
-        class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm"
-    >
-</div>
-
-                            <!-- Schedule Dropdown -->
+                        <!-- Row 2: Job Details -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Position -->
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Assigned Schedule</label>
-                                <select name="schedule_id" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
-                                    <option value="" disabled>Select a Schedule</option>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Job Position</label>
+                                <input type="text" name="position" value="{{ $employee->position }}" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                            </div>
+                            
+                            <!-- Basic Salary (RESTORED THIS INPUT) -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Basic Salary</label>
+                                <div class="relative">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <span class="text-gray-500 dark:text-gray-400 sm:text-sm">₱</span>
+                                    </div>
+                                    <input type="number" step="0.01" name="salary" value="{{ $employee->basic_salary }}" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white pl-7 focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                                </div>
+                            </div>
+
+                            <!-- Date Joined -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Date Joined</label>
+                                <input type="date" name="joined_date" value="{{ $employee->created_at->format('Y-m-d') }}" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Schedule (YOUR EXISTING DROPDOWN LOGIC) -->
+                        <div class="mt-6 pt-6 border-t border-gray-100 dark:border-slate-700">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Assigned Schedule</label>
+                            <select name="schedule_id" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                                <option value="" disabled>Select a Schedule</option>
+                                <!-- Assuming you pass $schedules from controller, if not, remove this loop or replace with static options -->
+                                @if(isset($schedules))
                                     @foreach($schedules as $schedule)
                                         <option value="{{ $schedule->id }}" {{ (isset($employee) && $employee->schedule_id == $schedule->id) ? 'selected' : '' }}>
                                             {{ $schedule->name }} 
@@ -76,12 +89,29 @@
                                             @endif
                                         </option>
                                     @endforeach
-                                </select>
+                                @else
+                                    <!-- Fallback if you don't have schedules table yet -->
+                                    <option value="1">Standard (8am - 5pm)</option>
+                                    <option value="2">Teacher (7am - 4pm)</option>
+                                    <option value="3">Flexible / Guard</option>
+                                @endif
+                            </select>
+                        </div>
+
+                        <!-- Row 4: Leave Credits (NEW) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100 dark:border-slate-700">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vacation Leave Credits</label>
+                                <input type="number" name="vacation_credits" value="{{ $employee->vacation_credits }}" class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Sick Leave Credits</label>
+                                <input type="number" name="sick_credits" value="{{ $employee->sick_credits }}" class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
                             </div>
                         </div>
 
                         <!-- Actions -->
-                        <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-100 dark:border-slate-700">
+                        <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-100 dark:border-slate-700">
                             <a href="{{ route('employees.index') }}" class="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition">Cancel</a>
                             <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2.5 rounded-lg font-bold shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
                                 Save Changes

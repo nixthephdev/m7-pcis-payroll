@@ -44,6 +44,8 @@ public function edit($id)
             'basic_salary' => 'required|numeric|min:0',
             'role' => 'required|in:employee,guard,admin',
             'password' => 'required|string|min:6',
+            'vacation_credits' => 'nullable|integer',
+            'sick_credits' => 'nullable|integer',
         ]);
 
         // Create the User account first
@@ -58,9 +60,13 @@ public function edit($id)
         Employee::create([
             'user_id' => $user->id,
             'employee_code' => $request->employee_code,
-            'position' => $request->job_position,
-            'basic_salary' => $request->basic_salary,
+            'position' => $request->job_position, // Make sure this matches form name
+            'basic_salary' => $request->basic_salary, // Make sure this matches form name
             'schedule_id' => $request->schedule_id,
+            
+            // If input is present, use it. If empty, use 15.
+            'vacation_credits' => $request->filled('vacation_credits') ? $request->vacation_credits : 15,
+            'sick_credits' => $request->filled('sick_credits') ? $request->sick_credits : 15,
         ]);
 
         return redirect()->route('employees.index')->with('success', 'Employee created successfully!');
@@ -81,6 +87,8 @@ public function edit($id)
             'email' => 'required|email|max:255',
             'position' => 'required|string|max:255',
             'schedule_id' => 'required|exists:schedules,id',
+            'vacation_credits' => 'required|integer',
+            'sick_credits' => 'required|integer',
         ]);
 
         // Find the employee
@@ -96,7 +104,12 @@ public function edit($id)
         $employee->update([
             'employee_code' => $request->employee_code,
             'position' => $request->position,
-            'schedule_id' => $request->schedule_id,
+            'basic_salary' => $request->salary,
+            'vacation_credits' => $request->vacation_credits, // <--- Make sure this is here!
+            'sick_credits' => $request->sick_credits,         // <--- And this!
+            'schedule_time_in' => $request->schedule_time_in,
+            'schedule_time_out' => $request->schedule_time_out,
+            'created_at' => $request->joined_date  
         ]);
 
         return redirect()->route('employees.index')->with('success', 'Employee updated successfully!');

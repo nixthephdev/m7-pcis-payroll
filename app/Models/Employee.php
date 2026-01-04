@@ -15,6 +15,8 @@ class Employee extends Model
         'position', 
         'basic_salary',
         'schedule_id',
+        'vacation_credits', // <--- MUST BE HERE
+        'sick_credits',     // <--- MUST BE HERE
         'created_at'
     ];
 
