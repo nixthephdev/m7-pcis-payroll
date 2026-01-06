@@ -47,6 +47,20 @@
 
                         <!-- Row 2: Job Details -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        <!-- Supervisor Dropdown -->
+                        <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Direct Supervisor / Head</label>
+                                <select name="supervisor_id" class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:ring-indigo-500 transition shadow-sm">
+                                    <option value="">-- None (Direct to HR) --</option>
+                                    @foreach($supervisors as $sup)
+                                        <option value="{{ $sup->id }}" {{ $employee->supervisor_id == $sup->id ? 'selected' : '' }}>
+                                            {{ $sup->user->name }} ({{ $sup->position }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
                             <!-- Position -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Job Position</label>

@@ -44,6 +44,10 @@ Route::middleware('auth')->group(function () {
 
     // Download Payslip PDF
     Route::get('/payroll/{id}/download', [PayrollController::class, 'downloadPdf'])->name('payroll.download');
+
+    // Team Approvals
+    Route::get('/leaves/team', [LeaveController::class, 'teamApprovals'])->name('leaves.team');
+    Route::post('/leaves/{id}/supervisor', [LeaveController::class, 'supervisorAction'])->name('leaves.supervisor');
 });
 
 // 4. ADMIN ROUTES (Only for Users with role = 'admin')

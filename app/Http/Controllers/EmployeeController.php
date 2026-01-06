@@ -7,7 +7,8 @@ use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Schedule;
-use App\Models\AuditLog; // Add import
+use App\Models\AuditLog;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
@@ -18,109 +19,133 @@ class EmployeeController extends Controller
     }
 
     // Show Create Form
-    public function create()
-{
-    // Make sure this line is here!
-    $schedules = \App\Models\Schedule::all(); 
-    
-    return view('employees.create', compact('schedules'));
-}
+    public function create() {
+        $schedules = Schedule::all(); 
+        
+        // Fetch potential supervisors (Heads/Coordinators)
+        $supervisors = Employee::with('user')
+            ->where(function($query) {
+                $query->where('position', 'LIKE', '%Head%')
+                      ->orWhere('position', 'LIKE', '%Coordinator%')
+                      ->orWhere('position', 'LIKE', '%Manager%')
+                      ->orWhere('position', 'LIKE', '%Principal%')
+                      ->orWhere('position', 'LIKE', '%Supervisor%');
+            })
+            ->get();
 
-public function edit($id)
-{
-    $employee = Employee::find($id);
-    $schedules = Schedule::all(); // Fetch here too
-    return view('employees.edit', compact('employee', 'schedules'));
-}
+        return view('employees.create', compact('schedules', 'supervisors'));
+    }
 
-    public function store(Request $request)
-    {
-        // Validate the incoming data
-        $validated = $request->validate([
-            'employee_code' => 'required|string|max:255|unique:employees,employee_code',
+    // Store New Employee
+    public function store(Request $request) {
+        $request->validate([
+            'employee_code' => 'required|string|unique:employees',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
-            'job_position' => 'required|string|max:255',
-            'schedule_id' => 'required|exists:schedules,id',
-            'basic_salary' => 'required|numeric|min:0',
+            'email' => 'required|email|unique:users',
             'role' => 'required|in:employee,guard,admin',
-            'password' => 'required|string|min:6',
+            'job_position' => 'required|string', // Form uses job_position
+            'basic_salary' => 'required|numeric', // Form uses basic_salary
+            'password' => 'required|min:8',
+            'schedule_id' => 'required|exists:schedules,id',
             'vacation_credits' => 'nullable|integer',
             'sick_credits' => 'nullable|integer',
+            'supervisor_id' => 'nullable|exists:employees,id',
         ]);
 
-        // Create the User account first
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
+        DB::transaction(function () use ($request) {
+            // 1. Create User
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role
+            ]);
 
-        // Create the Employee record linked to the User
-        Employee::create([
-            'user_id' => $user->id,
-            'employee_code' => $request->employee_code,
-            'position' => $request->position, // Ensure this matches form name="position"
-            'basic_salary' => $request->salary, // Ensure this matches form name="salary"
-            'schedule_id' => $request->schedule_id, // <--- Save Schedule ID
-            'vacation_credits' => $request->vacation_credits ?? 15,
-            'sick_credits' => $request->sick_credits ?? 15,
-        ]);
+            // 2. Create Employee
+            Employee::create([
+                'user_id' => $user->id,
+                'employee_code' => $request->employee_code,
+                'position' => $request->job_position, // Corrected Mapping
+                'basic_salary' => $request->basic_salary, // Corrected Mapping
+                'schedule_id' => $request->schedule_id,
+                'vacation_credits' => $request->vacation_credits ?? 15,
+                'sick_credits' => $request->sick_credits ?? 15,
+                'supervisor_id' => $request->supervisor_id,
+            ]);
 
-        \App\Models\AuditLog::record('Created Employee', 'Added new employee: ' . $request->name);
+            AuditLog::record('Created Employee', 'Added new employee: ' . $request->name);
+        });
 
-        return redirect()->route('employees.index')->with('success', 'Employee created successfully!');
+        return redirect()->route('employees.index')->with('message', 'New Employee Added Successfully!');
     }
 
     // Show Edit Form
-    // public function edit($id) {
-    //     $employee = Employee::with('user')->findOrFail($id);
-    //     return view('employees.edit', compact('employee'));
-    // }
+    public function edit($id) {
+        $employee = Employee::with('user')->findOrFail($id);
+        
+        // 1. Get Supervisors (Heads/Coordinators only)
+        $supervisors = Employee::with('user')
+            ->where('id', '!=', $id)
+            ->where(function($query) {
+                $query->where('position', 'LIKE', '%Head%')
+                      ->orWhere('position', 'LIKE', '%Coordinator%')
+                      ->orWhere('position', 'LIKE', '%Manager%')
+                      ->orWhere('position', 'LIKE', '%Principal%')
+                      ->orWhere('position', 'LIKE', '%Supervisor%');
+            })
+            ->get();
+        
+        // Fallback if empty
+        if ($supervisors->isEmpty()) {
+             $supervisors = Employee::with('user')->where('id', '!=', $id)->get();
+        }
 
-    public function update(Request $request, $id)
-    {
-        // Validate the incoming data
-        $validated = $request->validate([
-            'employee_code' => 'required|string|max:255',
+        // 2. Get Schedules
+        $schedules = Schedule::all(); 
+
+        return view('employees.edit', compact('employee', 'supervisors', 'schedules'));
+    }
+
+    // Update Employee
+    public function update(Request $request, $id) {
+        $employee = Employee::findOrFail($id);
+        $user = $employee->user;
+
+        $request->validate([
+            'employee_code' => 'required|string',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'position' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'position' => 'required|string',
+            'salary' => 'required|numeric', // Edit form uses name="salary"
+            'joined_date' => 'required|date',
             'schedule_id' => 'required|exists:schedules,id',
             'vacation_credits' => 'required|integer',
             'sick_credits' => 'required|integer',
-
+            'supervisor_id' => 'nullable|exists:employees,id'
         ]);
 
-        // Find the employee
-        $employee = Employee::findOrFail($id);
-
-        // Update the User model (name and email)
-        $employee->user->update([
+        $user->update([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => $request->email
         ]);
 
-        // Update the Employee model (employee_code, position, schedule_id)
         $employee->update([
             'employee_code' => $request->employee_code,
             'position' => $request->position,
-            'basic_salary' => $request->salary,
-            'schedule_id' => $request->schedule_id, // <--- Save the Schedule ID
-            'vacation_credits' => $request->vacation_credits, // <--- Make sure this is here!
-            'sick_credits' => $request->sick_credits,         // <--- And this!
-            'schedule_time_in' => $request->schedule_time_in,
-            'schedule_time_out' => $request->schedule_time_out,
-            'created_at' => $request->joined_date  
+            'basic_salary' => $request->salary, // Maps "salary" input to "basic_salary" column
+            'schedule_id' => $request->schedule_id,
+            'vacation_credits' => $request->vacation_credits,
+            'sick_credits' => $request->sick_credits,
+            'created_at' => $request->joined_date,
+            'supervisor_id' => $request->supervisor_id
         ]);
 
+        AuditLog::record('Updated Employee', 'Updated profile of ' . $request->name);
 
-        \App\Models\AuditLog::record('Updated Employee', 'Updated profile of ' . $request->name);
-        return redirect()->route('employees.index')->with('success', 'Employee updated successfully!');
+        return redirect()->route('employees.index')->with('message', 'Employee details updated successfully.');
     }
 
-    // --- NEW: SHOW ID CARD ---
+    // Show ID Card
     public function showIdCard($id) {
         $employee = Employee::with('user')->findOrFail($id);
         return view('employees.id_card', compact('employee'));

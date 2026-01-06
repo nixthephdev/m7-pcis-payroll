@@ -40,7 +40,7 @@
                 
                 <div class="flex-1">
                     <input id="avatar" name="avatar" type="file" accept="image/*" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-indigo-50 dark:file:bg-indigo-900/50 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900 cursor-pointer transition" />
-                    <p class="text-xs text-gray-400 mt-2">JPG, PNG or GIF (Max 1MB)</p>
+                    <p class="text-xs text-gray-400 mt-2">JPG, PNG or GIF (Max 3MB)</p>
                 </div>
             </div>
             <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
