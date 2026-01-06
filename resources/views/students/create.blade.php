@@ -34,11 +34,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Grade Level</label>
-                                <input type="text" name="grade_level" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white" placeholder="e.g. Grade 10">
+                                <input type="text" name="grade_level" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white" placeholder="e.g. MYP 2 (YEAR 7)">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Section</label>
-                                <input type="text" name="section" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white" placeholder="e.g. Section A">
+                                <input type="text" name="section" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white" placeholder="e.g. LEXICON LIONS">
                             </div>
                         </div>
 
@@ -50,15 +50,15 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Guardian Contact</label>
-                                <input type="text" name="guardian_contact" required class="w-full rounded-lg border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white">
+                                <input type="text" name="guardian_contact" required class="w-full border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white">
                             </div>
                         </div>
 
-                        <!-- Password -->
-                        <div>
+                        <!-- Password
+                        <div> rounded-lg
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Default Password</label>
                             <input type="text" name="password" value="student123" readonly class="w-full rounded-lg border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-400">
-                        </div>
+                        </div> -->
 
                         <div class="flex justify-end pt-4">
                             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-bold shadow-md">Enroll Student</button>

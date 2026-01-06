@@ -17,7 +17,8 @@ class Employee extends Model
         'schedule_id',
         'vacation_credits', // <--- MUST BE HERE
         'sick_credits',     // <--- MUST BE HERE
-        'created_at'
+        'created_at',
+        'supervisor_id', // <--- MUST BE HERE
     ];
 
     // This links the Employee to the User (Name/Email)
@@ -49,4 +50,15 @@ class Employee extends Model
     {
         return $this->morphMany(Attendance::class, 'attendable');
     }
+
+        // Who is my boss?
+        public function supervisor() {
+            return $this->belongsTo(Employee::class, 'supervisor_id');
+        }
+    
+        // Who works for me?
+        public function subordinates() {
+            return $this->hasMany(Employee::class, 'supervisor_id');
+        }
+    
 }

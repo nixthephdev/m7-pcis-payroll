@@ -98,4 +98,41 @@ class LeaveController extends Controller
 
         return redirect()->back()->with('message', 'Leave request updated successfully.');
     }
+
+    // COORDINATOR: View Team Leaves
+    public function teamApprovals() {
+        $user = Auth::user();
+        
+        // Check if this user is a Supervisor (has subordinates)
+        if (!$user->employee || $user->employee->subordinates->isEmpty()) {
+            abort(403, 'You are not a designated Supervisor/Coordinator.');
+        }
+
+        // Get leaves from subordinates where supervisor_status is Pending
+        $leaves = LeaveRequest::whereIn('employee_id', $user->employee->subordinates->pluck('id'))
+                              ->where('supervisor_status', 'Pending')
+                              ->with('employee.user')
+                              ->orderBy('created_at', 'desc')
+                              ->get();
+
+        return view('leaves.team', compact('leaves'));
+    }
+
+    // COORDINATOR: Approve/Reject
+    public function supervisorAction(Request $request, $id) {
+        $leave = LeaveRequest::findOrFail($id);
+        
+        if ($request->action == 'Approve') {
+            $leave->update(['supervisor_status' => 'Approved']);
+            // It stays 'Pending' in the main status until HR approves
+            return redirect()->back()->with('message', 'Endorsed to HR for final approval.');
+        } else {
+            // If Supervisor rejects, it's fully Rejected
+            $leave->update([
+                'supervisor_status' => 'Rejected',
+                'status' => 'Rejected'
+            ]);
+            return redirect()->back()->with('message', 'Leave request rejected.');
+        }
+    }
 }

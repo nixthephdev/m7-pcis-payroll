@@ -18,14 +18,66 @@
                 <div class="hidden space-x-4 sm:-my-px sm:ms-10 sm:flex items-center">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Dashboard') }}</x-nav-link>
                     <x-nav-link :href="route('leaves.index')" :active="request()->routeIs('leaves.index')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Leaves') }}</x-nav-link>
+                    
+                    <!-- SUPERVISOR LINK (Dynamic with Notification) -->
+                    @if(Auth::user()->employee && Auth::user()->employee->subordinates->count() > 0)
+                        @php
+                            // Count pending requests specifically for this supervisor
+                            $teamPendingCount = \App\Models\LeaveRequest::whereIn('employee_id', Auth::user()->employee->subordinates->pluck('id'))
+                                ->where('supervisor_status', 'Pending')
+                                ->count();
+                        @endphp
+
+                        <x-nav-link :href="route('leaves.team')" :active="request()->routeIs('leaves.team')" 
+                            class="text-indigo-100 hover:text-white hover:bg-white/10 px-2 py-2 rounded-md text-sm font-medium transition border-none h-auto flex items-center relative">
+                            {{ __('Team Requests') }}
+
+                            <!-- NOTIFICATION BADGE -->
+                            @if($teamPendingCount > 0)
+                                <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500 text-[8px] text-white font-bold items-center justify-center">
+                                    {{ $teamPendingCount }}
+                                  </span>
+                                </span>
+                            @endif
+                        </x-nav-link>
+                    @endif
 
                     @if(Auth::user()->role === 'admin')
                         @php $pendingLeavesCount = \App\Models\LeaveRequest::where('status', 'Pending')->count(); @endphp
                         <div class="h-6 w-px bg-indigo-700/50 mx-2"></div>
-                        <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Employees') }}</x-nav-link>
-                        <x-nav-link :href="route('students.index')" :active="request()->routeIs('students.*')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">
-    {{ __('Students') }}
-</x-nav-link>
+                        
+                        <!-- DIRECTORY DROPDOWN (Employees & Students Grouped) -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition focus:outline-none">
+                                <span>People</span>
+                                <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <!-- Dropdown Body -->
+                            <div x-show="open" 
+                                 @click.away="open = false"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg py-1 z-50 border border-gray-100 dark:border-slate-700" 
+                                 style="display: none;">
+                                
+                                <a href="{{ route('employees.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                                    Employees
+                                </a>
+                                <a href="{{ route('students.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                                    Students
+                                </a>
+                            </div>
+                        </div>
+
                         <x-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto flex items-center relative">
                             {{ __('Approvals') }}
                             @if($pendingLeavesCount > 0)
@@ -33,7 +85,7 @@
                             @endif
                         </x-nav-link>
                         <x-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Attendance') }}</x-nav-link>
-                        <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Payroll') }}</x-nav-link>
+                        <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Payroll') }}</x-nav-link>    
                     @endif
 
                     <!-- GUARD ONLY: Kiosk Link -->
@@ -100,6 +152,7 @@
                 <div class="border-t border-indigo-800 my-2"></div>
                 <div class="px-4 py-2 text-xs font-bold text-indigo-400 uppercase tracking-wider">Admin Tools</div>
                 <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Employees') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('students.index')" :active="request()->routeIs('students.*')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Students') }}</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white flex justify-between items-center">{{ __('Approvals') }} @if($pendingLeavesCount > 0) <span class="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $pendingLeavesCount }}</span> @endif</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Attendance') }}</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Payroll') }}</x-responsive-nav-link>
