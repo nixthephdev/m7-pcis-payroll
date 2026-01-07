@@ -4,97 +4,74 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
-    // List all students
     public function index() {
-        $students = Student::with('user')->get();
+        $students = Student::all(); 
         return view('students.index', compact('students'));
     }
 
-    // Show Create Form
     public function create() {
         return view('students.create');
     }
 
-    // Store New Student
     public function store(Request $request) {
         $request->validate([
-            'student_id' => 'required|string|unique:students',
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'grade_level' => 'required|string',
-            'section' => 'required|string',
+            'student_id' => 'required|unique:students,student_id',
+            'full_name'  => 'required|string',
+            'grade_level'=> 'required|string',
+            'section'    => 'required|string',
             'guardian_name' => 'required|string',
             'guardian_contact' => 'required|string',
-            'password' => 'required|min:8'
         ]);
 
-        // Create User Account (Role: Student)
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'student'
-        ]);
-
-        // Create Student Profile
         Student::create([
-            'user_id' => $user->id,
             'student_id' => $request->student_id,
-            'grade_level' => $request->grade_level,
-            'section' => $request->section,
+            'full_name'  => $request->full_name, // Direct save
+            'email'      => $request->email,
+            'grade_level'=> $request->grade_level,
+            'section'    => $request->section,
             'guardian_name' => $request->guardian_name,
-            'guardian_contact' => $request->guardian_contact
+            'guardian_contact' => $request->guardian_contact,
         ]);
 
-        return redirect()->route('students.index')->with('message', 'New Student Enrolled Successfully!');
-    }
-    
-    // Generate ID Card
-    public function showIdCard($id) {
-        $student = Student::with('user')->findOrFail($id);
-        return view('students.id_card', compact('student'));
+        return redirect()->route('students.index')->with('message', 'Student added successfully.');
     }
 
-    // Show Edit Form
     public function edit($id) {
-        $student = Student::with('user')->findOrFail($id);
+        $student = Student::findOrFail($id);
         return view('students.edit', compact('student'));
     }
 
-    // Update Student
     public function update(Request $request, $id) {
         $student = Student::findOrFail($id);
-        $user = $student->user;
 
         $request->validate([
-            'student_id' => 'required|string|unique:students,student_id,'.$student->id,
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
-            'grade_level' => 'required|string',
-            'section' => 'required|string',
+            'student_id' => 'required|unique:students,student_id,' . $id,
+            'full_name'  => 'required|string',
+            'grade_level'=> 'required|string',
+            'section'    => 'required|string',
             'guardian_name' => 'required|string',
-            'guardian_contact' => 'required|string'
-        ]);
-
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email
+            'guardian_contact' => 'required|string',
         ]);
 
         $student->update([
             'student_id' => $request->student_id,
-            'grade_level' => $request->grade_level,
-            'section' => $request->section,
+            'full_name'  => $request->full_name, // Direct update
+            'email'      => $request->email,
+            'grade_level'=> $request->grade_level,
+            'section'    => $request->section,
             'guardian_name' => $request->guardian_name,
-            'guardian_contact' => $request->guardian_contact
+            'guardian_contact' => $request->guardian_contact,
         ]);
 
-        return redirect()->route('students.index')->with('message', 'Student details updated successfully.');
+        return redirect()->route('students.index')->with('message', 'Student updated successfully.');
     }
 
+    public function destroy($id) {
+        $student = Student::findOrFail($id);
+        $student->delete();
+        return redirect()->route('students.index')->with('message', 'Student deleted successfully.');
+    }
 }

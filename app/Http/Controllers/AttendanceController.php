@@ -13,112 +13,87 @@ use Illuminate\Support\Facades\Log;
 class AttendanceController extends Controller
 {
     // --- API: KIOSK SCANNER LOGIC ---
-    public function scan(Request $request) {
-        try {
-            $scannedCode = $request->input('employee_id');
-            
-            $person = null;
-            $type = '';
+    public function scan(Request $request)
+    {
+        $id = $request->input('employee_id');
 
-            // 1. Search in Employees
-            $employee = Employee::with('user')->where('employee_code', $scannedCode)->first();
-            if ($employee) {
-                $person = $employee;
-                $type = 'App\Models\Employee';
+        // 1. Search in Employees
+        $person = Employee::where('employee_code', $id)->first();
+        $type = 'App\Models\Employee';
+
+        // 2. If not found, Search in Students
+        if (!$person) {
+            $person = \App\Models\Student::where('student_id', $id)->first();
+            $type = 'App\Models\Student';
+        }
+
+        // 3. If ID not found anywhere
+        if (!$person) {
+            return response()->json(['status' => 'error', 'message' => 'ID Number not found.']);
+        }
+
+        // 4. GET NAME SAFELY (The Fix)
+        $name = 'Unknown';
+        
+        if ($type === 'App\Models\Employee') {
+            // Employees have a User account
+            $name = $person->user ? $person->user->name : 'Unknown Employee';
+        } else {
+            // Students: Try different column names to be safe
+            if (!empty($person->first_name)) {
+                $name = $person->first_name . ' ' . ($person->last_name ?? '');
+            } elseif (!empty($person->name)) {
+                $name = $person->name;
+            } elseif (!empty($person->full_name)) {
+                $name = $person->full_name;
             } else {
-                // 2. Search in Students
-                $student = Student::with('user')->where('student_id', $scannedCode)->first();
-                if ($student) {
-                    $person = $student;
-                    $type = 'App\Models\Student';
+                $name = 'Student #' . $person->student_id;
+            }
+        }
+
+        // 5. Check Time Logic
+        $now = Carbon::now();
+        $date = $now->format('Y-m-d');
+
+        $attendance = Attendance::where('attendable_id', $person->id)
+                                ->where('attendable_type', $type)
+                                ->where('date', $date)
+                                ->first();
+
+        if ($attendance) {
+            // TIME OUT
+            if ($attendance->time_out) {
+                return response()->json(['status' => 'error', 'message' => 'Already timed out today!']);
+            }
+            $attendance->update(['time_out' => $now]);
+            return response()->json(['status' => 'success', 'message' => "Goodbye, $name!"]);
+        } else {
+            // TIME IN
+            $status = 'Present';
+            
+            // Late Logic (Only for Employees with schedules)
+            if ($type === 'App\Models\Employee' && $person->schedule) {
+                $scheduledTime = Carbon::parse($person->schedule->time_in);
+                if ($now->gt($scheduledTime->addMinutes(15))) {
+                    $status = 'Late';
                 }
             }
-
-            if (!$person) {
-                return response()->json(['status' => 'error', 'message' => 'ID not found: ' . $scannedCode]);
+            // Students are marked Late if after 7:30 AM (Example rule)
+            elseif ($type === 'App\Models\Student') {
+                 if ($now->format('H:i') > '07:30') {
+                     $status = 'Late';
+                 }
             }
 
-            $today = Carbon::today();
-            $now = Carbon::now();
-
-            // 3. Find Latest Record
-            $latestAttendance = Attendance::where('attendable_id', $person->id)
-                                          ->where('attendable_type', $type)
-                                          ->orderBy('created_at', 'desc')
-                                          ->first();
-
-            // 4. Logic: Clock In or Out
-            if (!$latestAttendance || $latestAttendance->time_out != null) {
-                
-                // --- UNIVERSAL SCHEDULE LOGIC ---
-                $status = 'Present'; // Default
-                
-                // 1. STUDENT LOGIC
-                if ($type == 'App\Models\Student') {
-                    if ($now->format('H:i:s') > '07:30:00') {
-                        $status = 'Late';
-                    }
-                }
-                
-                // 2. EMPLOYEE LOGIC (Using Schedule Relationship)
-                elseif ($type == 'App\Models\Employee') {
-                    
-                    $person->load('schedule'); 
-                    $schedule = $person->schedule;
-
-                    if ($schedule) {
-                        // CASE A: Flexible Schedule -> Always Present
-                        if ($schedule->is_flexible || $schedule->name === 'Flexible') {
-                            $status = 'Present';
-                        }
-                        // CASE B: Fixed Schedule -> Check Time
-                        else {
-                            $graceTime = Carbon::parse($schedule->time_in)->addMinutes(15)->format('H:i:s');
-                            if ($now->format('H:i:s') > $graceTime) {
-                                $status = 'Late';
-                            }
-                        }
-                    } else {
-                        // Fallback if no schedule assigned
-                        if ($now->format('H:i:s') > '08:15:00') {
-                            $status = 'Late';
-                        }
-                    }
-                }
-
-                Attendance::create([
-                    'attendable_id' => $person->id,
-                    'attendable_type' => $type,
-                    'date' => $today,
-                    'time_in' => $now->format('H:i:s'),
-                    'status' => $status
-                ]);
-                
-                return response()->json([
-                    'status' => 'success', 
-                    'message' => "Welcome, " . $person->user->name . "! Clocked In."
-                ]);
-            } 
-            else {
-                // --- CLOCK OUT ---
-                $lastTime = Carbon::parse($latestAttendance->date . ' ' . $latestAttendance->time_in);
-                if ($now->diffInMinutes($lastTime) < 1) {
-                    return response()->json(['status' => 'error', 'message' => 'Already scanned. Please wait.']);
-                }
-
-                $latestAttendance->update(['time_out' => $now->format('H:i:s')]);
-                
-                return response()->json([
-                    'status' => 'success', 
-                    'message' => "Goodbye, " . $person->user->name . "! Clocked Out."
-                ]);
-            }
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error', 
-                'message' => 'System Error: ' . $e->getMessage()
+            Attendance::create([
+                'attendable_id' => $person->id,
+                'attendable_type' => $type,
+                'date' => $date,
+                'time_in' => $now,
+                'status' => $status
             ]);
+
+            return response()->json(['status' => 'success', 'message' => "Welcome, $name!"]);
         }
     }
 
@@ -177,29 +152,89 @@ class AttendanceController extends Controller
     }
 
     // --- ADMIN: ATTENDANCE MANAGEMENT ---
-    public function index() {
-        $attendances = Attendance::with('attendable.user')
-                                 ->orderBy('date', 'desc')
-                                 ->orderBy('time_in', 'desc')
-                                 ->get();
-        return view('attendance.index', compact('attendances'));
+    // --- ADMIN: ATTENDANCE MANAGEMENT ---
+    public function index(Request $request) {
+        // 1. Determine Type (Default to 'employee')
+        $type = $request->get('type', 'employee');
+
+        // 2. Build Query
+        $query = Attendance::with('attendable'); // <--- FIX: Removed .user
+
+        if ($type === 'student') {
+            $query->where('attendable_type', 'App\Models\Student');
+        } else {
+            $query->where('attendable_type', 'App\Models\Employee');
+        }
+
+        // 3. Get Results
+        $attendances = $query->orderBy('date', 'desc')
+                             ->orderBy('time_in', 'desc')
+                             ->get();
+
+        return view('attendance.index', compact('attendances', 'type'));
     }
 
-    public function edit($id) {
-        $attendance = Attendance::with('attendable.user')->findOrFail($id);
-        return view('attendance.edit', compact('attendance'));
+    // --- EXPORT EMPLOYEE ATTENDANCE (CSV) ---
+    public function exportEmployees() {
+        $fileName = 'employee_attendance_' . date('Y-m-d') . '.csv';
+        $logs = Attendance::with('attendable.user')
+                    ->where('attendable_type', 'App\Models\Employee')
+                    ->orderBy('date', 'desc')
+                    ->get();
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $columns = array('Employee Name', 'Date', 'Time In', 'Time Out', 'Status');
+
+        $callback = function() use($logs, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($logs as $log) {
+                $row['Employee Name']  = $log->attendable->user->name ?? 'Unknown';
+                $row['Date']    = $log->date;
+                $row['Time In'] = \Carbon\Carbon::parse($log->time_in)->format('h:i A');
+                $row['Time Out'] = $log->time_out ? \Carbon\Carbon::parse($log->time_out)->format('h:i A') : '--';
+                $row['Status']  = $log->status;
+
+                fputcsv($file, array($row['Employee Name'], $row['Date'], $row['Time In'], $row['Time Out'], $row['Status']));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
-    public function update(Request $request, $id) {
-        $attendance = Attendance::findOrFail($id);
+    // --- GENERATE INDIVIDUAL PDF REPORT ---
+    public function generateReport(Request $request) {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'start_date'  => 'required|date',
+            'end_date'    => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $employee = Employee::with('user')->findOrFail($request->employee_id);
         
-        $attendance->time_in = $request->time_in . ':00';
-        $attendance->time_out = $request->time_out ? $request->time_out . ':00' : null;
-        $attendance->status = $request->status;
-        $attendance->save();
+        $logs = Attendance::where('attendable_id', $employee->id)
+                          ->where('attendable_type', 'App\Models\Employee')
+                          ->whereBetween('date', [$request->start_date, $request->end_date])
+                          ->orderBy('date', 'asc')
+                          ->get();
 
-        \App\Models\AuditLog::record('Edited Attendance', 'Manually modified attendance for ID: ' . $id);
+        // Calculate Stats
+        $totalPresent = $logs->whereIn('status', ['Present', 'Late'])->count();
+        $totalLates   = $logs->where('status', 'Late')->count();
 
-        return redirect()->route('attendance.index')->with('message', 'Attendance record updated successfully.');
+        // Load PDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance.report_pdf', compact('employee', 'logs', 'request', 'totalPresent', 'totalLates'));
+        
+        return $pdf->download("Attendance_{$employee->user->name}_{$request->start_date}.pdf");
     }
 }

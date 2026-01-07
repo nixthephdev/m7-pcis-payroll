@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Employee;
+use App\Models\Student;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\Payroll;
@@ -16,44 +17,48 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // 1. If ADMIN, gather Executive Stats & Show Admin Dashboard
+        // --- 1. ADMIN VIEW (Executive Overview) ---
         if ($user->role === 'admin') {
             
-            // Card 1: Total Employees
+            // Calculate Population
             $totalEmployees = Employee::count();
+            $totalStudents = Student::count();
+            $totalPopulation = $totalEmployees + $totalStudents;
 
-            // Card 2: Present Today
+            // Calculate Attendance (Everyone present today)
             $presentToday = Attendance::where('date', Carbon::today())
-                                      ->where('status', '!=', 'Absent')
-                                      ->count();
+                            ->whereIn('status', ['Present', 'Late'])
+                            ->count();
 
-            // Card 3: Pending Leave Requests
+            // Pending Leave Requests
             $pendingLeaves = LeaveRequest::where('status', 'Pending')->count();
 
-            // Card 4: Total Payroll Cost (This Month)
+            // Total Payroll Cost (This Month)
             $monthlyCost = Payroll::whereMonth('pay_date', Carbon::now()->month)
-                                  ->sum('net_salary');
+                            ->sum('net_salary');
 
-            // Table: Recent Attendance
-            $recentAttendance = Attendance::with('attendable.user')
-                                          ->where('date', Carbon::today())
-                                          ->orderBy('time_in', 'desc')
-                                          ->take(5)
-                                          ->get();
+            // Recent Attendance Feed
+            $recentAttendance = Attendance::with('attendable')
+                                ->where('date', Carbon::today())
+                                ->orderBy('time_in', 'desc')
+                                ->take(5)
+                                ->get();
 
-            // Admin's Personal Data (For "My Payslips" section)
-            $adminEmployee = $user->employee;
+            // Admin's Personal Data
+            $adminEmployee = $user->employee; 
             $myPayrolls = collect();
-
+            
             if ($adminEmployee) {
                 $myPayrolls = Payroll::where('employee_id', $adminEmployee->id)
-                                     ->orderBy('created_at', 'desc')
-                                     ->take(5)
-                                     ->get();
+                                ->orderBy('created_at', 'desc')
+                                ->take(5)
+                                ->get();
             }
 
             return view('admin_dashboard', compact(
                 'totalEmployees', 
+                'totalStudents',
+                'totalPopulation',
                 'presentToday', 
                 'pendingLeaves', 
                 'monthlyCost', 
@@ -63,8 +68,7 @@ class DashboardController extends Controller
             ));
         }
 
-        // 2. ALL OTHER ROLES (Employee AND Guard)
-        // They go to the standard dashboard
+        // --- 2. GUARD & EMPLOYEE VIEW (Standard Dashboard) ---
         return view('dashboard');
     }
 }

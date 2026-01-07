@@ -10,32 +10,39 @@
             
             <!-- 1. VIBRANT STATS CARDS -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Total Staff -->
+                
+                <!-- CARD 1: TOTAL POPULATION -->
                 <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
                     <div class="relative z-10">
-                        <p class="text-blue-100 text-xs font-bold uppercase tracking-wider">Total Workforce</p>
-                        <p class="text-4xl font-bold mt-2">{{ $totalEmployees }}</p>
-                        <p class="text-blue-200 text-xs mt-1">Active Employees</p>
+                        <p class="text-blue-100 text-xs font-bold uppercase tracking-wider">Total Population</p>
+                        <p class="text-4xl font-bold mt-2">{{ $totalPopulation }}</p>
+                        <div class="flex items-center gap-3 mt-1 text-xs text-blue-200 font-medium">
+                            <span>{{ $totalEmployees }} Staff</span>
+                            <span class="w-1 h-1 bg-blue-300 rounded-full"></span>
+                            <span>{{ $totalStudents }} Students</span>
+                        </div>
                     </div>
                     <div class="absolute right-0 bottom-0 opacity-20 transform translate-x-2 translate-y-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                     </div>
                 </div>
-                <!-- Present Today -->
+
+                <!-- CARD 2: OVERALL ATTENDANCE -->
                 <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
                     <div class="relative z-10">
-                        <p class="text-emerald-100 text-xs font-bold uppercase tracking-wider">Attendance</p>
+                        <p class="text-emerald-100 text-xs font-bold uppercase tracking-wider">Campus Attendance</p>
                         <div class="flex items-baseline gap-2 mt-2">
                             <p class="text-4xl font-bold">{{ $presentToday }}</p>
-                            <span class="text-emerald-200 text-sm">/ {{ $totalEmployees }}</span>
+                            <span class="text-emerald-200 text-sm">/ {{ $totalPopulation }}</span>
                         </div>
-                        <p class="text-emerald-200 text-xs mt-1">Present Today</p>
+                        <p class="text-emerald-200 text-xs mt-1">Present Today (Staff + Students)</p>
                     </div>
                     <div class="absolute right-0 bottom-0 opacity-20 transform translate-x-2 translate-y-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                 </div>
-                <!-- Pending Leaves -->
+
+                <!-- CARD 3: PENDING LEAVES -->
                 <div class="bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
                     <div class="relative z-10">
                         <p class="text-orange-100 text-xs font-bold uppercase tracking-wider">Action Items</p>
@@ -46,7 +53,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                 </div>
-                <!-- Payroll Cost -->
+
+                <!-- CARD 4: PAYROLL COST -->
                 <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
                     <div class="relative z-10">
                         <p class="text-indigo-100 text-xs font-bold uppercase tracking-wider">Payroll ({{ date('M') }})</p>
@@ -122,7 +130,20 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                                     <td class="px-4 py-3">
                                         <div class="flex items-center">
-                                            @if($log->attendable && $log->attendable->user)
+                                            @if($log->attendable_type === 'App\Models\Student')
+                                                <!-- STUDENT AVATAR -->
+                                                <div class="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center text-emerald-600 dark:text-emerald-300 font-bold text-xs mr-3">
+                                                    {{ substr($log->attendable->full_name ?? 'S', 0, 1) }}
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold text-gray-800 dark:text-gray-200">
+                                                        {{ $log->attendable->full_name ?? 'Unknown Student' }}
+                                                    </p>
+                                                    <p class="text-xs text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">Student</p>
+                                                </div>
+
+                                            @elseif($log->attendable && $log->attendable->user)
+                                                <!-- EMPLOYEE AVATAR -->
                                                 @if($log->attendable->user->avatar)
                                                     <img src="{{ asset('storage/' . $log->attendable->user->avatar) }}" class="h-8 w-8 rounded-full object-cover mr-3">
                                                 @else
@@ -133,15 +154,11 @@
                                                 <div>
                                                     <p class="font-bold text-gray-800 dark:text-gray-200">{{ $log->attendable->user->name }}</p>
                                                     <p class="text-xs text-gray-400 dark:text-gray-500">
-                                                        @if($log->attendable_type == 'App\Models\Student')
-                                                            Student
-                                                        @else
-                                                            {{ $log->attendable->position ?? 'Employee' }}
-                                                        @endif
+                                                        {{ $log->attendable->position ?? 'Employee' }}
                                                     </p>
                                                 </div>
                                             @else
-                                                <span class="text-gray-400 italic">Unknown</span>
+                                                <span class="text-gray-400 italic">Unknown User</span>
                                             @endif
                                         </div>
                                     </td>
