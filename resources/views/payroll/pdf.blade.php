@@ -126,6 +126,7 @@
         <!-- DETAILS TABLE -->
         <table style="width: 100%;">
             <tr>
+                <!-- LEFT COLUMN: EARNINGS ONLY -->
                 <td class="col-left">
                     <table class="details-table">
                         <thead><tr><th>EARNINGS</th><th style="text-align:right;">AMOUNT</th></tr></thead>
@@ -146,48 +147,19 @@
                         <!-- STANDARD LAYOUT (Mid/End Month) -->
                         @else
                             <tr>
-                                <!-- EARNINGS COLUMN -->
-                                <td class="col-left">
-                                    <table class="details-table">
-                                        <thead><tr><th>EARNINGS</th><th style="text-align:right;">AMOUNT</th></tr></thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Basic Pay</td>
-                                                <td class="amount">PHP {{ number_format($displayBasic, 2) }}</td>
-                                            </tr>
-                                            @if($payroll->period == 'End-Month')
-                                                @foreach($allowances as $item)
-                                                <tr>
-                                                    <td>{{ $item->name }}</td>
-                                                    <td class="amount">PHP {{ number_format($item->amount, 2) }}</td>
-                                                </tr>
-                                                @endforeach
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                </td>
-
-                                <!-- DEDUCTIONS COLUMN -->
-                                <td class="col-right">
-                                    <table class="details-table">
-                                        <thead><tr><th>DEDUCTIONS</th><th style="text-align:right;">AMOUNT</th></tr></thead>
-                                        <tbody>
-                                            @if($payroll->period == 'End-Month')
-                                                @foreach($deductions as $item)
-                                                <tr>
-                                                    <td>{{ $item->name }}</td>
-                                                    <td class="amount text-red">PHP {{ number_format($item->amount, 2) }}</td>
-                                                </tr>
-                                                @endforeach
-                                            @else
-                                                <tr><td colspan="2" style="color:#999; font-style:italic;">No deductions</td></tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                </td>
+                                <td>Basic Pay</td>
+                                <td class="amount">PHP {{ number_format($displayBasic, 2) }}</td>
                             </tr>
+                            @if($payroll->period == 'End-Month')
+                                @foreach($allowances as $item)
+                                <tr>
+                                    <td>{{ $item->name }}</td>
+                                    <td class="amount">PHP {{ number_format($item->amount, 2) }}</td>
+                                </tr>
+                                @endforeach
+                            @endif
                         @endif
-                    </tbody>
+                        </tbody>
                     </table>
                     
                     <div class="total-box">
@@ -200,6 +172,7 @@
                     </div>
                 </td>
 
+                <!-- RIGHT COLUMN: DEDUCTIONS ONLY -->
                 <td class="col-right">
                     <table class="details-table">
                         <thead><tr><th>DEDUCTIONS</th><th style="text-align:right;">AMOUNT</th></tr></thead>

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage; // Imported for file handling
 use Illuminate\View\View;
+use Intervention\Image\Facades\Image;
 
 class ProfileController extends Controller
 {
@@ -28,33 +29,39 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $data = $request->validated();
-
-        // --- NEW LOGIC: Handle Profile Picture Upload ---
-        if ($request->hasFile('avatar')) {
-            // 1. Delete old avatar if it exists (to save server space)
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-
-            // 2. Save new avatar to 'storage/app/public/avatars'
-            $path = $request->file('avatar')->store('avatars', 'public');
-            
-            // 3. Add path to data array to be saved
-            $data['avatar'] = $path;
-        }
-        // ------------------------------------------------
-
-        $user->fill($data);
+        $user->fill($request->validated());
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
+        // --- NEW IMAGE RESIZING LOGIC ---
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if it exists
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            // Get the uploaded file
+            $avatar = $request->file('avatar');
+            
+            // Create a unique filename
+            $filename = time() . '.' . $avatar->getClientOriginalExtension();
+            
+            // Resize the image to 500x500 and save it
+            $image = Image::make($avatar)->fit(500, 500);
+            Storage::disk('public')->put('avatars/' . $filename, (string) $image->encode());
+
+            // Save the path to the user
+            $user->avatar = 'avatars/' . $filename;
+        }
+        // ---------------------------------
+
         $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
+
 
     /**
      * Delete the user's account.

@@ -93,6 +93,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // SECRET AUDIT TRAIL
     Route::get('/audit', [App\Http\Controllers\AuditController::class, 'index'])->name('audit.index');
+
+    Route::post('/attendance/report', [App\Http\Controllers\AttendanceController::class, 'generateReport'])->name('attendance.report');
 });
 
 // 5. GUARD / SCANNER ROUTES (For Guard OR Admin)

@@ -31,7 +31,7 @@
                         <x-nav-link :href="route('leaves.team')" :active="request()->routeIs('leaves.team')" 
                             class="text-indigo-100 hover:text-white hover:bg-white/10 px-2 py-2 rounded-md text-sm font-medium transition border-none h-auto flex items-center relative">
                             {{ __('Team Requests') }}
-
+                            
                             <!-- NOTIFICATION BADGE -->
                             @if($teamPendingCount > 0)
                                 <span class="absolute -top-1 -right-1 flex h-3 w-3">
@@ -45,7 +45,12 @@
                     @endif
 
                     @if(Auth::user()->role === 'admin')
-                        @php $pendingLeavesCount = \App\Models\LeaveRequest::where('status', 'Pending')->count(); @endphp
+                        @php 
+                            $pendingLeavesCount = \App\Models\LeaveRequest::where('status', 'Pending')->count();
+                            // NEW: Count Pending Payrolls
+                            $pendingPayrollCount = \App\Models\Payroll::where('status', 'Pending')->count();
+                        @endphp
+
                         <div class="h-6 w-px bg-indigo-700/50 mx-2"></div>
                         
                         <!-- DIRECTORY DROPDOWN (Employees & Students Grouped) -->
@@ -85,7 +90,14 @@
                             @endif
                         </x-nav-link>
                         <x-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Attendance') }}</x-nav-link>
-                        <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Payroll') }}</x-nav-link>    
+                        
+                        <!-- PAYROLL (With Notification) -->
+                        <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto flex items-center relative">
+                            {{ __('Payroll') }}
+                            @if($pendingPayrollCount > 0)
+                                <span class="absolute -top-1 -right-1 flex h-4 w-4"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span><span class="relative inline-flex rounded-full h-4 w-4 bg-rose-500 text-[10px] text-white font-bold items-center justify-center">{{ $pendingPayrollCount }}</span></span>
+                            @endif
+                        </x-nav-link>    
                     @endif
 
                     <!-- GUARD ONLY: Kiosk Link -->

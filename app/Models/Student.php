@@ -9,22 +9,19 @@ class Student extends Model
 {
     use HasFactory;
 
+    public $timestamps = false; // Keep this false as requested
+
     protected $fillable = [
-        'user_id',
         'student_id',
+        'full_name', // <--- Changed to full_name
+        'email',
         'grade_level',
         'section',
         'guardian_name',
-        'guardian_contact'
+        'guardian_contact',
     ];
 
-    // Link to User (Name, Email, Avatar)
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-    // Link to Attendance (Polymorphic)
-    public function attendances()
+    public function attendance()
     {
         return $this->morphMany(Attendance::class, 'attendable');
     }

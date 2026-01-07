@@ -9,7 +9,7 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\AuditLog; // Add import
+use App\Models\AuditLog; 
 
 class PayrollController extends Controller
 {
@@ -121,11 +121,13 @@ class PayrollController extends Controller
     }
 
     public function downloadPdf($id) {
-        $payroll = Payroll::with(['employee.user', 'employee.salaryItems'])->findOrFail($id);
-
-        if(Auth::user()->role !== 'admin' && Auth::user()->employee && Auth::user()->employee->id !== $payroll->employee_id) {
-            abort(403, 'Unauthorized action.');
+        // --- SECURITY UPDATE: Strict Check for Admin Role ---
+        if(Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action. Only HR/Admins can download payslips for now.');
         }
+        // ----------------------------------------------------
+
+        $payroll = Payroll::with(['employee.user', 'employee.salaryItems'])->findOrFail($id);
 
         $path = public_path('images/logo.png');
         $logoBase64 = '';
@@ -146,6 +148,7 @@ class PayrollController extends Controller
         $pdf = Pdf::loadView('payroll.pdf', compact('payroll', 'logoBase64'));
         return $pdf->download($filename);
     }
+
     public function index()
     {
         $user = Auth::user();
@@ -153,8 +156,6 @@ class PayrollController extends Controller
         // 1. If ADMIN, gather Executive Stats & Show Admin Dashboard
         if ($user->role === 'admin') {
             // ... (Keep all your existing Admin Logic here) ...
-            
-            // (Make sure you keep the admin logic we wrote before!)
             
             return view('admin_dashboard', compact(
                 'totalEmployees', 
@@ -168,7 +169,6 @@ class PayrollController extends Controller
         }
 
         // 2. If GUARD or EMPLOYEE, show the Standard Dashboard
-        // (This allows Guards to see their own stats/leaves)
         return view('dashboard');
     }
 
@@ -242,6 +242,4 @@ class PayrollController extends Controller
 
         return redirect()->back()->with('message', '13th Month Pay generated for ' . $employee->user->name);
     }
-
-
 }
