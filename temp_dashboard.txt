@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('My Workspace') }}
@@ -64,7 +64,7 @@
                             <div class="mt-6 flex justify-between items-end">
                                 <div>
                                     <p class="text-indigo-200 text-xs font-bold uppercase tracking-wider">Est. Gross (Month)</p>
-                                    <p class="text-3xl font-bold">₱{{ number_format($estimatedPay, 2) }}</p>
+                                    <p class="text-3xl font-bold">â‚±{{ number_format($estimatedPay, 2) }}</p>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-indigo-200 text-xs font-bold uppercase tracking-wider">Days</p>
@@ -101,9 +101,9 @@
                                                 <p class="font-bold text-gray-800 dark:text-gray-200">{{ \Carbon\Carbon::parse($payroll->pay_date)->format('M d, Y') }}</p>
                                                 <p class="text-xs text-gray-400 dark:text-gray-500">{{ $payroll->period ?? 'Standard' }}</p>
                                             </td>
-                                            <td class="px-6 py-4 text-right">₱{{ number_format($payroll->gross_salary, 2) }}</td>
-                                            <td class="px-6 py-4 text-right text-rose-500 dark:text-rose-400">-₱{{ number_format($payroll->deductions, 2) }}</td>
-                                            <td class="px-6 py-4 text-right font-bold text-emerald-600 dark:text-emerald-400">₱{{ number_format($payroll->net_salary, 2) }}</td>
+                                            <td class="px-6 py-4 text-right">â‚±{{ number_format($payroll->gross_salary, 2) }}</td>
+                                            <td class="px-6 py-4 text-right text-rose-500 dark:text-rose-400">-â‚±{{ number_format($payroll->deductions, 2) }}</td>
+                                            <td class="px-6 py-4 text-right font-bold text-emerald-600 dark:text-emerald-400">â‚±{{ number_format($payroll->net_salary, 2) }}</td>
                                             <td class="px-6 py-4 text-center">
                                                 @if($payroll->status == 'Paid')
                                                     <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">Paid</span>
