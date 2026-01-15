@@ -94,6 +94,12 @@ class AttendanceController extends Controller
             // C. Process Time Out
             $attendance->update(['time_out' => $now]);
             return response()->json(['status' => 'success', 'message' => "Goodbye, $name!"]);
+            return response()->json(['status' => 'success', 'type' => 'clock_out', 'message' => "Goodbye, $name!"]);
+            return response()->json([
+                'status' => 'success',
+                'type' => 'clock_out',
+                'message' => "<span class='text-red-600 font-bold'>Goodbye</span>, $name!"
+            ]);
 
         } else {
             // --- TIME IN LOGIC ---
@@ -123,6 +129,12 @@ class AttendanceController extends Controller
             ]);
 
             return response()->json(['status' => 'success', 'message' => "Welcome, $name!"]);
+            return response()->json(['status' => 'success', 'type' => 'clock_in', 'message' => "Welcome, $name!"]);
+            return response()->json([
+                'status' => 'success',
+                'type' => 'clock_in',
+                'message' => "Welcome, $name!"
+            ]);
         }
     }
     
