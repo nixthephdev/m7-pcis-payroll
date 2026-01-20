@@ -81,7 +81,8 @@ class EmployeeController extends Controller
 
     // Show Edit Form
     public function edit($id) {
-        $employee = Employee::with('user')->findOrFail($id);
+        $employee = Employee::with(['user', 'education', 'family', 'trainings', 'health', 'salaryHistory'])->findOrFail($id);
+        return view('employees.edit', compact('employee'));
         
         // 1. Get Supervisors (Heads/Coordinators only)
         $supervisors = Employee::with('user')
@@ -149,5 +150,151 @@ class EmployeeController extends Controller
     public function showIdCard($id) {
         $employee = Employee::with('user')->findOrFail($id);
         return view('employees.id_card', compact('employee'));
+    }
+
+    public function updatePersonal(Request $request, $id)
+    {
+        $employee = Employee::findOrFail($id);
+        
+        // 1. Update User Name ONLY (Do not touch email here)
+        $employee->user->update([
+            'name' => $request->first_name . ' ' . $request->last_name,
+            // 'email' => $request->email  <-- REMOVE THIS LINE
+        ]);
+
+        // 2. Update Employee Details (201 File)
+        $employee->update($request->all());
+
+        return redirect()->back()
+    ->with('message', 'Personal details updated successfully.')
+    ->with('active_tab', 'personal'); // <--- ADD THIS
+    }
+
+
+    public function updateSalary(Request $request, $id)
+    {
+        $request->validate([
+            'new_salary' => 'required|numeric',
+            'effective_date' => 'required|date',
+            'reason' => 'required|string'
+        ]);
+
+        $employee = Employee::findOrFail($id);
+        $oldSalary = $employee->basic_salary;
+
+        // 1. Record History
+        \App\Models\SalaryHistory::create([
+            'employee_id' => $employee->id,
+            'previous_salary' => $oldSalary,
+            'new_salary' => $request->new_salary,
+            'effective_date' => $request->effective_date,
+            'reason' => $request->reason,
+        ]);
+
+        // 2. Update Current Salary
+        $employee->update(['basic_salary' => $request->new_salary]);
+
+       return redirect()->back()
+    ->with('message', 'Salary updated and history recorded.')
+    ->with('active_tab', 'salary'); // <--- ADD THIS
+    }
+    
+    public function storeEducation(Request $request, $id)
+    {
+        // 1. Add Validation (Make date required)
+        $request->validate([
+            'school_name' => 'required',
+            'level' => 'required',
+            'date_graduated' => 'required|date', // <--- Added Required
+            'diploma' => 'nullable|file|mimes:pdf,jpg,png|max:2048'
+        ]);
+
+        // 2. Handle File Upload
+        $path = null;
+        if($request->hasFile('diploma')){
+            $path = $request->file('diploma')->store('diplomas', 'public');
+        }
+
+        // 3. Create Record
+        \App\Models\EmployeeEducation::create([
+            'employee_id' => $id,
+            'level' => $request->level,
+            'school_name' => $request->school_name,
+            'date_graduated' => $request->date_graduated,
+            'diploma_path' => $path
+        ]);
+
+        // 4. Return with Success Message
+        return redirect()->back()
+    ->with('message', 'Education added successfully.')
+    ->with('active_tab', 'education'); // <--- ADD THIS
+
+    }
+    public function storeFamily(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required',
+            'relation' => 'required',
+            'birthdate' => 'nullable|date',
+            'occupation' => 'nullable|string'
+        ]);
+
+        \App\Models\EmployeeFamily::create([
+            'employee_id' => $id,
+            'name' => $request->name,
+            'relation' => $request->relation,
+            'birthdate' => $request->birthdate,
+            'occupation' => $request->occupation
+        ]);
+
+        return redirect()->back()
+    ->with('message', 'Family member added successfully.')
+    ->with('active_tab', 'family'); // <--- ADD THIS
+    }
+    
+    // --- STORE TRAINING / LICENSE ---
+    public function storeTraining(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string',
+            'type' => 'required|string', // License or Training
+            'start_date' => 'nullable|date',
+            'certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048'
+        ]);
+
+        $path = null;
+        if($request->hasFile('certificate')){
+            $path = $request->file('certificate')->store('certificates', 'public');
+        }
+
+        \App\Models\EmployeeTraining::create([
+            'employee_id' => $id,
+            'title' => $request->title,
+            'type' => $request->type,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'certificate_path' => $path
+        ]);
+
+        return redirect()->back()->with('message', 'Training/License added successfully.')->with('active_tab', 'training');
+    }
+
+    // --- STORE HEALTH RECORD ---
+    public function storeHealth(Request $request, $id)
+    {
+        $request->validate([
+            'condition' => 'required|string',
+            'date_diagnosed' => 'nullable|date',
+        ]);
+
+        \App\Models\EmployeeHealth::create([
+            'employee_id' => $id,
+            'condition' => $request->condition,
+            'date_diagnosed' => $request->date_diagnosed,
+            'medication' => $request->medication,
+            'dosage' => $request->dosage
+        ]);
+
+        return redirect()->back()->with('message', 'Health record added successfully.')->with('active_tab', 'health');
     }
 }

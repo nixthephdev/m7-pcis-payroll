@@ -19,6 +19,11 @@ class Employee extends Model
         'sick_credits',     // <--- MUST BE HERE
         'created_at',
         'supervisor_id', // <--- MUST BE HERE
+        'middle_name', 'birthdate', 'birthplace', 'address', 'contact_number',
+        'tin_no', 'sss_no', 'pagibig_no', 'philhealth_no',
+        'special_interests', 'hobbies',
+         'mental_health' // <--- Add this
+        
     ];
 
     // This links the Employee to the User (Name/Email)
@@ -60,5 +65,25 @@ class Employee extends Model
         public function subordinates() {
             return $this->hasMany(Employee::class, 'supervisor_id');
         }
-    
+    // ... existing code ...
+
+    public function education() {
+        return $this->hasMany(EmployeeEducation::class);
+    }
+
+    public function family() {
+        return $this->hasMany(EmployeeFamily::class);
+    }
+
+    public function trainings() {
+        return $this->hasMany(EmployeeTraining::class);
+    }
+
+    public function health() {
+        return $this->hasMany(EmployeeHealth::class);
+    }
+
+    public function salaryHistory() {
+        return $this->hasMany(SalaryHistory::class)->orderBy('effective_date', 'desc');
+    }
 }
