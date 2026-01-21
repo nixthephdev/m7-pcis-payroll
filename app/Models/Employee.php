@@ -11,19 +11,22 @@ class Employee extends Model
 
     protected $fillable = [
         'user_id', 
-        'employee_code',
+        'employee_code', 
         'position', 
-        'basic_salary',
+        'department', 
+        'basic_salary', 
+        'start_date', 
+        'status',
+        // IMPORTANT: Add these two lines
+        'supervisor_id', 
         'schedule_id',
-        'vacation_credits', // <--- MUST BE HERE
-        'sick_credits',     // <--- MUST BE HERE
-        'created_at',
-        'supervisor_id', // <--- MUST BE HERE
+        // Leave credits
+        'vacation_credits',
+        'sick_credits',
+        // 201 File info
         'middle_name', 'birthdate', 'birthplace', 'address', 'contact_number',
         'tin_no', 'sss_no', 'pagibig_no', 'philhealth_no',
-        'special_interests', 'hobbies',
-         'mental_health' // <--- Add this
-        
+        'special_interests', 'hobbies', 'mental_health'
     ];
 
     // This links the Employee to the User (Name/Email)
