@@ -158,7 +158,23 @@
 
     <!-- LOGIC -->
     <script>
-        // 1. Clock Logic
+        // 1. CLEAN CONSOLE & ADD SIGNATURE
+        window.onload = function() {
+            console.clear();
+            console.log(
+                "%c SYSTEM ARCHITECTURE & DEVELOPMENT \n%c by Nikko Calumpiano \n\n%c M7 PCIS Attendance System v2.0 \n%c © 2026 All Rights Reserved. ",
+                "color: #818cf8; font-size: 20px; font-weight: bold; background: #1e1b4b; padding: 10px; border-radius: 5px; border: 1px solid #4f46e5;",
+                "color: #c7d2fe; font-size: 14px; font-weight: bold; margin-top: 5px;",
+                "color: #94a3b8; font-size: 12px; margin-top: 10px;",
+                "color: #64748b; font-size: 10px;"
+            );
+            
+            // Auto Focus
+            const inputField = document.getElementById('manual_id');
+            if(inputField) inputField.focus();
+        };
+
+        // 2. Clock Logic
         function updateTime() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -167,14 +183,10 @@
         setInterval(updateTime, 1000);
         updateTime();
 
-        // 2. Hardware Scanner Listener
+        // 3. Hardware Scanner Listener
         const inputField = document.getElementById('manual_id');
-
-        // Force focus so scanner writes here
-        window.onload = function() { inputField.focus(); };
         document.addEventListener('click', function() { inputField.focus(); });
 
-        // Listen for "Enter" key (which scanners send after scanning)
         inputField.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 let id = inputField.value;
@@ -185,7 +197,7 @@
             }
         });
 
-        // 3. Process Attendance
+        // 4. Process Attendance
         function processScan(employeeId) {
             const resultDiv = document.getElementById('result');
             const iconBox = document.getElementById('icon-box');
