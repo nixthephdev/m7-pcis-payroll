@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Attendance Kiosk - M7 PCIS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -23,27 +22,33 @@
             100% { background-position: 0% 50%; }
         }
 
-        #reader { width: 100%; height: 100%; object-fit: cover; }
-        #reader video { border-radius: 1rem; object-fit: cover; }
-        #html5-qrcode-button-camera-stop { display: none !important; }
-        #html5-qrcode-anchor-scan-type-change { display: none !important; }
-        
         /* Laser Scan Animation */
         .scan-line {
             position: absolute;
             width: 100%;
             height: 2px;
             background: #06b6d4; /* Cyan */
-            box-shadow: 0 0 10px #06b6d4;
+            box-shadow: 0 0 15px #06b6d4;
             top: 0;
             left: 0;
-            animation: scan 2.5s linear infinite;
+            animation: scan 2s ease-in-out infinite;
             opacity: 0.8;
         }
         @keyframes scan {
-            0% { top: 0%; }
-            50% { top: 100%; }
-            100% { top: 0%; }
+            0% { top: 10%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 90%; opacity: 0; }
+        }
+
+        /* Pulse Effect for Icon */
+        .scanner-icon {
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.5)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.8)); transform: scale(1.05); }
+            100% { filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.5)); transform: scale(1); }
         }
     </style>
 </head>
@@ -67,23 +72,29 @@
                 </h1>
                 <div class="flex items-center justify-center gap-2 mt-2">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]"></span>
-                    <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">Kiosk Terminal Active</p>
+                    <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">Scanner Ready</p>
                 </div>
             </div>
 
-            <!-- Camera Box -->
-            <div class="relative mx-auto w-full aspect-square max-w-[320px] bg-black/50 rounded-2xl overflow-hidden shadow-inner border border-white/10 group">
-                <div id="reader" class="h-full w-full"></div>
+            <!-- Scanner Visual Box (No Webcam, just Visuals) -->
+            <div class="relative mx-auto w-full aspect-square max-w-[280px] bg-black/40 rounded-2xl overflow-hidden shadow-inner border border-white/10 flex items-center justify-center group">
                 
+                <!-- Central Icon -->
+                <div class="scanner-icon text-white/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                </div>
+
                 <!-- Viewfinder Corners -->
-                <div class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 opacity-70">
+                <div class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 opacity-50">
                     <div class="flex justify-between">
-                        <div class="w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg"></div>
-                        <div class="w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg"></div>
+                        <div class="w-8 h-8 border-t-4 border-l-4 border-cyan-400 rounded-tl-lg"></div>
+                        <div class="w-8 h-8 border-t-4 border-r-4 border-cyan-400 rounded-tr-lg"></div>
                     </div>
                     <div class="flex justify-between">
-                        <div class="w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg"></div>
-                        <div class="w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg"></div>
+                        <div class="w-8 h-8 border-b-4 border-l-4 border-cyan-400 rounded-bl-lg"></div>
+                        <div class="w-8 h-8 border-b-4 border-r-4 border-cyan-400 rounded-br-lg"></div>
                     </div>
                 </div>
 
@@ -98,21 +109,23 @@
                 <div class="text-sm text-indigo-300 font-semibold mt-1" id="date">Loading Date...</div>
             </div>
 
-            <!-- MANUAL INPUT -->
+            <!-- INPUT FIELD (Auto-Focused) -->
             <div class="mt-6">
                 <div class="relative flex items-center max-w-[320px] mx-auto">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 19l-1 1-1-1-1 1-1-1-1 1-1-1 5-5m0 0a3 3 0 00-4.681-4.681 1 1 0 00.986 2.986" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
-                    <input type="text" id="manual_id" placeholder="Enter ID (e.g. PCIS00059)" 
-                           class="w-full pl-10 pr-20 py-3 rounded-xl border border-white/10 bg-white/5 text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm placeholder-gray-500 backdrop-blur-md">
-                    <button onclick="onScanSuccess(document.getElementById('manual_id').value, null)" 
+                    <!-- Added autofocus and autocomplete off -->
+                    <input type="text" id="manual_id" placeholder="Scan QR or Enter ID..." autocomplete="off" autofocus
+                           class="w-full pl-10 pr-20 py-3 rounded-xl border border-white/10 bg-white/10 text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition shadow-sm placeholder-gray-400 backdrop-blur-md">
+                    <button onclick="processScan(document.getElementById('manual_id').value)" 
                             class="absolute right-1 top-1 bottom-1 bg-indigo-600 hover:bg-indigo-500 text-white px-4 rounded-lg text-xs font-bold transition shadow-lg shadow-indigo-500/30">
                         ENTER
                     </button>
                 </div>
+                <p class="text-center text-[10px] text-gray-500 mt-2">Ready for Scanner Input</p>
             </div>
 
             <!-- Status Overlay -->
@@ -143,8 +156,9 @@
         </svg>
     </a>
 
-    <!-- SCANNER LOGIC -->
+    <!-- LOGIC -->
     <script>
+        // 1. Clock Logic
         function updateTime() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -153,14 +167,32 @@
         setInterval(updateTime, 1000);
         updateTime();
 
-        function onScanSuccess(decodedText, decodedResult) {
-            if(html5QrcodeScanner) { try { html5QrcodeScanner.clear(); } catch(e) {} }
+        // 2. Hardware Scanner Listener
+        const inputField = document.getElementById('manual_id');
 
+        // Force focus so scanner writes here
+        window.onload = function() { inputField.focus(); };
+        document.addEventListener('click', function() { inputField.focus(); });
+
+        // Listen for "Enter" key (which scanners send after scanning)
+        inputField.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                let id = inputField.value;
+                if(id.trim() !== "") {
+                    processScan(id);
+                    inputField.value = ""; // Clear input immediately
+                }
+            }
+        });
+
+        // 3. Process Attendance
+        function processScan(employeeId) {
             const resultDiv = document.getElementById('result');
             const iconBox = document.getElementById('icon-box');
             const title = document.getElementById('status-title');
             const msg = document.getElementById('message');
 
+            // Show Loading Overlay
             resultDiv.classList.remove('hidden');
             resultDiv.classList.add('flex');
             
@@ -169,13 +201,14 @@
             title.innerText = "VERIFYING...";
             msg.innerText = "Please wait a moment.";
 
+            // Send Request
             fetch("{{ route('attendance.scan') }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({ employee_id: decodedText })
+                body: JSON.stringify({ employee_id: employeeId })
             })
             .then(response => response.json())
             .then(data => {
@@ -183,10 +216,12 @@
                 audio.play();
 
                 if(data.status === 'success') {
+                    // Success UI
                     iconBox.innerHTML = `<div class="bg-emerald-500/20 text-emerald-400 rounded-full p-6 shadow-[0_0_30px_rgba(52,211,153,0.4)] border border-emerald-500/50"><svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`;
                     title.className = "text-4xl font-black uppercase tracking-widest text-emerald-400 drop-shadow-lg";
                     title.innerText = "SUCCESS";
                 } else {
+                    // Error UI
                     iconBox.innerHTML = `<div class="bg-rose-500/20 text-rose-400 rounded-full p-6 shadow-[0_0_30px_rgba(251,113,133,0.4)] border border-rose-500/50"><svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></div>`;
                     title.className = "text-4xl font-black uppercase tracking-widest text-rose-400 drop-shadow-lg";
                     title.innerText = "ERROR";
@@ -194,18 +229,21 @@
                 
                 msg.innerText = data.message;
 
-                setTimeout(() => { location.reload(); }, 3000);
+                // Reset after 3 seconds
+                setTimeout(() => { 
+                    resultDiv.classList.add('hidden');
+                    resultDiv.classList.remove('flex');
+                    inputField.focus(); // Refocus for next person
+                }, 3000);
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert("Something went wrong! Check Console.");
-                location.reload();
+                alert("Connection Error. Please try again.");
+                resultDiv.classList.add('hidden');
+                resultDiv.classList.remove('flex');
+                inputField.focus();
             });
         }
-
-        let config = { fps: 30, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0, experimentalFeatures: { useBarCodeDetectorIfSupported: true } };
-        let html5QrcodeScanner = new Html5QrcodeScanner("reader", config, false);
-        html5QrcodeScanner.render(onScanSuccess, (errorMessage) => {});
     </script>
 
 </body>
