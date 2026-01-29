@@ -163,7 +163,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">First Name</label>
-                                    <input type="text" name="first_name" value="{{ explode(' ', $employee->user->name)[0] }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <input type="text" name="first_name" value="{{ old('first_name', $employee->first_name) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Middle Name</label>
@@ -171,7 +171,7 @@
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Last Name</label>
-                                    <input type="text" name="last_name" value="{{ explode(' ', $employee->user->name)[1] ?? '' }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <input type="text" name="last_name" value="{{ old('last_name', $employee->last_name) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                             </div>
                         </div>
@@ -248,7 +248,7 @@
                             <tr>
                                 <td class="px-4 py-3">{{ $edu->level }}</td>
                                 <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $edu->school_name }}</td>
-                                <td class="px-4 py-3">{{ $edu->date_graduated ? \Carbon\Carbon::parse($edu->date_graduated)->format('M d, Y') : '-' }}</td>
+                                <td class="px-4 py-3">{{ $edu->date_graduated ? \Carbon\Carbon::parse($edu->date_graduated)->format('m/d/Y') : '-' }}</td>
                                 <td class="px-4 py-3">
                                     @if($edu->diploma_path) <a href="{{ asset('storage/'.$edu->diploma_path) }}" target="_blank" class="text-indigo-600 hover:underline">View</a> @else <span class="text-gray-400">-</span> @endif
                                 </td>
@@ -306,8 +306,8 @@
                                 <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-bold {{ $training->type == 'License' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700' }}">{{ $training->type }}</span></td>
                                 <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $training->title }}</td>
                                 <td class="px-4 py-3">
-                                    {{ $training->start_date ? \Carbon\Carbon::parse($training->start_date)->format('M d, Y') : '' }}
-                                    {{ $training->end_date ? ' - ' . \Carbon\Carbon::parse($training->end_date)->format('M d, Y') : '' }}
+                                    {{ $training->start_date ? \Carbon\Carbon::parse($training->start_date)->format('m/d/Y') : '' }}
+                                    {{ $training->end_date ? ' - ' . \Carbon\Carbon::parse($training->end_date)->format('m/d/Y') : '' }}
                                 </td>
                                 <td class="px-4 py-3">
                                     @if($training->certificate_path) <a href="{{ asset('storage/'.$training->certificate_path) }}" target="_blank" class="text-indigo-600 hover:underline">View</a> @else - @endif
@@ -369,7 +369,7 @@
                             <tr>
                                 <td class="px-4 py-3">{{ $fam->relation }}</td>
                                 <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $fam->name }}</td>
-                                <td class="px-4 py-3">{{ $fam->birthdate ? \Carbon\Carbon::parse($fam->birthdate)->format('M d, Y') : '-' }}</td>
+                                <td class="px-4 py-3">{{ $fam->birthdate ? \Carbon\Carbon::parse($fam->birthdate)->format('m/d/Y') : '-' }}</td>
                                 <td class="px-4 py-3">{{ $fam->occupation }}</td>
                             </tr>
                             @endforeach
@@ -432,7 +432,7 @@
                             @foreach($employee->health as $h)
                             <tr>
                                 <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $h->condition }}</td>
-                                <td class="px-4 py-3">{{ $h->date_diagnosed ? \Carbon\Carbon::parse($h->date_diagnosed)->format('M d, Y') : '-' }}</td>
+                                <td class="px-4 py-3">{{ $h->date_diagnosed ? \Carbon\Carbon::parse($h->date_diagnosed)->format('m/d/Y') : '-' }}</td>
                                 <td class="px-4 py-3">{{ $h->medication }}</td>
                                 <td class="px-4 py-3">{{ $h->dosage }}</td>
                             </tr>
@@ -524,7 +524,7 @@
                             <tbody class="divide-y divide-gray-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
                                 @foreach($employee->salaryHistory as $history)
                                 <tr>
-                                    <td class="px-6 py-3">{{ \Carbon\Carbon::parse($history->effective_date)->format('M d, Y') }}</td>
+                                    <td class="px-6 py-3">{{ \Carbon\Carbon::parse($history->effective_date)->format('m/d/Y') }}</td>
                                     <td class="px-6 py-3 font-medium text-gray-800 dark:text-white">{{ $history->reason }}</td>
                                     <td class="px-6 py-3 text-right text-gray-400">₱{{ number_format($history->previous_salary, 2) }}</td>
                                     <td class="px-6 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">₱{{ number_format($history->new_salary, 2) }}</td>

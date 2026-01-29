@@ -24,6 +24,7 @@ class Employee extends Model
         'vacation_credits',
         'sick_credits',
         // 201 File info
+        'first_name', 'last_name',
         'middle_name', 'birthdate', 'birthplace', 'address', 'contact_number',
         'tin_no', 'sss_no', 'pagibig_no', 'philhealth_no',
         'special_interests', 'hobbies', 'mental_health'

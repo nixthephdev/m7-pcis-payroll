@@ -68,6 +68,8 @@ class EmployeeController extends Controller
         $employee = \App\Models\Employee::create([
             'user_id' => $user->id,
             'employee_code' => $request->employee_code,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'position' => $request->position, // Map input 'position' to DB column
             'supervisor_id' => $request->supervisor_id,
             'schedule_id' => $request->schedule_id,
@@ -155,18 +157,34 @@ class EmployeeController extends Controller
         return view('employees.id_card', compact('employee'));
     }
 
-    // --- UPDATE PERSONAL INFO (Tab 2) ---
+   // --- UPDATE PERSONAL INFO (Tab 2) ---
     public function updatePersonal(Request $request, $id)
     {
         $employee = Employee::findOrFail($id);
         
-        // Update User Name
+        // 1. Update User Table (Combined Name for Login/Display)
         $employee->user->update([
             'name' => $request->first_name . ' ' . $request->last_name,
         ]);
 
-        // Update 201 File Details
-        $employee->update($request->all());
+        // 2. Update Employee Table (Explicitly save the split names)
+        // We list these out to ensure the new columns are definitely updated
+        $employee->update([
+            'first_name'     => $request->first_name,
+            'last_name'      => $request->last_name,
+            'middle_name'    => $request->middle_name,
+            'birthdate'      => $request->birthdate,
+            'contact_number' => $request->contact_number,
+            'address'        => $request->address,
+            'tin_no'         => $request->tin_no,
+            'sss_no'         => $request->sss_no,
+            'philhealth_no'  => $request->philhealth_no,
+            'pagibig_no'     => $request->pagibig_no,
+            'hobbies'        => $request->hobbies,
+            'mental_health'  => $request->mental_health,
+            // Add 'mental_health' here if it's part of this form, 
+            // otherwise keep it in its own function.
+        ]);
 
         return redirect()->back()
             ->with('message', 'Personal details updated successfully.')
