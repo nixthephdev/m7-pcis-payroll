@@ -224,7 +224,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                let audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+                let audio = new Audio('{{ asset("sounds/success.mp3") }}' ); 
                 audio.play();
 
                 if(data.status === 'success') {
