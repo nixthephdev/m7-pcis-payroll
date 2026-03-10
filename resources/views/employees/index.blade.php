@@ -22,8 +22,18 @@
 
             <!-- BULK ACTION BAR -->
             <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors">
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    <span class="font-bold text-gray-800 dark:text-white text-lg">{{ count($employees) }}</span> Active Employees
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <div class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        <span class="font-bold text-gray-800 dark:text-white text-lg">{{ count($employees) }}</span> Active Employees
+                    </div>
+                    <div class="relative group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+                        <input type="text" id="employeeSearch" placeholder="Search name, ID, position..."
+                            class="pl-10 pr-8 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700/60 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-slate-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 dark:focus:border-indigo-500 w-72 transition-all duration-200">
+                        <button type="button" id="clearSearch" onclick="clearEmployeeSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-400 transition-colors duration-150 hidden" title="Clear search">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="flex gap-3">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-wider self-center mr-2">Generate All:</span>
@@ -64,7 +74,8 @@
                         </thead>
                         <tbody class="divide-y divide-gray-50 dark:divide-slate-700">
                             @foreach($employees as $emp)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition group">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition group employee-row"
+                                data-search="{{ strtolower($emp->user->name . ' ' . $emp->employee_code . ' ' . $emp->position . ' ' . $emp->user->email) }}">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
@@ -136,4 +147,31 @@
             </div>
         </div>
     </div>
+
+<script>
+    const searchInput = document.getElementById('employeeSearch');
+    const clearBtn    = document.getElementById('clearSearch');
+    const countEl     = document.querySelector('.font-bold.text-gray-800.dark\\:text-white.text-lg');
+    const rows        = document.querySelectorAll('.employee-row');
+
+    searchInput.addEventListener('input', function () {
+        const query = this.value.toLowerCase().trim();
+        clearBtn.classList.toggle('hidden', query === '');
+
+        let visible = 0;
+        rows.forEach(row => {
+            const match = row.dataset.search.includes(query);
+            row.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+
+        if (countEl) countEl.textContent = visible;
+    });
+
+    function clearEmployeeSearch() {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.focus();
+    }
+</script>
 </x-app-layout>
