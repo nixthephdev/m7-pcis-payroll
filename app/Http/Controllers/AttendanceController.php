@@ -113,7 +113,7 @@ class AttendanceController extends Controller
             }
             // Student Late Logic
             elseif ($type === 'App\Models\Student') {
-                 if ($now->format('H:i') > '07:30') { 
+                 if ($now->format('H:i') > '08:00') {
                      $status = 'Late';
                  }
             }

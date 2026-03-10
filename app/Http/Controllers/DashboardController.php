@@ -69,6 +69,23 @@ class DashboardController extends Controller
         }
 
         // --- 2. GUARD & EMPLOYEE VIEW (Standard Dashboard) ---
-        return view('dashboard');
+        $employee = $user->employee;
+        $todayAttendance = null;
+        $recentAttendance = collect();
+
+        if ($employee) {
+            $todayAttendance = Attendance::where('attendable_id', $employee->id)
+                ->where('attendable_type', 'App\Models\Employee')
+                ->where('date', Carbon::today())
+                ->first();
+
+            $recentAttendance = Attendance::where('attendable_id', $employee->id)
+                ->where('attendable_type', 'App\Models\Employee')
+                ->orderBy('date', 'desc')
+                ->take(30)
+                ->get();
+        }
+
+        return view('dashboard', compact('employee', 'todayAttendance', 'recentAttendance'));
     }
 }

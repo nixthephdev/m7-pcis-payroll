@@ -13,9 +13,22 @@ use Illuminate\Support\Facades\DB;
 class EmployeeController extends Controller
 {
     // --- LIST EMPLOYEES ---
-    public function index() {
-        $employees = Employee::with('user')->get();
-        return view('employees.index', compact('employees'));
+    public function index(Request $request) {
+        $search = $request->get('search');
+
+        $employees = Employee::with('user')
+            ->when($search, function($query) use ($search) {
+                $query->where('employee_code', 'LIKE', "%$search%")
+                      ->orWhere('position', 'LIKE', "%$search%")
+                      ->orWhereHas('user', function($q) use ($search) {
+                          $q->where('name', 'LIKE', "%$search%")
+                            ->orWhere('email', 'LIKE', "%$search%");
+                      });
+            })
+            ->orderBy('employee_code', 'asc')
+            ->get();
+
+        return view('employees.index', compact('employees', 'search'));
     }
 
     // --- SHOW CREATE FORM ---
