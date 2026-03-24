@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
+
         /* Deep Space Animated Background */
         .animated-bg {
             background: linear-gradient(-45deg, #020617, #1e1b4b, #312e81, #0f172a);
@@ -50,6 +50,48 @@
             50% { filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.8)); transform: scale(1.05); }
             100% { filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.5)); transform: scale(1); }
         }
+
+        /* Clock-In overlay: deep green */
+        .overlay-clockin {
+            background: linear-gradient(135deg, #052e16 0%, #064e3b 50%, #022c22 100%) !important;
+        }
+        /* Clock-Out overlay: deep orange/amber */
+        .overlay-clockout {
+            background: linear-gradient(135deg, #1c0a00 0%, #431407 50%, #27100a 100%) !important;
+        }
+        /* Error overlay */
+        .overlay-error {
+            background: linear-gradient(135deg, #1f0a0a 0%, #3b0e0e 50%, #1a0808 100%) !important;
+        }
+
+        /* Bounce-in animation for the icon */
+        @keyframes bounceIn {
+            0%   { transform: scale(0.3); opacity: 0; }
+            50%  { transform: scale(1.15); opacity: 1; }
+            70%  { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        .bounce-in { animation: bounceIn 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+        /* Slide-up animation for text */
+        @keyframes slideUp {
+            0%   { transform: translateY(30px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .slide-up { animation: slideUp 0.4s ease 0.2s both; }
+        .slide-up-delay { animation: slideUp 0.4s ease 0.35s both; }
+
+        /* Ripple background pulse */
+        @keyframes ripplePulse {
+            0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.15); }
+            70%  { box-shadow: 0 0 0 40px rgba(255,255,255,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+        }
+        .ripple-icon { animation: ripplePulse 1.2s ease-out 0.3s infinite; }
+
+        /* Badge pill */
+        .badge-clockin  { background: rgba(52,211,153,0.15); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.4); }
+        .badge-clockout { background: rgba(251,146,60,0.15);  color: #fdba74; border: 1px solid rgba(251,146,60,0.4); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen animated-bg p-4 text-white">
@@ -129,10 +171,16 @@
             </div>
 
             <!-- Status Overlay -->
-            <div id="result" class="absolute inset-0 bg-slate-900/95 backdrop-blur-xl z-50 hidden flex-col items-center justify-center text-center p-8 transition-all duration-300">
-                <div id="icon-box" class="mb-6"></div>
-                <h3 class="text-3xl font-black uppercase tracking-widest text-white" id="status-title">Processing</h3>
-                <p class="text-lg font-medium text-slate-400 mt-2" id="message">Please wait...</p>
+            <div id="result" class="absolute inset-0 backdrop-blur-xl z-50 hidden flex-col items-center justify-center text-center p-8 transition-all duration-500" style="background: #0f172a;">
+                <!-- Top accent bar -->
+                <div id="accent-bar" class="absolute top-0 left-0 w-full h-1.5"></div>
+                <!-- Badge pill -->
+                <div id="badge-pill" class="mb-4 px-5 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest slide-up hidden"></div>
+                <div id="icon-box" class="mb-5"></div>
+                <h3 class="text-5xl font-black uppercase tracking-widest text-white slide-up" id="status-title">Processing</h3>
+                <p class="text-xl font-semibold mt-3 slide-up-delay" id="message" style="color:#94a3b8;">Please wait...</p>
+                <!-- Time stamp -->
+                <p id="stamp-time" class="mt-4 text-sm font-mono slide-up-delay hidden" style="color:#475569;"></p>
             </div>
 
         </div>
@@ -197,23 +245,59 @@
             }
         });
 
-        // 4. Process Attendance
-        function processScan(employeeId) {
-            const resultDiv = document.getElementById('result');
-            const iconBox = document.getElementById('icon-box');
-            const title = document.getElementById('status-title');
-            const msg = document.getElementById('message');
+        // 4. Sound Effects
+        function playSound(type) {
+            if (type === 'clock_in') {
+                // Bright ascending success chime (file)
+                new Audio('{{ asset("sounds/success.mp3") }}').play();
+            } else if (type === 'clock_out') {
+                // Synthesized warm descending farewell chime
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523.25, 392.00, 329.63]; // C5 → G4 → E4 descending
+                notes.forEach((freq, i) => {
+                    const osc  = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18);
+                    gain.gain.setValueAtTime(0.45, ctx.currentTime + i * 0.18);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.35);
+                    osc.start(ctx.currentTime + i * 0.18);
+                    osc.stop(ctx.currentTime + i * 0.18 + 0.36);
+                });
+            } else {
+                // Error buzz (file)
+                new Audio('{{ asset("sounds/error.mp3") }}').play();
+            }
+        }
 
-            // Show Loading Overlay
+        // 5. Process Attendance
+        function processScan(employeeId) {
+            const resultDiv  = document.getElementById('result');
+            const iconBox    = document.getElementById('icon-box');
+            const title      = document.getElementById('status-title');
+            const msg        = document.getElementById('message');
+            const badge      = document.getElementById('badge-pill');
+            const accentBar  = document.getElementById('accent-bar');
+            const stampTime  = document.getElementById('stamp-time');
+
+            // --- Show Loading Overlay ---
+            resultDiv.style.background = '#0f172a';
+            accentBar.style.background = 'linear-gradient(to right, transparent, #6366f1, transparent)';
+            badge.classList.add('hidden');
+            stampTime.classList.add('hidden');
+
             resultDiv.classList.remove('hidden');
             resultDiv.classList.add('flex');
-            
-            iconBox.innerHTML = `<svg class="animate-spin h-20 w-20 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
-            title.className = "text-4xl font-black uppercase tracking-widest text-indigo-400";
-            title.innerText = "VERIFYING...";
-            msg.innerText = "Please wait a moment.";
 
-            // Send Request
+            iconBox.innerHTML = `<svg class="animate-spin h-20 w-20 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            title.className  = "text-4xl font-black uppercase tracking-widest text-indigo-400";
+            title.innerText  = "VERIFYING...";
+            msg.style.color  = '#94a3b8';
+            msg.innerText    = "Please wait a moment.";
+
+            // --- Send Request ---
             fetch("{{ route('attendance.scan') }}", {
                 method: "POST",
                 headers: {
@@ -224,29 +308,98 @@
             })
             .then(response => response.json())
             .then(data => {
-                let audio = new Audio('{{ asset("sounds/success.mp3") }}' ); 
-                audio.play();
 
-                if(data.status === 'success') {
-                    // Success UI
-                    iconBox.innerHTML = `<div class="bg-emerald-500/20 text-emerald-400 rounded-full p-6 shadow-[0_0_30px_rgba(52,211,153,0.4)] border border-emerald-500/50"><svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`;
-                    title.className = "text-4xl font-black uppercase tracking-widest text-emerald-400 drop-shadow-lg";
-                    title.innerText = "SUCCESS";
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                playSound(data.status === 'success' ? data.type : 'error');
+
+                if (data.status === 'success' && data.type === 'clock_in') {
+                    // ===== CLOCK IN — Vibrant Green =====
+                    resultDiv.style.background = 'linear-gradient(135deg, #052e16 0%, #064e3b 50%, #022c22 100%)';
+                    accentBar.style.background = 'linear-gradient(to right, transparent, #34d399, transparent)';
+
+                    badge.className = 'mb-4 px-5 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest badge-clockin slide-up';
+                    badge.innerHTML = '&#x2191; CLOCKING IN';
+                    badge.classList.remove('hidden');
+
+                    iconBox.innerHTML = `
+                        <div class="bounce-in ripple-icon rounded-full p-7 border-2 border-emerald-400/60"
+                             style="background:rgba(52,211,153,0.12); box-shadow:0 0 50px rgba(52,211,153,0.35);">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            </svg>
+                        </div>`;
+
+                    title.className = "text-5xl font-black uppercase tracking-widest slide-up";
+                    title.style.color = '#34d399';
+                    title.innerText = 'CLOCKED IN';
+
+                    msg.style.color = '#6ee7b7';
+                    msg.className = 'text-2xl font-bold mt-3 slide-up-delay';
+
+                    stampTime.innerHTML = `<span style="color:#34d399;">&#x25CF;</span> Time In: ${timeStr}`;
+                    stampTime.classList.remove('hidden');
+
+                } else if (data.status === 'success' && data.type === 'clock_out') {
+                    // ===== CLOCK OUT — Warm Amber/Orange =====
+                    resultDiv.style.background = 'linear-gradient(135deg, #1c0a00 0%, #431407 50%, #27100a 100%)';
+                    accentBar.style.background = 'linear-gradient(to right, transparent, #fb923c, transparent)';
+
+                    badge.className = 'mb-4 px-5 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest badge-clockout slide-up';
+                    badge.innerHTML = '&#x2193; CLOCKING OUT';
+                    badge.classList.remove('hidden');
+
+                    iconBox.innerHTML = `
+                        <div class="bounce-in ripple-icon rounded-full p-7 border-2 border-orange-400/60"
+                             style="background:rgba(251,146,60,0.12); box-shadow:0 0 50px rgba(251,146,60,0.35);">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </div>`;
+
+                    title.className = "text-5xl font-black uppercase tracking-widest slide-up";
+                    title.style.color = '#fb923c';
+                    title.innerText = 'CLOCKED OUT';
+
+                    msg.style.color = '#fdba74';
+                    msg.className = 'text-2xl font-bold mt-3 slide-up-delay';
+
+                    stampTime.innerHTML = `<span style="color:#fb923c;">&#x25CF;</span> Time Out: ${timeStr}`;
+                    stampTime.classList.remove('hidden');
+
                 } else {
-                    // Error UI
-                    iconBox.innerHTML = `<div class="bg-rose-500/20 text-rose-400 rounded-full p-6 shadow-[0_0_30px_rgba(251,113,133,0.4)] border border-rose-500/50"><svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></div>`;
-                    title.className = "text-4xl font-black uppercase tracking-widest text-rose-400 drop-shadow-lg";
-                    title.innerText = "ERROR";
+                    // ===== ERROR — Red =====
+                    resultDiv.style.background = 'linear-gradient(135deg, #1f0a0a 0%, #3b0e0e 50%, #1a0808 100%)';
+                    accentBar.style.background = 'linear-gradient(to right, transparent, #f87171, transparent)';
+
+                    badge.classList.add('hidden');
+
+                    iconBox.innerHTML = `
+                        <div class="bounce-in rounded-full p-7 border-2 border-rose-500/50"
+                             style="background:rgba(251,113,133,0.12); box-shadow:0 0 40px rgba(251,113,133,0.3);">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>`;
+
+                    title.className = "text-5xl font-black uppercase tracking-widest slide-up";
+                    title.style.color = '#f87171';
+                    title.innerText = 'DENIED';
+
+                    msg.style.color = '#fca5a5';
+                    msg.className = 'text-xl font-semibold mt-3 slide-up-delay';
+                    stampTime.classList.add('hidden');
                 }
-                
+
                 msg.innerText = data.message;
 
-                // Reset after 3 seconds
-                setTimeout(() => { 
+                // Reset after 4 seconds
+                setTimeout(() => {
                     resultDiv.classList.add('hidden');
                     resultDiv.classList.remove('flex');
-                    inputField.focus(); // Refocus for next person
-                }, 3000);
+                    inputField.focus();
+                }, 4000);
             })
             .catch(error => {
                 console.error('Error:', error);
