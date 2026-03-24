@@ -8,7 +8,7 @@
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
                         <img src="{{ asset('images/logo.png') }}" class="block h-12 w-auto transition transform group-hover:scale-110 drop-shadow-md" alt="M7 Logo">
                         <div class="hidden lg:block">
-                            <h1 class="text-white font-bold text-lg leading-tight tracking-wide group-hover:text-indigo-200 transition">M7 PCIS</h1>
+                            <h1 class="font-bold text-lg leading-tight tracking-wide transition"><span class="text-red-500">M</span><span class="text-blue-400">7</span><span class="text-white group-hover:text-indigo-200 transition"> PCIS</span></h1>
                             <p class="text-[10px] text-indigo-300 uppercase font-semibold tracking-wider">HR & Payroll</p>
                         </div>
                     </a>
