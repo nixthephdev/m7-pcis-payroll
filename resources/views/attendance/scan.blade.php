@@ -108,7 +108,7 @@
             <!-- Header Section -->
             <div class="text-center mb-8">
                 <div class="mb-4">
-                    <img src="{{ asset('images/logo.png') }}" class="h-24 w-24 object-contain mx-auto" style="filter: drop-shadow(0 0 6px rgba(99,102,241,0.5));">
+                    <img src="{{ asset('images/logo.png') }}" class="object-contain mx-auto" style="height:150px;width:150px;filter: drop-shadow(0 0 6px rgba(99,102,241,0.5));">
                 </div>
                 <h1 class="text-2xl font-extrabold tracking-tight">
                     <span class="text-red-500">M</span><span class="text-blue-500">7</span> PCIS ATTENDANCE
