@@ -5,7 +5,7 @@
             <img src="{{ asset('images/logo.png') }}" alt="M7 PCIS" class="preloader-logo">
             <div class="shimmer-sweep"></div>
         </div>
-        <p class="preloader-title">M7 PCIS</p>
+        <p class="preloader-title"><span style="color:#ef4444;">M</span><span style="color:#3b82f6;">7</span> PCIS</p>
         <p class="preloader-sub">Loading, please wait...</p>
         <div class="preloader-bar-track">
             <div class="preloader-bar"></div>
