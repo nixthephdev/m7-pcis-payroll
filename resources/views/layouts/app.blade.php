@@ -22,6 +22,7 @@
           x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))"
           :class="{ 'dark': darkMode }">
         
+        @include('partials.preloader')
         <div class="min-h-screen bg-gray-100 dark:bg-slate-900 transition-colors duration-300">
             @include('layouts.navigation')
 

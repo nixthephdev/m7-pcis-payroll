@@ -96,6 +96,8 @@
 </head>
 <body class="flex items-center justify-center min-h-screen animated-bg p-4 text-white">
 
+    @include('partials.preloader')
+
     <!-- Glassmorphism Card -->
     <div class="w-full max-w-lg bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden relative">
         
