@@ -92,7 +92,6 @@
         /* Badge pill */
         .badge-clockin  { background: rgba(52,211,153,0.15); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.4); }
         .badge-clockout { background: rgba(251,146,60,0.15);  color: #fdba74; border: 1px solid rgba(251,146,60,0.4); }
-
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen animated-bg p-4 text-white">
@@ -107,8 +106,8 @@
             
             <!-- Header Section -->
             <div class="text-center mb-8">
-                <div class="mb-4">
-                    <img src="{{ asset('images/logo.png') }}" class="object-contain mx-auto" style="height:150px;width:150px;filter: drop-shadow(0 0 6px rgba(99,102,241,0.5));">
+                <div class="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 shadow-lg border border-white/10 backdrop-blur-md">
+                    <img src="{{ asset('images/logo.png') }}" class="h-16 w-auto drop-shadow-md">
                 </div>
                 <h1 class="text-2xl font-extrabold tracking-tight">
                     <span class="text-red-500">M</span><span class="text-blue-500">7</span> PCIS ATTENDANCE
