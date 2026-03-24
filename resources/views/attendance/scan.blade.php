@@ -93,35 +93,6 @@
         .badge-clockin  { background: rgba(52,211,153,0.15); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.4); }
         .badge-clockout { background: rgba(251,146,60,0.15);  color: #fdba74; border: 1px solid rgba(251,146,60,0.4); }
 
-        /* Logo ring */
-        .logo-ring {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, #6366f1, #06b6d4, #34d399, #6366f1);
-            animation: spinRing 4s linear infinite;
-            box-shadow: 0 0 30px rgba(99,102,241,0.5), 0 0 60px rgba(6,182,212,0.2);
-        }
-        .logo-ring::before {
-            content: '';
-            position: absolute;
-            inset: 3px;
-            border-radius: 50%;
-            background: #0f172a;
-            z-index: 0;
-        }
-        .logo-ring img {
-            position: relative;
-            z-index: 1;
-            border-radius: 50%;
-        }
-        @keyframes spinRing {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen animated-bg p-4 text-white">
@@ -136,8 +107,8 @@
             
             <!-- Header Section -->
             <div class="text-center mb-8">
-                <div class="logo-ring mb-4">
-                    <img src="{{ asset('images/logo.png') }}" class="h-20 w-20 object-contain" style="filter: drop-shadow(0 0 8px rgba(99,102,241,0.6));">
+                <div class="mb-4">
+                    <img src="{{ asset('images/logo.png') }}" class="h-14 w-14 object-contain mx-auto" style="filter: drop-shadow(0 0 6px rgba(99,102,241,0.5));">
                 </div>
                 <h1 class="text-2xl font-extrabold tracking-tight">
                     <span class="text-red-500">M</span><span class="text-blue-500">7</span> PCIS ATTENDANCE
