@@ -184,10 +184,12 @@ class EmployeeController extends Controller
             'sss_no'                  => $request->sss_no,
             'philhealth_no'           => $request->philhealth_no,
             'pagibig_no'              => $request->pagibig_no,
-            'bank_name'               => $request->bank_name,
-            'bank_account_name'       => $request->bank_account_name,
-            'bank_account_number'     => $request->bank_account_number,
-            'mental_health'           => $request->mental_health,
+            'bank_name'                 => $request->bank_name,
+            'bank_account_name'         => $request->bank_account_name,
+            'bank_account_number'       => $request->bank_account_number,
+            'mental_health'             => $request->mental_health,
+            'emergency_contact_person'  => $request->emergency_contact_person,
+            'emergency_contact_number'  => $request->emergency_contact_number,
         ];
 
         // File uploads
@@ -484,9 +486,11 @@ class EmployeeController extends Controller
             'sss_no'            => $request->sss_no,
             'philhealth_no'     => $request->philhealth_no,
             'pagibig_no'        => $request->pagibig_no,
-            'bank_name'         => $request->bank_name,
-            'bank_account_name' => $request->bank_account_name,
-            'bank_account_number' => $request->bank_account_number,
+            'bank_name'                 => $request->bank_name,
+            'bank_account_name'         => $request->bank_account_name,
+            'bank_account_number'       => $request->bank_account_number,
+            'emergency_contact_person'  => $request->emergency_contact_person,
+            'emergency_contact_number'  => $request->emergency_contact_number,
         ];
 
         $fileFields = [

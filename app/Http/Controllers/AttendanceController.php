@@ -88,13 +88,28 @@ class AttendanceController extends Controller
             ? ($person->user->name ?? 'Unknown Employee')
             : ($person->full_name ?? ($person->first_name . ' ' . $person->last_name));
 
-        $now  = Carbon::now();
-        $date = $now->format('Y-m-d');
+        $now       = Carbon::now();
+        $date      = $now->format('Y-m-d');
+        $yesterday = $now->copy()->subDay()->format('Y-m-d');
 
         $attendance = Attendance::where('attendable_id', $person->id)
                                 ->where('attendable_type', $type)
                                 ->where('date', $date)
                                 ->first();
+
+        // Night shift: if no record today and it's still early morning,
+        // check if there's an open clock-in from yesterday (overnight shift).
+        if (!$attendance && $now->hour < 12) {
+            $nightShiftRecord = Attendance::where('attendable_id', $person->id)
+                                          ->where('attendable_type', $type)
+                                          ->where('date', $yesterday)
+                                          ->whereNull('time_out')
+                                          ->first();
+            if ($nightShiftRecord) {
+                $attendance = $nightShiftRecord;
+                $date       = $yesterday; // use yesterday's date for undertime calc
+            }
+        }
 
         if ($attendance) {
             // TIME OUT
@@ -110,6 +125,10 @@ class AttendanceController extends Controller
             $undertimeMinutes = 0;
             if ($type === 'App\Models\Employee' && $person->schedule) {
                 $scheduledOut = Carbon::parse($date . ' ' . $person->schedule->time_out);
+                // For overnight schedules, if scheduled out is before time_in, add a day
+                if ($scheduledOut->lt(Carbon::parse($attendance->time_in))) {
+                    $scheduledOut->addDay();
+                }
                 if ($now->lt($scheduledOut)) {
                     $undertimeMinutes = (int) $now->diffInMinutes($scheduledOut);
                 }
