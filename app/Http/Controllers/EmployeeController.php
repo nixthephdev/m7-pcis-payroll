@@ -230,6 +230,7 @@ class EmployeeController extends Controller
         $path = $request->file('photo')->store('employee-photos', 'public');
 
         $employee->update(['photo_path' => $path]);
+        $employee->user->update(['avatar' => $path]);
 
         return redirect()->back()
             ->with('message', 'Employee photo updated successfully.')
@@ -519,9 +520,11 @@ class EmployeeController extends Controller
     {
         $request->validate(['photo' => 'required|file|mimes:jpg,jpeg,png|max:5120']);
 
-        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $employee = $user->employee;
         $path = $request->file('photo')->store('employee-photos', 'public');
         $employee->update(['photo_path' => $path]);
+        $user->update(['avatar' => $path]);
 
         return redirect()->route('employee.myProfile')
             ->with('message', 'Profile photo updated.')
