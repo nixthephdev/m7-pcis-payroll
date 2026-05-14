@@ -13,7 +13,8 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
         <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
+        <!--<script src="https://cdn.tailwindcss.com"></script>-->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>
             body { font-family: 'Inter', sans-serif; }
             .animated-bg {
@@ -80,7 +81,7 @@
                 </h1>
                 
                 <p class="mt-4 text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                    A comprehensive solution for M7 Philippine Cambridge School. 
+                    A comprehensive solution for M7 Philippine Cambridge International School. 
                     Streamlining attendance, salary computation, and employee management in one secure platform.
                 </p>
 

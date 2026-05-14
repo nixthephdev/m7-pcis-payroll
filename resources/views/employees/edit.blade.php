@@ -1,4 +1,3 @@
-
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -11,19 +10,18 @@
         </div>
     </x-slot>
 
-    <div class="py-12" x-data="{ 
-    activeTab: '{{ session('active_tab') ?? (
-        $errors->has('school_name') || $errors->has('diploma') ? 'education' : 
-        ($errors->has('relation') ? 'family' : 
-        ($errors->has('title') || $errors->has('certificate') ? 'training' : 
-        ($errors->has('condition') ? 'health' : 'job'))) 
-    ) }}' 
-}">
+    <div class="py-12" x-data="{
+        activeTab: '{{ session('active_tab') ?? (
+            $errors->has('school_name') || $errors->has('diploma') ? 'education' :
+            ($errors->has('relation') ? 'family' :
+            ($errors->has('title') || $errors->has('certificate') ? 'training' :
+            ($errors->has('condition') ? 'health' : 'job')))
+        ) }}'
+    }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            <!-- SUCCESS NOTIFICATION -->
+
             @if(session('message'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
+                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
                      class="mb-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 px-4 py-3 rounded-lg relative shadow-sm flex items-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -40,24 +38,24 @@
 
             <!-- TABS NAVIGATION -->
             <div class="flex space-x-1 bg-white dark:bg-slate-800 p-1.5 rounded-xl shadow-sm mb-8 overflow-x-auto border border-gray-200 dark:border-slate-700">
-                <button @click="activeTab = 'job'" :class="activeTab === 'job' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Employment</button>
-                <button @click="activeTab = 'personal'" :class="activeTab === 'personal' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Personal (201)</button>
-                <button @click="activeTab = 'education'" :class="activeTab === 'education' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Education</button>
-                <button @click="activeTab = 'training'" :class="activeTab === 'training' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Trainings</button>
-                <button @click="activeTab = 'family'" :class="activeTab === 'family' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Family</button>
-                <button @click="activeTab = 'health'" :class="activeTab === 'health' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Health</button>
-                <button @click="activeTab = 'salary'" :class="activeTab === 'salary' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Salary</button>
+                <button @click="activeTab = 'job'"       :class="activeTab === 'job'       ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Employment</button>
+                <button @click="activeTab = 'personal'"  :class="activeTab === 'personal'  ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Personal (201)</button>
+                <button @click="activeTab = 'education'" :class="activeTab === 'education' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Education & Work History</button>
+                <button @click="activeTab = 'training'"  :class="activeTab === 'training'  ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Trainings & Licenses</button>
+                <button @click="activeTab = 'family'"    :class="activeTab === 'family'    ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Family</button>
+                <button @click="activeTab = 'health'"    :class="activeTab === 'health'    ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Health</button>
+                <button @click="activeTab = 'salary'"    :class="activeTab === 'salary'    ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'" class="px-5 py-2 rounded-lg text-sm font-bold transition whitespace-nowrap">Salary</button>
             </div>
 
-            <!-- ========================================== -->
-            <!-- TAB 1: EMPLOYMENT DETAILS (PREMIUM LAYOUT) -->
-            <!-- ========================================== -->
+            {{-- ======================================================= --}}
+            {{-- TAB 1: EMPLOYMENT --}}
+            {{-- ======================================================= --}}
             <div x-show="activeTab === 'job'" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
                 <div class="p-8">
                     <form action="{{ route('employees.update', $employee->id) }}" method="POST">
                         @csrf @method('PUT')
 
-                        <!-- SECTION 1: IDENTITY & ACCESS -->
+                        <!-- System Access -->
                         <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
                             <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">System Access & Identity</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -73,17 +71,17 @@
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">System Role</label>
                                     <select name="role" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                         <option value="employee" {{ $employee->user->role == 'employee' ? 'selected' : '' }}>Regular Employee</option>
-                                        <option value="admin" {{ $employee->user->role == 'admin' ? 'selected' : '' }}>HR / Admin</option>
-                                        <option value="guard" {{ $employee->user->role == 'guard' ? 'selected' : '' }}>Security Guard</option>
+                                        <option value="admin"    {{ $employee->user->role == 'admin'    ? 'selected' : '' }}>HR / Admin</option>
+                                        <option value="guard"    {{ $employee->user->role == 'guard'    ? 'selected' : '' }}>Security Guard</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SECTION 2: JOB DETAILS -->
+                        <!-- Job Details -->
                         <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
                             <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Job Position & Schedule</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Job Position</label>
                                     <input type="text" name="position" value="{{ old('position', $employee->position) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5" required>
@@ -91,32 +89,67 @@
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Direct Supervisor</label>
                                     <select name="supervisor_id" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-    <option value="">-- None (Direct to HR) --</option>
-    
-    {{-- Loop through the FILTERED variable passed from Controller --}}
-    @foreach($supervisors as $sup)
-        <option value="{{ $sup->id }}" {{ $employee->supervisor_id == $sup->id ? 'selected' : '' }}>
-            {{ $sup->user->name }} ({{ $sup->position }})
-        </option>
-    @endforeach
-    
-</select>
+                                        <option value="">-- None (Direct to HR) --</option>
+                                        @foreach($supervisors as $sup)
+                                            <option value="{{ $sup->id }}" {{ $employee->supervisor_id == $sup->id ? 'selected' : '' }}>
+                                                {{ $sup->user->name }} ({{ $sup->position }})
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Assigned Schedule</label>
                                     <select name="schedule_id" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                         <option value="">-- Select Schedule --</option>
-                                        @foreach(\App\Models\Schedule::all() as $sched)
+                                        @foreach($schedules as $sched)
                                             <option value="{{ $sched->id }}" {{ $employee->schedule_id == $sched->id ? 'selected' : '' }}>{{ $sched->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Joining Date</label>
+                                    <input type="date" name="joining_date" value="{{ old('joining_date', $employee->joining_date) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
                             </div>
                         </div>
 
-                        <!-- SECTION 3: COMPENSATION -->
+                        <!-- Leave Credits -->
+                        <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
+                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Leave Credits</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Vacation Leave</label>
+                                    <input type="number" step="0.5" name="vacation_credits" value="{{ old('vacation_credits', $employee->vacation_credits) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Sick Leave</label>
+                                    <input type="number" step="0.5" name="sick_credits" value="{{ old('sick_credits', $employee->sick_credits) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Birthday Leave</label>
+                                    <input type="number" step="1" name="birthday_leave_credits" value="{{ old('birthday_leave_credits', $employee->birthday_leave_credits ?? 1) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Incentive Hours</label>
+                                    <input type="number" step="0.5" name="incentive_hours_credits" value="{{ old('incentive_hours_credits', $employee->incentive_hours_credits ?? 0) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Solo Parent Leave</label>
+                                    <input type="number" step="1" name="solo_parent_leave_credits" value="{{ old('solo_parent_leave_credits', $employee->solo_parent_leave_credits ?? 0) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" name="is_solo_parent" value="1" {{ $employee->is_solo_parent ? 'checked' : '' }}
+                                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">This employee is a qualified Solo Parent (eligible for Solo Parent Leave)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Salary (read-only display) -->
                         <div>
-                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Compensation & Leaves</h4>
+                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Compensation</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Current Basic Salary</label>
@@ -124,40 +157,58 @@
                                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                             <span class="text-gray-500 sm:text-sm">₱</span>
                                         </div>
-                                        <input type="text" value="{{ number_format($employee->basic_salary, 2) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-gray-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed pl-7 sm:text-sm py-2.5 focus:border-gray-300 focus:ring-0" readonly>
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                        </div>
+                                        <input type="text" value="{{ number_format($employee->basic_salary, 2) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-gray-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed pl-7 sm:text-sm py-2.5" readonly>
                                     </div>
                                     <p class="mt-2 text-[10px] text-indigo-500 dark:text-indigo-400 font-medium">*To change salary, use the "Salary" tab.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Vacation Credits</label>
-                                    <input type="number" name="vacation_credits" value="{{ old('vacation_credits', $employee->vacation_credits) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Sick Credits</label>
-                                    <input type="number" name="sick_credits" value="{{ old('sick_credits', $employee->sick_credits) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex justify-end pt-8 mt-4">
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold text-sm shadow-md transition-all hover:-translate-y-0.5">Save Changes</button>
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold text-sm shadow-md transition-all hover:-translate-y-0.5">Save Employment Details</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- ========================================== -->
-            <!-- TAB 2: PERSONAL INFO (201) (PREMIUM LAYOUT)-->
-            <!-- ========================================== -->
+            {{-- ======================================================= --}}
+            {{-- TAB 2: PERSONAL (201) --}}
+            {{-- ======================================================= --}}
             <div x-show="activeTab === 'personal'" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
                 <div class="p-8">
-                    <form action="{{ route('employees.updatePersonal', $employee->id) }}" method="POST">
+
+                    {{-- PHOTO SECTION (HR/Admin only) --}}
+                    <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
+                        <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Official Employee Photo <span class="text-xs text-red-500 font-normal normal-case">(HR / IT Admin only)</span></h4>
+                        <div class="flex items-center gap-6">
+                            <div class="flex-shrink-0">
+                                @if($employee->photo_path)
+                                    <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="Employee Photo" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-200 dark:border-indigo-700 shadow">
+                                @else
+                                    <div class="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center border-4 border-dashed border-slate-300 dark:border-slate-600">
+                                        <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="flex-1">
+                                <form action="{{ route('employees.uploadPhoto', $employee->id) }}" method="POST" enctype="multipart/form-data" class="flex items-end gap-4">
+                                    @csrf
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Upload Official Photo</label>
+                                        <input type="file" name="photo" accept="image/jpeg,image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                        <p class="text-[10px] text-gray-400 mt-1">JPG or PNG only. Max 5MB. This photo is for official 201 file use.</p>
+                                    </div>
+                                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md font-bold text-sm shadow-sm transition-all whitespace-nowrap">Upload Photo</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- PERSONAL DETAILS FORM --}}
+                    <form action="{{ route('employees.updatePersonal', $employee->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf @method('PUT')
-                        
-                        <!-- SECTION 1: FULL NAME -->
+
+                        <!-- Full Name -->
                         <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
                             <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Full Legal Name</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -167,7 +218,7 @@
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Middle Name</label>
-                                    <input type="text" name="middle_name" value="{{ $employee->middle_name }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <input type="text" name="middle_name" value="{{ old('middle_name', $employee->middle_name) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Last Name</label>
@@ -176,53 +227,180 @@
                             </div>
                         </div>
 
-                        <!-- SECTION 2: DEMOGRAPHICS -->
+                        <!-- Birth & Demographics -->
                         <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
-                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Demographics & Contact</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Birth & Demographics</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Birthdate</label>
-                                    <input type="date" name="birthdate" value="{{ $employee->birthdate }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <input type="date" name="birthdate" value="{{ old('birthdate', $employee->birthdate) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Contact No.</label>
-                                    <input type="text" name="contact_number" value="{{ $employee->contact_number }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Birth Place</label>
+                                    <input type="text" name="birthplace" value="{{ old('birthplace', $employee->birthplace) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Marital Status</label>
+                                    <select name="marital_status" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                        <option value="">-- Select --</option>
+                                        <option value="Single"  {{ old('marital_status', $employee->marital_status) == 'Single'  ? 'selected' : '' }}>Single</option>
+                                        <option value="Married" {{ old('marital_status', $employee->marital_status) == 'Married' ? 'selected' : '' }}>Married</option>
+                                        <option value="Widowed" {{ old('marital_status', $employee->marital_status) == 'Widowed' ? 'selected' : '' }}>Widowed</option>
+                                        <option value="Separated" {{ old('marital_status', $employee->marital_status) == 'Separated' ? 'selected' : '' }}>Separated</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
+                                        Birth Certificate
+                                        @if($employee->birth_certificate_path)
+                                            — <a href="{{ asset('storage/'.$employee->birth_certificate_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View Current</a>
+                                        @endif
+                                    </label>
+                                    <input type="file" name="birth_certificate" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
+                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Contact Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Personal Contact Number</label>
+                                    <input type="text" name="contact_number" value="{{ old('contact_number', $employee->contact_number) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Personal Email Address</label>
+                                    <input type="email" name="personal_email" value="{{ old('personal_email', $employee->personal_email) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Complete Home Address</label>
-                                    <input type="text" name="address" value="{{ $employee->address }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <input type="text" name="address" value="{{ old('address', $employee->address) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SECTION 3: GOVT IDS -->
+                        <!-- Interests -->
                         <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
-                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Government Identification</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Personal Interests</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">TIN Number</label>
-                                    <input type="text" name="tin_no" value="{{ $employee->tin_no }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Special Interests</label>
+                                    <textarea name="special_interests" rows="3" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('special_interests', $employee->special_interests) }}</textarea>
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">SSS Number</label>
-                                    <input type="text" name="sss_no" value="{{ $employee->sss_no }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Philhealth No.</label>
-                                    <input type="text" name="philhealth_no" value="{{ $employee->philhealth_no }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Pag-Ibig No.</label>
-                                    <input type="text" name="pagibig_no" value="{{ $employee->pagibig_no }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Hobbies</label>
+                                    <textarea name="hobbies" rows="3" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('hobbies', $employee->hobbies) }}</textarea>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SECTION 4: EXTRA -->
-                        <div>
-                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Additional Information</h4>
-                            <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Special Interests / Hobbies</label>
-                            <textarea name="hobbies" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" rows="3">{{ $employee->hobbies }}</textarea>
+                        <!-- Government IDs + Proofs -->
+                        <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
+                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Government Identification & 201 Documents</h4>
+
+                            {{-- NBI --}}
+                            <div class="mb-5 p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
+                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
+                                    NBI Clearance
+                                    @if($employee->nbi_clearance_path) — <a href="{{ asset('storage/'.$employee->nbi_clearance_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View Current</a> @endif
+                                </label>
+                                <input type="file" name="nbi_clearance" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                            </div>
+
+                            {{-- TIN --}}
+                            <div class="mb-5 p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">TIN Number</label>
+                                        <input type="text" name="tin_no" value="{{ old('tin_no', $employee->tin_no) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
+                                            Attach TIN Proof
+                                            @if($employee->tin_proof_path) — <a href="{{ asset('storage/'.$employee->tin_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View</a> @endif
+                                        </label>
+                                        <input type="file" name="tin_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- SSS --}}
+                            <div class="mb-5 p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">SSS Number</label>
+                                        <input type="text" name="sss_no" value="{{ old('sss_no', $employee->sss_no) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
+                                            Attach SSS Proof
+                                            @if($employee->sss_proof_path) — <a href="{{ asset('storage/'.$employee->sss_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View</a> @endif
+                                        </label>
+                                        <input type="file" name="sss_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- PhilHealth --}}
+                            <div class="mb-5 p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">PhilHealth No.</label>
+                                        <input type="text" name="philhealth_no" value="{{ old('philhealth_no', $employee->philhealth_no) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
+                                            Attach PhilHealth Proof
+                                            @if($employee->philhealth_proof_path) — <a href="{{ asset('storage/'.$employee->philhealth_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View</a> @endif
+                                        </label>
+                                        <input type="file" name="philhealth_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Pag-Ibig --}}
+                            <div class="p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Pag-Ibig No.</label>
+                                        <input type="text" name="pagibig_no" value="{{ old('pagibig_no', $employee->pagibig_no) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
+                                            Attach Pag-Ibig Proof
+                                            @if($employee->pagibig_proof_path) — <a href="{{ asset('storage/'.$employee->pagibig_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View</a> @endif
+                                        </label>
+                                        <input type="file" name="pagibig_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bank Account -->
+                        <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
+                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Bank Account Details</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Bank Name</label>
+                                    <input type="text" name="bank_name" value="{{ old('bank_name', $employee->bank_name) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5" placeholder="e.g. BDO, BPI, UnionBank">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Account Name</label>
+                                    <input type="text" name="bank_account_name" value="{{ old('bank_account_name', $employee->bank_account_name) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Account Number</label>
+                                    <input type="text" name="bank_account_number" value="{{ old('bank_account_number', $employee->bank_account_number) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
+                                        Attach Proof of Bank Account
+                                        @if($employee->bank_proof_path) — <a href="{{ asset('storage/'.$employee->bank_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View Current</a> @endif
+                                    </label>
+                                    <input type="file" name="bank_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="text-right border-t border-gray-100 dark:border-slate-700 pt-8 mt-6">
@@ -232,244 +410,569 @@
                 </div>
             </div>
 
-            <!-- TAB 3: EDUCATION -->
-            <div x-show="activeTab === 'education'" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
-                <div class="p-8 border-b border-gray-100 dark:border-slate-700">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Educational Background</h3>
-                </div>
-                
-                <div class="p-8">
-                    <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300 mb-8">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
-                            <tr><th class="px-4 py-3 rounded-l-md">Level</th><th class="px-4 py-3">School Name</th><th class="px-4 py-3">Date Graduated</th><th class="px-4 py-3 rounded-r-md">Diploma</th></tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
-                            @foreach($employee->education as $edu)
-                            <tr>
-                                <td class="px-4 py-3">{{ $edu->level }}</td>
-                                <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $edu->school_name }}</td>
-                                <td class="px-4 py-3">{{ $edu->date_graduated ? \Carbon\Carbon::parse($edu->date_graduated)->format('m/d/Y') : '-' }}</td>
-                                <td class="px-4 py-3">
-                                    @if($edu->diploma_path) <a href="{{ asset('storage/'.$edu->diploma_path) }}" target="_blank" class="text-indigo-600 hover:underline">View</a> @else <span class="text-gray-400">-</span> @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            {{-- ======================================================= --}}
+            {{-- TAB 3: EDUCATION & EMPLOYMENT HISTORY --}}
+            {{-- ======================================================= --}}
+            <div x-show="activeTab === 'education'" class="space-y-6">
 
-                    <!-- Premium Add Form -->
-                    <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add New Education</h4>
-                        <form action="{{ route('employees.storeEducation', $employee->id) }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                            @csrf
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Level</label>
-                                <select name="level" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                    <option>Primary</option><option>Secondary</option><option>Tertiary</option><option>Post Grad</option><option>PhD</option>
-                                </select>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">School Name</label>
-                                <input type="text" name="school_name" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date Graduated</label>
-                                <input type="date" name="date_graduated" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            </div>
-                            <div class="md:col-span-3">
-    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Attach Diploma</label>
-    <input type="file" name="diploma" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
-    <!-- ADD THIS LINE: -->
-    <p class="text-[10px] text-gray-400 mt-1">Max size: 10MB. Formats: PDF, JPG, PNG.</p>
-</div>
-                            <div>
-                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-all">Add</button>
-                            </div>
-                        </form>
+                {{-- Education Records --}}
+                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                    <div class="p-6 border-b border-gray-100 dark:border-slate-700">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Educational Background</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                                <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-l-md">Level</th>
+                                        <th class="px-4 py-3">School Name</th>
+                                        <th class="px-4 py-3">Date Graduated</th>
+                                        <th class="px-4 py-3">Diploma</th>
+                                        <th class="px-4 py-3 rounded-r-md">Transcript (TOR)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                                    @forelse($employee->education as $edu)
+                                    <tr>
+                                        <td class="px-4 py-3 font-medium">{{ $edu->level }}</td>
+                                        <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $edu->school_name }}</td>
+                                        <td class="px-4 py-3">{{ $edu->date_graduated ? \Carbon\Carbon::parse($edu->date_graduated)->format('m/d/Y') : '-' }}</td>
+                                        <td class="px-4 py-3">
+                                            @if($edu->diploma_path) <a href="{{ asset('storage/'.$edu->diploma_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View</a> @else <span class="text-gray-400">—</span> @endif
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            @if($edu->tor_path) <a href="{{ asset('storage/'.$edu->tor_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View</a> @else <span class="text-gray-400">—</span> @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 italic">No education records yet.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add Education Record</h4>
+                            <form action="{{ route('employees.storeEducation', $employee->id) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Level</label>
+                                        <select name="level" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                            <option>Primary</option><option>Secondary</option><option>Tertiary</option><option>Post Grad</option><option>PhD</option>
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">School Name</label>
+                                        <input type="text" name="school_name" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date Graduated</label>
+                                        <input type="date" name="date_graduated" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Attach Diploma</label>
+                                        <input type="file" name="diploma" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                        <p class="text-[10px] text-gray-400 mt-1">PDF, JPG, PNG — max 10MB</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Attach Transcript of Records (TOR)</label>
+                                        <input type="file" name="tor" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                        <p class="text-[10px] text-gray-400 mt-1">PDF, JPG, PNG — max 10MB</p>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all">Add Education</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Employment History --}}
+                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                    <div class="p-6 border-b border-gray-100 dark:border-slate-700">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Employment History</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                                <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-l-md">From</th>
+                                        <th class="px-4 py-3">To</th>
+                                        <th class="px-4 py-3">Company</th>
+                                        <th class="px-4 py-3">Designation</th>
+                                        <th class="px-4 py-3 rounded-r-md">COE</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                                    @forelse($employee->employmentHistory as $job)
+                                    <tr>
+                                        <td class="px-4 py-3">{{ $job->from_date }}</td>
+                                        <td class="px-4 py-3">{{ $job->to_date ?? 'Present' }}</td>
+                                        <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $job->company_name }}</td>
+                                        <td class="px-4 py-3">{{ $job->designation }}</td>
+                                        <td class="px-4 py-3">
+                                            @if($job->coe_path) <a href="{{ asset('storage/'.$job->coe_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View COE</a> @else <span class="text-gray-400">—</span> @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 italic">No employment history added yet.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add Previous Employment</h4>
+                            <form action="{{ route('employees.storeEmploymentHistory', $employee->id) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">From (Month & Year)</label>
+                                        <input type="text" name="from_date" placeholder="e.g. June 2018" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">To (leave blank if current)</label>
+                                        <input type="text" name="to_date" placeholder="e.g. March 2023" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Company Name</label>
+                                        <input type="text" name="company_name" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Designation / Position</label>
+                                        <input type="text" name="designation" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                    <div class="md:col-span-3">
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Attach Certificate of Employment (COE)</label>
+                                        <input type="file" name="coe" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                        <p class="text-[10px] text-gray-400 mt-1">PDF, JPG, PNG — max 10MB</p>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all">Add Record</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 4: TRAININGS & LICENSES -->
-            <div x-show="activeTab === 'training'" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
-                <div class="p-8 border-b border-gray-100 dark:border-slate-700">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Trainings & Licenses</h3>
-                </div>
-                <div class="p-8">
-                    <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300 mb-8">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
-                            <tr><th class="px-4 py-3 rounded-l-md">Type</th><th class="px-4 py-3">Title / License</th><th class="px-4 py-3">Dates</th><th class="px-4 py-3 rounded-r-md">Certificate</th></tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
-                            @foreach($employee->trainings as $training)
-                            <tr>
-                                <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-bold {{ $training->type == 'License' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700' }}">{{ $training->type }}</span></td>
-                                <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $training->title }}</td>
-                                <td class="px-4 py-3">
-                                    {{ $training->start_date ? \Carbon\Carbon::parse($training->start_date)->format('m/d/Y') : '' }}
-                                    {{ $training->end_date ? ' - ' . \Carbon\Carbon::parse($training->end_date)->format('m/d/Y') : '' }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    @if($training->certificate_path) <a href="{{ asset('storage/'.$training->certificate_path) }}" target="_blank" class="text-indigo-600 hover:underline">View</a> @else - @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            {{-- ======================================================= --}}
+            {{-- TAB 4: TRAININGS & LICENSES (SPLIT) --}}
+            {{-- ======================================================= --}}
+            <div x-show="activeTab === 'training'" class="space-y-6">
 
-                    <!-- Premium Add Form -->
-                    <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add Training / License</h4>
-                        <form action="{{ route('employees.storeTraining', $employee->id) }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                            @csrf
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Type</label>
-                                <select name="type" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                    <option>Training</option><option>License</option>
-                                </select>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Title / License Name</label>
-                                <input type="text" name="title" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Start Date</label>
-                                <input type="date" name="start_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">End Date (Opt)</label>
-                                <input type="date" name="end_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            </div>
-                            <div class="md:col-span-2">
-    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Certificate</label>
-    <input type="file" name="certificate" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
-    <!-- ADD THIS LINE: -->
-    <p class="text-[10px] text-gray-400 mt-1">Max size: 10MB. Formats: PDF, JPG, PNG.</p>
-</div>
-                            <div>
-                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-all">Add</button>
-                            </div>
-                        </form>
+                {{-- LICENSES --}}
+                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                    <div class="p-6 border-b border-gray-100 dark:border-slate-700 flex items-center gap-3">
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-bold rounded-full uppercase">Licenses</span>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Professional Licenses</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                                <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-l-md">License Name</th>
+                                        <th class="px-4 py-3">License No.</th>
+                                        <th class="px-4 py-3">Date Issued</th>
+                                        <th class="px-4 py-3">Expiry Date</th>
+                                        <th class="px-4 py-3 rounded-r-md">Copy</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                                    @forelse($employee->trainings->where('type', 'License') as $lic)
+                                    <tr>
+                                        <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $lic->title }}</td>
+                                        <td class="px-4 py-3">{{ $lic->license_no ?? '—' }}</td>
+                                        <td class="px-4 py-3">{{ $lic->start_date ? \Carbon\Carbon::parse($lic->start_date)->format('m/d/Y') : '—' }}</td>
+                                        <td class="px-4 py-3">
+                                            @if($lic->expiry_date)
+                                                @php $exp = \Carbon\Carbon::parse($lic->expiry_date); @endphp
+                                                <span class="{{ $exp->isPast() ? 'text-red-600 font-bold' : ($exp->diffInDays() < 90 ? 'text-amber-600 font-bold' : '') }}">
+                                                    {{ $exp->format('m/d/Y') }}
+                                                    @if($exp->isPast()) <span class="text-xs">(Expired)</span> @endif
+                                                </span>
+                                            @else —
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            @if($lic->certificate_path) <a href="{{ asset('storage/'.$lic->certificate_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View</a> @else <span class="text-gray-400">—</span> @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 italic">No licenses added yet.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add License</h4>
+                            <form action="{{ route('employees.storeTraining', $employee->id) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="type" value="License">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">License Name</label>
+                                        <input type="text" name="title" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">License No.</label>
+                                        <input type="text" name="license_no" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date Issued</label>
+                                        <input type="date" name="start_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Expiry Date</label>
+                                        <input type="date" name="expiry_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Attach Copy of License</label>
+                                        <input type="file" name="certificate" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                        <p class="text-[10px] text-gray-400 mt-1">PDF, JPG, PNG — max 10MB</p>
+                                    </div>
+                                    <div class="flex items-end">
+                                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all">Add License</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- TRAININGS --}}
+                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                    <div class="p-6 border-b border-gray-100 dark:border-slate-700 flex items-center gap-3">
+                        <span class="px-3 py-1 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 text-xs font-bold rounded-full uppercase">Trainings</span>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Trainings Attended</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                                <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-l-md">Training / Details</th>
+                                        <th class="px-4 py-3">Inclusive Dates</th>
+                                        <th class="px-4 py-3 rounded-r-md">Certificate</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                                    @forelse($employee->trainings->where('type', 'Training') as $tr)
+                                    <tr>
+                                        <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $tr->title }}</td>
+                                        <td class="px-4 py-3">
+                                            {{ $tr->start_date ? \Carbon\Carbon::parse($tr->start_date)->format('M d, Y') : '' }}
+                                            {{ $tr->end_date ? ' — ' . \Carbon\Carbon::parse($tr->end_date)->format('M d, Y') : '' }}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            @if($tr->certificate_path) <a href="{{ asset('storage/'.$tr->certificate_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View</a> @else <span class="text-gray-400">—</span> @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr><td colspan="3" class="px-4 py-6 text-center text-gray-400 italic">No trainings added yet.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add Training</h4>
+                            <form action="{{ route('employees.storeTraining', $employee->id) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="type" value="Training">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Training / Details</label>
+                                        <input type="text" name="title" placeholder="e.g. IB Developing MYP" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Start Date</label>
+                                        <input type="date" name="start_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">End Date</label>
+                                        <input type="date" name="end_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div class="md:col-span-3">
+                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Attach Certificate (if applicable)</label>
+                                        <input type="file" name="certificate" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                        <p class="text-[10px] text-gray-400 mt-1">PDF, JPG, PNG — max 10MB</p>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all">Add Training</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 5: FAMILY -->
+            {{-- ======================================================= --}}
+            {{-- TAB 5: FAMILY --}}
+            {{-- ======================================================= --}}
             <div x-show="activeTab === 'family'" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
-                <div class="p-8 border-b border-gray-100 dark:border-slate-700">
+                <div class="p-6 border-b border-gray-100 dark:border-slate-700">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Family Background</h3>
                 </div>
-                <div class="p-8">
-                    <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300 mb-8">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
-                            <tr><th class="px-4 py-3 rounded-l-md">Relation</th><th class="px-4 py-3">Name</th><th class="px-4 py-3">Birthdate</th><th class="px-4 py-3 rounded-r-md">Occupation</th></tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
-                            @foreach($employee->family as $fam)
-                            <tr>
-                                <td class="px-4 py-3">{{ $fam->relation }}</td>
-                                <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $fam->name }}</td>
-                                <td class="px-4 py-3">{{ $fam->birthdate ? \Carbon\Carbon::parse($fam->birthdate)->format('m/d/Y') : '-' }}</td>
-                                <td class="px-4 py-3">{{ $fam->occupation }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                <div class="p-6">
 
-                    <!-- Premium Add Form -->
+                    {{-- Emergency Contact --}}
+                    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl">
+                        <h4 class="font-bold text-sm text-red-700 dark:text-red-400 uppercase mb-3">Emergency Contact</h4>
+                        <form action="{{ route('employees.updatePersonal', $employee->id) }}" method="POST" enctype="multipart/form-data">
+                            @csrf @method('PUT')
+                            {{-- pass all existing personal fields as hidden so only EC fields change --}}
+                            <input type="hidden" name="first_name" value="{{ $employee->first_name }}">
+                            <input type="hidden" name="last_name" value="{{ $employee->last_name }}">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                <div>
+                                    <label class="block text-xs font-bold text-red-600 dark:text-red-400 uppercase mb-1">Contact Person Name</label>
+                                    <input type="text" name="emergency_contact_person" value="{{ old('emergency_contact_person', $employee->emergency_contact_person) }}" class="block w-full rounded-md border-red-200 dark:border-red-800 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-red-400 focus:ring-red-400 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-red-600 dark:text-red-400 uppercase mb-1">Contact Number</label>
+                                    <input type="text" name="emergency_contact_number" value="{{ old('emergency_contact_number', $employee->emergency_contact_number) }}" class="block w-full rounded-md border-red-200 dark:border-red-800 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-red-400 focus:ring-red-400 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all">Save Emergency Contact</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    {{-- Family table --}}
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                            <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
+                                <tr>
+                                    <th class="px-4 py-3 rounded-l-md">Relation</th>
+                                    <th class="px-4 py-3">Full Name (Last, First, Middle)</th>
+                                    <th class="px-4 py-3">Birthday</th>
+                                    <th class="px-4 py-3">Place of Birth</th>
+                                    <th class="px-4 py-3 rounded-r-md">Occupation</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                                @forelse($employee->family as $fam)
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-1 rounded text-xs font-bold
+                                            {{ $fam->relation == 'Mother' ? 'bg-pink-100 text-pink-700' :
+                                               ($fam->relation == 'Father' ? 'bg-blue-100 text-blue-700' :
+                                               ($fam->relation == 'Spouse' ? 'bg-purple-100 text-purple-700' :
+                                               ($fam->relation == 'Child'  ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'))) }}">
+                                            {{ $fam->relation }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $fam->name }}</td>
+                                    <td class="px-4 py-3">{{ $fam->birthdate ? \Carbon\Carbon::parse($fam->birthdate)->format('m/d/Y') : '—' }}</td>
+                                    <td class="px-4 py-3">{{ $fam->birthplace ?? '—' }}</td>
+                                    <td class="px-4 py-3">{{ $fam->occupation ?? '—' }}</td>
+                                </tr>
+                                @empty
+                                <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 italic">No family members added yet.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
                     <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
                         <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add Family Member</h4>
-                        <form action="{{ route('employees.storeFamily', $employee->id) }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <form action="{{ route('employees.storeFamily', $employee->id) }}" method="POST">
                             @csrf
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Relation</label>
-                                <select name="relation" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                    <option>Spouse</option><option>Child</option><option>Father</option><option>Mother</option><option>Sibling</option>
-                                </select>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Full Name</label>
-                                <input type="text" name="name" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Birthdate</label>
-                                <input type="date" name="birthdate" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            </div>
-                            <div class="md:col-span-3">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Occupation</label>
-                                <input type="text" name="occupation" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-all">Add</button>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Relation</label>
+                                    <select name="relation" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <option>Mother</option><option>Father</option><option>Sibling</option><option>Spouse</option><option>Child</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Full Name (Last, First, Middle)</label>
+                                    <input type="text" name="name" placeholder="e.g. Dela Cruz, Juan, Santos" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Birthday</label>
+                                    <input type="date" name="birthdate" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Place of Birth</label>
+                                    <input type="text" name="birthplace" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Occupation</label>
+                                    <input type="text" name="occupation" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all">Add</button>
+                                </div>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 6: HEALTH & WELLNESS -->
-            <div x-show="activeTab === 'health'" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
-                <div class="p-8 border-b border-gray-100 dark:border-slate-700">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Health & Wellness</h3>
-                </div>
-                <div class="p-8">
-                    <!-- Mental Health Section -->
-                    <div class="mb-8">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-white mb-2">Mental Health Notes</label>
-                        <form action="{{ route('employees.updateHealthNotes', $employee->id) }}" method="POST">
-                            @csrf @method('PUT')
-                            <textarea name="mental_health" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" rows="3" placeholder="Enter mental health notes or history here...">{{ $employee->mental_health }}</textarea>
-                            <div class="text-right mt-3"><button type="submit" class="text-xs bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 shadow-sm">Save Notes</button></div>
-                        </form>
+            {{-- ======================================================= --}}
+            {{-- TAB 6: HEALTH --}}
+            {{-- ======================================================= --}}
+            <div x-show="activeTab === 'health'" class="space-y-6">
+
+                {{-- Pre-existing Conditions --}}
+                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                    <div class="p-6 border-b border-gray-100 dark:border-slate-700">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Health & Wellness</h3>
                     </div>
+                    <div class="p-6">
+                        {{-- Mental Health --}}
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold text-gray-700 dark:text-white mb-2">Mental Health Notes</label>
+                            <form action="{{ route('employees.updateHealthNotes', $employee->id) }}" method="POST">
+                                @csrf @method('PUT')
+                                <textarea name="mental_health" rows="3" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Enter mental health notes or history here...">{{ $employee->mental_health }}</textarea>
+                                <div class="text-right mt-3">
+                                    <button type="submit" class="text-xs bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 shadow-sm">Save Notes</button>
+                                </div>
+                            </form>
+                        </div>
 
-                    <h4 class="font-bold text-gray-700 dark:text-white mb-4">Physical Conditions</h4>
-                    <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300 mb-8">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
-                            <tr><th class="px-4 py-3 rounded-l-md">Condition</th><th class="px-4 py-3">Date Diagnosed</th><th class="px-4 py-3">Medication</th><th class="px-4 py-3 rounded-r-md">Dosage</th></tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
-                            @foreach($employee->health as $h)
-                            <tr>
-                                <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $h->condition }}</td>
-                                <td class="px-4 py-3">{{ $h->date_diagnosed ? \Carbon\Carbon::parse($h->date_diagnosed)->format('m/d/Y') : '-' }}</td>
-                                <td class="px-4 py-3">{{ $h->medication }}</td>
-                                <td class="px-4 py-3">{{ $h->dosage }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                        {{-- Pre-existing Conditions --}}
+                        <h4 class="font-bold text-gray-700 dark:text-white mb-3">Pre-existing Conditions</h4>
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                                <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-l-md">Condition</th>
+                                        <th class="px-4 py-3">Date Diagnosed</th>
+                                        <th class="px-4 py-3">Medication</th>
+                                        <th class="px-4 py-3 rounded-r-md">Dosage</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                                    @forelse($employee->health as $h)
+                                    <tr>
+                                        <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $h->condition }}</td>
+                                        <td class="px-4 py-3">{{ $h->date_diagnosed ? \Carbon\Carbon::parse($h->date_diagnosed)->format('m/d/Y') : '—' }}</td>
+                                        <td class="px-4 py-3">{{ $h->medication ?? '—' }}</td>
+                                        <td class="px-4 py-3">{{ $h->dosage ?? '—' }}</td>
+                                    </tr>
+                                    @empty
+                                    <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400 italic">No conditions recorded.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
 
-                    <!-- Premium Add Form -->
-                    <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add Pre-existing Condition</h4>
-                        <form action="{{ route('employees.storeHealth', $employee->id) }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                            @csrf
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Condition</label>
-                                <input type="text" name="condition" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date Diagnosed</label>
-                                <input type="date" name="date_diagnosed" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Medication</label>
-                                <input type="text" name="medication" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            </div>
-                            <div class="md:col-span-3">
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Dosage</label>
-                                <input type="text" name="dosage" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-all">Add</button>
-                            </div>
-                        </form>
+                        <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add Pre-existing Condition</h4>
+                            <form action="{{ route('employees.storeHealth', $employee->id) }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                @csrf
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Condition</label>
+                                    <input type="text" name="condition" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date Diagnosed</label>
+                                    <input type="date" name="date_diagnosed" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Medication</label>
+                                    <input type="text" name="medication" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Dosage</label>
+                                    <input type="text" name="dosage" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all">Add</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Annual Health Exams --}}
+                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                    <div class="p-6 border-b border-gray-100 dark:border-slate-700">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Annual Health Exams</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">APE and Drug Test results — updated yearly.</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                                <thead class="bg-gray-50 dark:bg-slate-700/50 uppercase text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-l-md">Type</th>
+                                        <th class="px-4 py-3">Year</th>
+                                        <th class="px-4 py-3">Notes</th>
+                                        <th class="px-4 py-3 rounded-r-md">Result File</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                                    @forelse($employee->healthExams as $exam)
+                                    <tr>
+                                        <td class="px-4 py-3">
+                                            <span class="px-2 py-1 rounded text-xs font-bold {{ $exam->exam_type == 'APE' ? 'bg-teal-100 text-teal-700' : 'bg-amber-100 text-amber-700' }}">{{ $exam->exam_type }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 font-bold text-gray-800 dark:text-white">{{ $exam->exam_year }}</td>
+                                        <td class="px-4 py-3">{{ $exam->result_notes ?? '—' }}</td>
+                                        <td class="px-4 py-3">
+                                            @if($exam->result_path) <a href="{{ asset('storage/'.$exam->result_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View Result</a> @else <span class="text-gray-400">—</span> @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400 italic">No exam results uploaded yet.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-4 uppercase tracking-wide">Add Exam Result</h4>
+                            <form action="{{ route('employees.storeHealthExam', $employee->id) }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                @csrf
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Exam Type</label>
+                                    <select name="exam_type" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <option value="APE">Annual Physical Exam (APE)</option>
+                                        <option value="DrugTest">Drug Test</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Year</label>
+                                    <input type="number" name="exam_year" value="{{ date('Y') }}" min="2000" max="2100" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Notes / Result Summary</label>
+                                    <input type="text" name="result_notes" placeholder="e.g. Fit to work" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Attach Result</label>
+                                    <input type="file" name="result" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                </div>
+                                <div class="md:col-span-4 text-right">
+                                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-md font-bold text-sm shadow-sm transition-all">Add Exam Result</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 7: SALARY HISTORY -->
+            {{-- ======================================================= --}}
+            {{-- TAB 7: SALARY HISTORY --}}
+            {{-- ======================================================= --}}
             <div x-show="activeTab === 'salary'" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
                 <div class="flex justify-between items-center p-8 border-b border-gray-100 dark:border-slate-700">
                     <div>
@@ -481,14 +984,9 @@
                          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">₱{{ number_format($employee->basic_salary, 2) }}</p>
                     </div>
                 </div>
-
                 <div class="p-8">
-                    <!-- Update Salary Form -->
                     <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 mb-8">
-                        <h4 class="font-bold text-sm text-indigo-900 dark:text-indigo-200 mb-4 flex items-center gap-2 uppercase tracking-wide">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                            Promote / Update Salary
-                        </h4>
+                        <h4 class="font-bold text-sm text-indigo-900 dark:text-indigo-200 mb-4 uppercase tracking-wide">Promote / Update Salary</h4>
                         <form action="{{ route('employees.updateSalary', $employee->id) }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                             @csrf
                             <div>
@@ -500,7 +998,7 @@
                                 <input type="date" name="effective_date" class="block w-full rounded-md border-indigo-200 dark:border-indigo-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                             </div>
                             <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wide mb-1">Reason (e.g. Annual Increase)</label>
+                                <label class="block text-xs font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wide mb-1">Reason</label>
                                 <div class="flex gap-4">
                                     <input type="text" name="reason" class="block w-full rounded-md border-indigo-200 dark:border-indigo-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                                     <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md font-bold text-sm shadow-sm transition-all whitespace-nowrap">Update Salary</button>
@@ -509,7 +1007,6 @@
                         </form>
                     </div>
 
-                    <!-- History Table -->
                     <h4 class="font-bold text-gray-700 dark:text-white mb-4">History Log</h4>
                     <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-slate-700">
                         <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
@@ -522,19 +1019,16 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
-                                @foreach($employee->salaryHistory as $history)
+                                @forelse($employee->salaryHistory as $history)
                                 <tr>
                                     <td class="px-6 py-3">{{ \Carbon\Carbon::parse($history->effective_date)->format('m/d/Y') }}</td>
                                     <td class="px-6 py-3 font-medium text-gray-800 dark:text-white">{{ $history->reason }}</td>
                                     <td class="px-6 py-3 text-right text-gray-400">₱{{ number_format($history->previous_salary, 2) }}</td>
                                     <td class="px-6 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">₱{{ number_format($history->new_salary, 2) }}</td>
                                 </tr>
-                                @endforeach
-                                @if($employee->salaryHistory->isEmpty())
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-6 text-center text-gray-400 italic">No salary history recorded yet.</td>
-                                    </tr>
-                                @endif
+                                @empty
+                                <tr><td colspan="4" class="px-6 py-6 text-center text-gray-400 italic">No salary history recorded yet.</td></tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

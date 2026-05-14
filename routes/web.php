@@ -103,7 +103,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::post('/employees/{id}/training', [EmployeeController::class, 'storeTraining'])->name('employees.storeTraining');
     Route::post('/employees/{id}/health', [EmployeeController::class, 'storeHealth'])->name('employees.storeHealth');
-    Route::put('/employees/{id}/health-notes', [App\Http\Controllers\EmployeeController::class, 'updateHealthNotes'])->name('employees.updateHealthNotes');
+    Route::put('/employees/{id}/health-notes', [EmployeeController::class, 'updateHealthNotes'])->name('employees.updateHealthNotes');
+    Route::post('/employees/{id}/health-exam', [EmployeeController::class, 'storeHealthExam'])->name('employees.storeHealthExam');
+    Route::post('/employees/{id}/employment-history', [EmployeeController::class, 'storeEmploymentHistory'])->name('employees.storeEmploymentHistory');
+    Route::post('/employees/{id}/upload-photo', [EmployeeController::class, 'uploadPhoto'])->name('employees.uploadPhoto');
 });
 
 // 5. GUARD / SCANNER ROUTES (For Guard OR Admin)

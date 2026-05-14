@@ -7,12 +7,13 @@ use App\Models\Employee;
 use App\Models\User;
 use App\Models\Schedule;
 use App\Models\AuditLog;
+use App\Models\EmployeeEmploymentHistory;
+use App\Models\EmployeeHealthExam;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
-    // --- LIST EMPLOYEES ---
     public function index(Request $request) {
         $search = $request->get('search');
 
@@ -31,11 +32,9 @@ class EmployeeController extends Controller
         return view('employees.index', compact('employees', 'search'));
     }
 
-    // --- SHOW CREATE FORM ---
     public function create() {
-        $schedules = Schedule::all(); 
-        
-        // Fetch potential supervisors (Heads/Coordinators)
+        $schedules = Schedule::all();
+
         $supervisors = Employee::with('user')
             ->where(function($query) {
                 $query->where('position', 'LIKE', '%Head%')
@@ -46,7 +45,6 @@ class EmployeeController extends Controller
             })
             ->get();
 
-        // Fallback if no specific heads found, show all employees
         if ($supervisors->isEmpty()) {
             $supervisors = Employee::with('user')->get();
         }
@@ -54,137 +52,36 @@ class EmployeeController extends Controller
         return view('employees.create', compact('schedules', 'supervisors'));
     }
 
-    // --- STORE NEW EMPLOYEE ---
-    // --- STORE NEW EMPLOYEE ---
     public function store(Request $request)
     {
-        // 1. Validate (Updated to match your View's input names)
         $request->validate([
-            'first_name' => 'required|string|max:255', // Changed from 'name'
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'first_name'    => 'required|string|max:255',
+            'last_name'     => 'required|string|max:255',
+            'email'         => 'required|string|email|max:255|unique:users',
             'employee_code' => 'required|string|unique:employees',
-            'position' => 'required|string', // Changed from 'job_position' to match HTML name="position"
-            'role' => 'required',
-            'password' => 'required',
+            'position'      => 'required|string',
+            'role'          => 'required',
+            'password'      => 'required',
         ]);
 
-        // 2. Create User Account (Combine First + Last name)
-        $user = \App\Models\User::create([
-            'name' => $request->first_name . ' ' . $request->last_name,
-            'email' => $request->email,
+        $user = User::create([
+            'name'     => $request->first_name . ' ' . $request->last_name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'role'     => $request->role,
         ]);
 
-        // 3. Create Employee Profile
-        $employee = \App\Models\Employee::create([
-            'user_id' => $user->id,
-            'employee_code' => $request->employee_code,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'position' => $request->position, // Map input 'position' to DB column
-            'supervisor_id' => $request->supervisor_id,
-            'schedule_id' => $request->schedule_id,
-            'basic_salary' => $request->basic_salary ?? 0,
-            'vacation_credits' => $request->vacation_credits ?? 0,
-            'sick_credits' => $request->sick_credits ?? 0,
-            
-            // Personal Info (201 File)
-            'middle_name' => $request->middle_name,
-            'birthdate' => $request->birthdate,
-            'contact_number' => $request->contact_number,
-            'address' => $request->address,
-            'tin_no' => $request->tin_no,
-            'sss_no' => $request->sss_no,
-            'philhealth_no' => $request->philhealth_no,
-            'pagibig_no' => $request->pagibig_no,
-            'hobbies' => $request->hobbies,
-        ]);
-
-        // 4. Redirect to Edit Page (Education Tab)
-        return redirect()->route('employees.edit', $employee->id)
-            ->with('message', 'Employee record created! You can now add Education, Family, and other details.')
-            ->with('active_tab', 'education'); 
-    }
-
-    // --- SHOW EDIT FORM ---
-    public function edit($id) {
-        $employee = Employee::with(['user', 'education', 'family', 'trainings', 'health', 'salaryHistory'])->findOrFail($id);
-        
-        // STRICT FILTER: Only show Heads, Coordinators, Principals, Managers
-        $supervisors = Employee::with('user')
-            ->where('id', '!=', $id) // Exclude the employee themselves
-            ->where(function($query) {
-                $query->where('position', 'LIKE', '%Head%')        // Covers "Head of IT", "Headmaster"
-                      ->orWhere('position', 'LIKE', '%Coordinator%') // Covers "MYP Coordinator"
-                      ->orWhere('position', 'LIKE', '%Principal%')
-                      ->orWhere('position', 'LIKE', '%Manager%')
-                      ->orWhere('position', 'LIKE', '%Director%')
-                      ->orWhere('position', 'LIKE', '%Supervisor%');
-            })
-            ->orderBy('position', 'asc') // Sort nicely
-            ->get();
-
-        $schedules = Schedule::all(); 
-
-        return view('employees.edit', compact('employee', 'supervisors', 'schedules'));
-    }
-
-    // --- UPDATE EMPLOYMENT DETAILS (Tab 1) ---
-    public function update(Request $request, $id)
-    {
-        $employee = Employee::findOrFail($id);
-        
-        $request->validate([
-            'email' => 'required|email|unique:users,email,'.$employee->user_id,
-            'role' => 'required|in:admin,employee,guard',
-            'employee_code' => 'required',
-            'position' => 'required',
-        ]);
-
-        // Update User (Email & Role)
-        $employee->user->update([
-            'email' => $request->email,
-            'role' => $request->role,
-        ]);
-
-        // Update Employee (Position, Supervisor, Schedule, Leaves)
-        $employee->update([
-            'employee_code' => $request->employee_code,
-            'position' => $request->position,
-            'supervisor_id' => $request->supervisor_id,
-            'schedule_id' => $request->schedule_id,
-            'vacation_credits' => $request->vacation_credits,
-            'sick_credits' => $request->sick_credits,
-        ]);
-
-        return redirect()->back()
-            ->with('message', 'Employment details updated successfully.')
-            ->with('active_tab', 'job'); // Keeps Tab Open
-    }
-
-    // --- SHOW ID CARD ---
-    public function showIdCard($id) {
-        $employee = Employee::with('user')->findOrFail($id);
-        return view('employees.id_card', compact('employee'));
-    }
-
-   // --- UPDATE PERSONAL INFO (Tab 2) ---
-    public function updatePersonal(Request $request, $id)
-    {
-        $employee = Employee::findOrFail($id);
-        
-        // 1. Update User Table (Combined Name for Login/Display)
-        $employee->user->update([
-            'name' => $request->first_name . ' ' . $request->last_name,
-        ]);
-
-        // 2. Update Employee Table (Explicitly save the split names)
-        // We list these out to ensure the new columns are definitely updated
-        $employee->update([
+        $employee = Employee::create([
+            'user_id'        => $user->id,
+            'employee_code'  => $request->employee_code,
             'first_name'     => $request->first_name,
             'last_name'      => $request->last_name,
+            'position'       => $request->position,
+            'supervisor_id'  => $request->supervisor_id,
+            'schedule_id'    => $request->schedule_id,
+            'basic_salary'   => $request->basic_salary ?? 0,
+            'vacation_credits'  => $request->vacation_credits ?? 0,
+            'sick_credits'      => $request->sick_credits ?? 0,
             'middle_name'    => $request->middle_name,
             'birthdate'      => $request->birthdate,
             'contact_number' => $request->contact_number,
@@ -194,159 +91,356 @@ class EmployeeController extends Controller
             'philhealth_no'  => $request->philhealth_no,
             'pagibig_no'     => $request->pagibig_no,
             'hobbies'        => $request->hobbies,
-            'mental_health'  => $request->mental_health,
-            // Add 'mental_health' here if it's part of this form, 
-            // otherwise keep it in its own function.
+        ]);
+
+        return redirect()->route('employees.edit', $employee->id)
+            ->with('message', 'Employee record created! You can now add Education, Family, and other details.')
+            ->with('active_tab', 'education');
+    }
+
+    public function edit($id) {
+        $employee = Employee::with([
+            'user', 'education', 'family', 'trainings',
+            'health', 'salaryHistory', 'employmentHistory', 'healthExams'
+        ])->findOrFail($id);
+
+        $supervisors = Employee::with('user')
+            ->where('id', '!=', $id)
+            ->where(function($query) {
+                $query->where('position', 'LIKE', '%Head%')
+                      ->orWhere('position', 'LIKE', '%Coordinator%')
+                      ->orWhere('position', 'LIKE', '%Principal%')
+                      ->orWhere('position', 'LIKE', '%Manager%')
+                      ->orWhere('position', 'LIKE', '%Director%')
+                      ->orWhere('position', 'LIKE', '%Supervisor%');
+            })
+            ->orderBy('position', 'asc')
+            ->get();
+
+        $schedules = Schedule::all();
+
+        return view('employees.edit', compact('employee', 'supervisors', 'schedules'));
+    }
+
+    // --- UPDATE EMPLOYMENT DETAILS (Tab: Employment) ---
+    public function update(Request $request, $id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        $request->validate([
+            'email'         => 'required|email|unique:users,email,'.$employee->user_id,
+            'role'          => 'required|in:admin,employee,guard',
+            'employee_code' => 'required',
+            'position'      => 'required',
+        ]);
+
+        $employee->user->update([
+            'email' => $request->email,
+            'role'  => $request->role,
+        ]);
+
+        $employee->update([
+            'employee_code'              => $request->employee_code,
+            'position'                   => $request->position,
+            'supervisor_id'              => $request->supervisor_id,
+            'schedule_id'                => $request->schedule_id,
+            'joining_date'               => $request->joining_date,
+            'vacation_credits'           => $request->vacation_credits,
+            'sick_credits'               => $request->sick_credits,
+            'birthday_leave_credits'     => $request->birthday_leave_credits ?? 1,
+            'solo_parent_leave_credits'  => $request->solo_parent_leave_credits ?? 0,
+            'is_solo_parent'             => $request->has('is_solo_parent') ? 1 : 0,
+            'incentive_hours_credits'    => $request->incentive_hours_credits ?? 0,
         ]);
 
         return redirect()->back()
-            ->with('message', 'Personal details updated successfully.')
-            ->with('active_tab', 'personal'); // Keeps Tab Open
+            ->with('message', 'Employment details updated successfully.')
+            ->with('active_tab', 'job');
     }
 
-    // --- UPDATE SALARY (Tab 7) ---
+    public function showIdCard($id) {
+        $employee = Employee::with('user')->findOrFail($id);
+        return view('employees.id_card', compact('employee'));
+    }
+
+    // --- UPDATE PERSONAL INFO (Tab: Personal 201) ---
+    public function updatePersonal(Request $request, $id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        $data = [
+            'first_name'              => $request->first_name,
+            'last_name'               => $request->last_name,
+            'middle_name'             => $request->middle_name,
+            'birthdate'               => $request->birthdate,
+            'birthplace'              => $request->birthplace,
+            'marital_status'          => $request->marital_status,
+            'contact_number'          => $request->contact_number,
+            'personal_email'          => $request->personal_email,
+            'address'                 => $request->address,
+            'special_interests'       => $request->special_interests,
+            'hobbies'                 => $request->hobbies,
+            'tin_no'                  => $request->tin_no,
+            'sss_no'                  => $request->sss_no,
+            'philhealth_no'           => $request->philhealth_no,
+            'pagibig_no'              => $request->pagibig_no,
+            'bank_name'               => $request->bank_name,
+            'bank_account_name'       => $request->bank_account_name,
+            'bank_account_number'     => $request->bank_account_number,
+            'mental_health'           => $request->mental_health,
+        ];
+
+        // File uploads
+        $fileFields = [
+            'birth_certificate' => 'birth_certificate_path',
+            'nbi_clearance'     => 'nbi_clearance_path',
+            'tin_proof'         => 'tin_proof_path',
+            'sss_proof'         => 'sss_proof_path',
+            'philhealth_proof'  => 'philhealth_proof_path',
+            'pagibig_proof'     => 'pagibig_proof_path',
+            'bank_proof'        => 'bank_proof_path',
+        ];
+
+        foreach ($fileFields as $inputName => $column) {
+            if ($request->hasFile($inputName)) {
+                $data[$column] = $request->file($inputName)->store('employee-docs', 'public');
+            }
+        }
+
+        $employee->user->update([
+            'name' => $request->first_name . ' ' . $request->last_name,
+        ]);
+
+        $employee->update($data);
+
+        return redirect()->back()
+            ->with('message', 'Personal details updated successfully.')
+            ->with('active_tab', 'personal');
+    }
+
+    // --- UPLOAD EMPLOYEE PHOTO (HR/Admin only) ---
+    public function uploadPhoto(Request $request, $id)
+    {
+        $request->validate([
+            'photo' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+        ]);
+
+        $employee = Employee::findOrFail($id);
+
+        $path = $request->file('photo')->store('employee-photos', 'public');
+
+        $employee->update(['photo_path' => $path]);
+
+        return redirect()->back()
+            ->with('message', 'Employee photo updated successfully.')
+            ->with('active_tab', 'personal');
+    }
+
+    // --- UPDATE SALARY ---
     public function updateSalary(Request $request, $id)
     {
         $request->validate([
-            'new_salary' => 'required|numeric',
+            'new_salary'     => 'required|numeric',
             'effective_date' => 'required|date',
-            'reason' => 'required|string'
+            'reason'         => 'required|string',
         ]);
 
         $employee = Employee::findOrFail($id);
         $oldSalary = $employee->basic_salary;
 
-        // Record History
         \App\Models\SalaryHistory::create([
-            'employee_id' => $employee->id,
+            'employee_id'     => $employee->id,
             'previous_salary' => $oldSalary,
-            'new_salary' => $request->new_salary,
-            'effective_date' => $request->effective_date,
-            'reason' => $request->reason,
+            'new_salary'      => $request->new_salary,
+            'effective_date'  => $request->effective_date,
+            'reason'          => $request->reason,
         ]);
 
-        // Update Current Salary
         $employee->update(['basic_salary' => $request->new_salary]);
 
         return redirect()->back()
             ->with('message', 'Salary updated and history recorded.')
-            ->with('active_tab', 'salary'); // Keeps Tab Open
+            ->with('active_tab', 'salary');
     }
-    
-    // --- STORE EDUCATION (Tab 3) ---
+
+    // --- STORE EDUCATION ---
     public function storeEducation(Request $request, $id)
     {
         $request->validate([
-            'school_name' => 'required',
-            'level' => 'required',
-            'date_graduated' => 'required|date',
-            // Changed max:2048 to max:10240 (10MB)
-            'diploma' => 'nullable|file|mimes:pdf,jpg,png|max:10240' 
+            'school_name'    => 'required',
+            'level'          => 'required',
+            'date_graduated' => 'nullable|date',
+            'diploma'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'tor'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
-        $path = null;
-        if($request->hasFile('diploma')){
-            $path = $request->file('diploma')->store('diplomas', 'public');
+        $diplomaPath = null;
+        if ($request->hasFile('diploma')) {
+            $diplomaPath = $request->file('diploma')->store('diplomas', 'public');
+        }
+
+        $torPath = null;
+        if ($request->hasFile('tor')) {
+            $torPath = $request->file('tor')->store('tor-files', 'public');
         }
 
         \App\Models\EmployeeEducation::create([
-            'employee_id' => $id,
-            'level' => $request->level,
-            'school_name' => $request->school_name,
+            'employee_id'    => $id,
+            'level'          => $request->level,
+            'school_name'    => $request->school_name,
             'date_graduated' => $request->date_graduated,
-            'diploma_path' => $path
+            'diploma_path'   => $diplomaPath,
+            'tor_path'       => $torPath,
         ]);
 
         return redirect()->back()
-            ->with('message', 'Education added successfully.')
-            ->with('active_tab', 'education'); // Keeps Tab Open
+            ->with('message', 'Education record added successfully.')
+            ->with('active_tab', 'education');
     }
 
-    // --- STORE FAMILY (Tab 5) ---
-    public function storeFamily(Request $request, $id)
+    // --- STORE EMPLOYMENT HISTORY ---
+    public function storeEmploymentHistory(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required',
-            'relation' => 'required',
-            'birthdate' => 'nullable|date',
-            'occupation' => 'nullable|string'
+            'company_name' => 'required|string',
+            'designation'  => 'required|string',
+            'from_date'    => 'required|string',
+            'coe'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
-        \App\Models\EmployeeFamily::create([
-            'employee_id' => $id,
-            'name' => $request->name,
-            'relation' => $request->relation,
-            'birthdate' => $request->birthdate,
-            'occupation' => $request->occupation
+        $coePath = null;
+        if ($request->hasFile('coe')) {
+            $coePath = $request->file('coe')->store('coe-files', 'public');
+        }
+
+        EmployeeEmploymentHistory::create([
+            'employee_id'  => $id,
+            'from_date'    => $request->from_date,
+            'to_date'      => $request->to_date ?: null,
+            'company_name' => $request->company_name,
+            'designation'  => $request->designation,
+            'coe_path'     => $coePath,
         ]);
 
         return redirect()->back()
-            ->with('message', 'Family member added successfully.')
-            ->with('active_tab', 'family'); // Keeps Tab Open
+            ->with('message', 'Employment history added successfully.')
+            ->with('active_tab', 'education');
     }
-    
-    // --- STORE TRAINING / LICENSE (Tab 4) ---
+
+    // --- STORE TRAINING / LICENSE ---
     public function storeTraining(Request $request, $id)
     {
-         $request->validate([
-            'title' => 'required|string',
-            'type' => 'required|string',
-            'start_date' => 'nullable|date',
-            // Changed max:2048 to max:10240 (10MB)
-            'certificate' => 'nullable|file|mimes:pdf,jpg,png|max:10240'
+        $request->validate([
+            'title'       => 'required|string',
+            'type'        => 'required|string',
+            'start_date'  => 'nullable|date',
+            'certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         $path = null;
-        if($request->hasFile('certificate')){
+        if ($request->hasFile('certificate')) {
             $path = $request->file('certificate')->store('certificates', 'public');
         }
 
         \App\Models\EmployeeTraining::create([
-            'employee_id' => $id,
-            'title' => $request->title,
-            'type' => $request->type,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'certificate_path' => $path
+            'employee_id'      => $id,
+            'title'            => $request->title,
+            'type'             => $request->type,
+            'license_no'       => $request->license_no,
+            'start_date'       => $request->start_date,
+            'end_date'         => $request->end_date,
+            'expiry_date'      => $request->expiry_date,
+            'certificate_path' => $path,
         ]);
 
         return redirect()->back()
-            ->with('message', 'Training/License added successfully.')
-            ->with('active_tab', 'training'); // Keeps Tab Open
+            ->with('message', ($request->type === 'License' ? 'License' : 'Training') . ' added successfully.')
+            ->with('active_tab', 'training');
     }
 
-    // --- STORE HEALTH RECORD (Tab 6) ---
+    // --- STORE FAMILY MEMBER ---
+    public function storeFamily(Request $request, $id)
+    {
+        $request->validate([
+            'name'     => 'required',
+            'relation' => 'required',
+            'birthdate'  => 'nullable|date',
+            'birthplace' => 'nullable|string',
+        ]);
+
+        \App\Models\EmployeeFamily::create([
+            'employee_id' => $id,
+            'name'        => $request->name,
+            'relation'    => $request->relation,
+            'birthdate'   => $request->birthdate,
+            'birthplace'  => $request->birthplace,
+            'occupation'  => $request->occupation,
+        ]);
+
+        return redirect()->back()
+            ->with('message', 'Family member added successfully.')
+            ->with('active_tab', 'family');
+    }
+
+    // --- STORE HEALTH RECORD ---
     public function storeHealth(Request $request, $id)
     {
         $request->validate([
-            'condition' => 'required|string',
+            'condition'     => 'required|string',
             'date_diagnosed' => 'nullable|date',
         ]);
 
         \App\Models\EmployeeHealth::create([
-            'employee_id' => $id,
-            'condition' => $request->condition,
+            'employee_id'    => $id,
+            'condition'      => $request->condition,
             'date_diagnosed' => $request->date_diagnosed,
-            'medication' => $request->medication,
-            'dosage' => $request->dosage
+            'medication'     => $request->medication,
+            'dosage'         => $request->dosage,
         ]);
 
         return redirect()->back()
             ->with('message', 'Health record added successfully.')
-            ->with('active_tab', 'health'); // Keeps Tab Open
+            ->with('active_tab', 'health');
     }
+
+    // --- STORE ANNUAL HEALTH EXAM (APE / Drug Test) ---
+    public function storeHealthExam(Request $request, $id)
+    {
+        $request->validate([
+            'exam_type' => 'required|in:APE,DrugTest',
+            'exam_year' => 'required|digits:4|integer',
+            'result'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $resultPath = null;
+        if ($request->hasFile('result')) {
+            $resultPath = $request->file('result')->store('health-exams', 'public');
+        }
+
+        EmployeeHealthExam::create([
+            'employee_id'  => $id,
+            'exam_type'    => $request->exam_type,
+            'exam_year'    => $request->exam_year,
+            'result_notes' => $request->result_notes,
+            'result_path'  => $resultPath,
+        ]);
+
+        return redirect()->back()
+            ->with('message', $request->exam_type . ' result for ' . $request->exam_year . ' added successfully.')
+            ->with('active_tab', 'health');
+    }
+
     // --- UPDATE MENTAL HEALTH NOTES ---
     public function updateHealthNotes(Request $request, $id)
     {
         $employee = Employee::findOrFail($id);
-        
-        // Only update the mental_health column
+
         $employee->update([
-            'mental_health' => $request->mental_health
+            'mental_health' => $request->mental_health,
         ]);
 
         return redirect()->back()
             ->with('message', 'Mental health notes saved successfully.')
-            ->with('active_tab', 'health'); // <--- Keeps you on the Health tab
+            ->with('active_tab', 'health');
     }
 }
