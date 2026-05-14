@@ -443,4 +443,247 @@ class EmployeeController extends Controller
             ->with('message', 'Mental health notes saved successfully.')
             ->with('active_tab', 'health');
     }
+
+    // =========================================================
+    // EMPLOYEE SELF-SERVICE
+    // =========================================================
+
+    public function myProfile()
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (!$user->employee) {
+            return redirect()->route('dashboard')->with('error', 'No employee profile linked to your account.');
+        }
+
+        $employee = Employee::with([
+            'user', 'education', 'family', 'trainings',
+            'health', 'salaryHistory', 'employmentHistory', 'healthExams', 'schedule'
+        ])->findOrFail($user->employee->id);
+
+        return view('employees.my_profile', compact('employee'));
+    }
+
+    public function updateMyPersonal(Request $request)
+    {
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+
+        $data = [
+            'first_name'        => $request->first_name,
+            'last_name'         => $request->last_name,
+            'middle_name'       => $request->middle_name,
+            'birthdate'         => $request->birthdate,
+            'birthplace'        => $request->birthplace,
+            'marital_status'    => $request->marital_status,
+            'contact_number'    => $request->contact_number,
+            'personal_email'    => $request->personal_email,
+            'address'           => $request->address,
+            'special_interests' => $request->special_interests,
+            'hobbies'           => $request->hobbies,
+            'tin_no'            => $request->tin_no,
+            'sss_no'            => $request->sss_no,
+            'philhealth_no'     => $request->philhealth_no,
+            'pagibig_no'        => $request->pagibig_no,
+            'bank_name'         => $request->bank_name,
+            'bank_account_name' => $request->bank_account_name,
+            'bank_account_number' => $request->bank_account_number,
+        ];
+
+        $fileFields = [
+            'birth_certificate' => 'birth_certificate_path',
+            'nbi_clearance'     => 'nbi_clearance_path',
+            'tin_proof'         => 'tin_proof_path',
+            'sss_proof'         => 'sss_proof_path',
+            'philhealth_proof'  => 'philhealth_proof_path',
+            'pagibig_proof'     => 'pagibig_proof_path',
+            'bank_proof'        => 'bank_proof_path',
+        ];
+
+        foreach ($fileFields as $inputName => $column) {
+            if ($request->hasFile($inputName)) {
+                $data[$column] = $request->file($inputName)->store('employee-docs', 'public');
+            }
+        }
+
+        $employee->user->update([
+            'name' => $request->first_name . ' ' . $request->last_name,
+        ]);
+
+        $employee->update($data);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Personal details updated successfully.')
+            ->with('active_tab', 'personal');
+    }
+
+    public function uploadMyPhoto(Request $request)
+    {
+        $request->validate(['photo' => 'required|file|mimes:jpg,jpeg,png|max:5120']);
+
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        $path = $request->file('photo')->store('employee-photos', 'public');
+        $employee->update(['photo_path' => $path]);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Profile photo updated.')
+            ->with('active_tab', 'personal');
+    }
+
+    public function storeMyEducation(Request $request)
+    {
+        $request->validate([
+            'school_name'    => 'required',
+            'level'          => 'required',
+            'date_graduated' => 'nullable|date',
+            'diploma'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'tor'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+
+        $diplomaPath = $request->hasFile('diploma') ? $request->file('diploma')->store('diplomas', 'public') : null;
+        $torPath     = $request->hasFile('tor')     ? $request->file('tor')->store('tor-files', 'public')   : null;
+
+        \App\Models\EmployeeEducation::create([
+            'employee_id'    => $employee->id,
+            'level'          => $request->level,
+            'school_name'    => $request->school_name,
+            'date_graduated' => $request->date_graduated,
+            'diploma_path'   => $diplomaPath,
+            'tor_path'       => $torPath,
+        ]);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Education record added.')
+            ->with('active_tab', 'education');
+    }
+
+    public function storeMyEmploymentHistory(Request $request)
+    {
+        $request->validate([
+            'company_name' => 'required|string',
+            'designation'  => 'required|string',
+            'from_date'    => 'required|string',
+            'coe'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        $coePath  = $request->hasFile('coe') ? $request->file('coe')->store('coe-files', 'public') : null;
+
+        EmployeeEmploymentHistory::create([
+            'employee_id'  => $employee->id,
+            'from_date'    => $request->from_date,
+            'to_date'      => $request->to_date ?: null,
+            'company_name' => $request->company_name,
+            'designation'  => $request->designation,
+            'coe_path'     => $coePath,
+        ]);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Employment history added.')
+            ->with('active_tab', 'education');
+    }
+
+    public function storeMyTraining(Request $request)
+    {
+        $request->validate([
+            'title'       => 'required|string',
+            'type'        => 'required|string',
+            'start_date'  => 'nullable|date',
+            'certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        $path     = $request->hasFile('certificate') ? $request->file('certificate')->store('certificates', 'public') : null;
+
+        \App\Models\EmployeeTraining::create([
+            'employee_id'      => $employee->id,
+            'title'            => $request->title,
+            'type'             => $request->type,
+            'license_no'       => $request->license_no,
+            'start_date'       => $request->start_date,
+            'end_date'         => $request->end_date,
+            'expiry_date'      => $request->expiry_date,
+            'certificate_path' => $path,
+        ]);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', ($request->type === 'License' ? 'License' : 'Training') . ' added.')
+            ->with('active_tab', 'training');
+    }
+
+    public function storeMyFamily(Request $request)
+    {
+        $request->validate([
+            'name'     => 'required',
+            'relation' => 'required',
+        ]);
+
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+
+        \App\Models\EmployeeFamily::create([
+            'employee_id' => $employee->id,
+            'name'        => $request->name,
+            'relation'    => $request->relation,
+            'birthdate'   => $request->birthdate,
+            'birthplace'  => $request->birthplace,
+            'occupation'  => $request->occupation,
+        ]);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Family member added.')
+            ->with('active_tab', 'family');
+    }
+
+    public function storeMyHealth(Request $request)
+    {
+        $request->validate(['condition' => 'required|string']);
+
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+
+        \App\Models\EmployeeHealth::create([
+            'employee_id'    => $employee->id,
+            'condition'      => $request->condition,
+            'date_diagnosed' => $request->date_diagnosed,
+            'medication'     => $request->medication,
+            'dosage'         => $request->dosage,
+        ]);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Health record added.')
+            ->with('active_tab', 'health');
+    }
+
+    public function storeMyHealthExam(Request $request)
+    {
+        $request->validate([
+            'exam_type' => 'required|in:APE,DrugTest',
+            'exam_year' => 'required|digits:4|integer',
+            'result'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $employee   = \Illuminate\Support\Facades\Auth::user()->employee;
+        $resultPath = $request->hasFile('result') ? $request->file('result')->store('health-exams', 'public') : null;
+
+        EmployeeHealthExam::create([
+            'employee_id'  => $employee->id,
+            'exam_type'    => $request->exam_type,
+            'exam_year'    => $request->exam_year,
+            'result_notes' => $request->result_notes,
+            'result_path'  => $resultPath,
+        ]);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', $request->exam_type . ' result for ' . $request->exam_year . ' added.')
+            ->with('active_tab', 'health');
+    }
+
+    public function updateMyHealthNotes(Request $request)
+    {
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        $employee->update(['mental_health' => $request->mental_health]);
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Mental health notes saved.')
+            ->with('active_tab', 'health');
+    }
 }

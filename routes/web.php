@@ -49,6 +49,18 @@ Route::middleware('auth')->group(function () {
     // My Attendance (employee self-view, no download)
     Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('attendance.mine');
 
+    // Employee Self-Service: My Profile
+    Route::get('/my-profile', [EmployeeController::class, 'myProfile'])->name('employee.myProfile');
+    Route::put('/my-profile/personal', [EmployeeController::class, 'updateMyPersonal'])->name('employee.updateMyPersonal');
+    Route::post('/my-profile/photo', [EmployeeController::class, 'uploadMyPhoto'])->name('employee.uploadMyPhoto');
+    Route::post('/my-profile/education', [EmployeeController::class, 'storeMyEducation'])->name('employee.storeMyEducation');
+    Route::post('/my-profile/employment-history', [EmployeeController::class, 'storeMyEmploymentHistory'])->name('employee.storeMyEmploymentHistory');
+    Route::post('/my-profile/training', [EmployeeController::class, 'storeMyTraining'])->name('employee.storeMyTraining');
+    Route::post('/my-profile/family', [EmployeeController::class, 'storeMyFamily'])->name('employee.storeMyFamily');
+    Route::post('/my-profile/health', [EmployeeController::class, 'storeMyHealth'])->name('employee.storeMyHealth');
+    Route::post('/my-profile/health-exam', [EmployeeController::class, 'storeMyHealthExam'])->name('employee.storeMyHealthExam');
+    Route::put('/my-profile/health-notes', [EmployeeController::class, 'updateMyHealthNotes'])->name('employee.updateMyHealthNotes');
+
     // Team Approvals (For Supervisors)
     Route::get('/leaves/team', [LeaveController::class, 'teamApprovals'])->name('leaves.team');
     Route::post('/leaves/{id}/supervisor', [LeaveController::class, 'supervisorAction'])->name('leaves.supervisor');

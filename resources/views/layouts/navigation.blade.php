@@ -18,6 +18,9 @@
                 <div class="hidden space-x-4 sm:-my-px sm:ms-10 sm:flex items-center">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Dashboard') }}</x-nav-link>
                     <x-nav-link :href="route('leaves.index')" :active="request()->routeIs('leaves.index')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Leaves') }}</x-nav-link>
+                    @if(Auth::user()->employee)
+                        <x-nav-link :href="route('employee.myProfile')" :active="request()->routeIs('employee.myProfile')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('My Profile') }}</x-nav-link>
+                    @endif
                     
                     <!-- SUPERVISOR LINK (Dynamic with Notification) -->
                     @if(Auth::user()->employee && Auth::user()->employee->subordinates->count() > 0)
@@ -159,6 +162,9 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Dashboard') }}</x-responsive-nav-link>
             <x-responsive-nav-link :href="route('leaves.index')" :active="request()->routeIs('leaves.index')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Leaves') }}</x-responsive-nav-link>
+            @if(Auth::user()->employee)
+                <x-responsive-nav-link :href="route('employee.myProfile')" :active="request()->routeIs('employee.myProfile')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('My Profile') }}</x-responsive-nav-link>
+            @endif
             @if(Auth::user()->role === 'admin')
                 @php $pendingLeavesCount = \App\Models\LeaveRequest::where('status', 'Pending')->count(); @endphp
                 <div class="border-t border-indigo-800 my-2"></div>
