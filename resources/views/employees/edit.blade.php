@@ -299,81 +299,113 @@
                         <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
                             <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Government Identification & 201 Documents</h4>
 
-                            {{-- NBI --}}
-                            <div class="mb-5 p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
-                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
-                                    NBI Clearance
-                                    @if($employee->nbi_clearance_path) — <a href="{{ asset('storage/'.$employee->nbi_clearance_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View Current</a> @endif
-                                </label>
-                                <input type="file" name="nbi_clearance" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
-                            </div>
+                            <div class="rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700">
 
-                            {{-- TIN --}}
-                            <div class="mb-5 p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">TIN Number</label>
-                                        <input type="text" name="tin_no" value="{{ old('tin_no', $employee->tin_no) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                {{-- NBI --}}
+                                <div class="flex items-center gap-4 px-5 py-4 bg-white dark:bg-slate-800 hover:bg-gray-50/60 dark:hover:bg-slate-700/40 transition">
+                                    <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                     </div>
-                                    <div>
-                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
-                                            Attach TIN Proof
-                                            @if($employee->tin_proof_path) — <a href="{{ asset('storage/'.$employee->tin_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View</a> @endif
-                                        </label>
-                                        <input type="file" name="tin_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">NBI Clearance</p>
+                                        <input type="file" name="nbi_clearance" class="block w-full text-xs text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-900/50 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800/60 cursor-pointer">
+                                    </div>
+                                    @if($employee->nbi_clearance_path)
+                                    <a href="{{ asset('storage/'.$employee->nbi_clearance_path) }}" target="_blank" class="flex-shrink-0 inline-flex items-center gap-1 text-xs font-bold text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        View
+                                    </a>
+                                    @endif
+                                </div>
+
+                                {{-- TIN --}}
+                                <div class="px-5 py-4 bg-white dark:bg-slate-800 hover:bg-gray-50/60 dark:hover:bg-slate-700/40 transition">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mt-0.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
+                                        </div>
+                                        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 block">TIN Number</label>
+                                                <input type="text" name="tin_no" value="{{ old('tin_no', $employee->tin_no) }}" class="block w-full rounded-lg border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2">
+                                            </div>
+                                            <div>
+                                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 block">
+                                                    Attach TIN Proof
+                                                    @if($employee->tin_proof_path) &nbsp;<a href="{{ asset('storage/'.$employee->tin_proof_path) }}" target="_blank" class="text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 normal-case font-normal">— View</a> @endif
+                                                </label>
+                                                <input type="file" name="tin_proof" class="block w-full text-xs text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 dark:file:bg-emerald-900/50 file:text-emerald-700 dark:file:text-emerald-300 hover:file:bg-emerald-100 cursor-pointer">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- SSS --}}
-                            <div class="mb-5 p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">SSS Number</label>
-                                        <input type="text" name="sss_no" value="{{ old('sss_no', $employee->sss_no) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
-                                            Attach SSS Proof
-                                            @if($employee->sss_proof_path) — <a href="{{ asset('storage/'.$employee->sss_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View</a> @endif
-                                        </label>
-                                        <input type="file" name="sss_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                {{-- SSS --}}
+                                <div class="px-5 py-4 bg-white dark:bg-slate-800 hover:bg-gray-50/60 dark:hover:bg-slate-700/40 transition">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mt-0.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                                        </div>
+                                        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 block">SSS Number</label>
+                                                <input type="text" name="sss_no" value="{{ old('sss_no', $employee->sss_no) }}" class="block w-full rounded-lg border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2">
+                                            </div>
+                                            <div>
+                                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 block">
+                                                    Attach SSS Proof
+                                                    @if($employee->sss_proof_path) &nbsp;<a href="{{ asset('storage/'.$employee->sss_proof_path) }}" target="_blank" class="text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 normal-case font-normal">— View</a> @endif
+                                                </label>
+                                                <input type="file" name="sss_proof" class="block w-full text-xs text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/50 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- PhilHealth --}}
-                            <div class="mb-5 p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">PhilHealth No.</label>
-                                        <input type="text" name="philhealth_no" value="{{ old('philhealth_no', $employee->philhealth_no) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
-                                            Attach PhilHealth Proof
-                                            @if($employee->philhealth_proof_path) — <a href="{{ asset('storage/'.$employee->philhealth_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View</a> @endif
-                                        </label>
-                                        <input type="file" name="philhealth_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                {{-- PhilHealth --}}
+                                <div class="px-5 py-4 bg-white dark:bg-slate-800 hover:bg-gray-50/60 dark:hover:bg-slate-700/40 transition">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center mt-0.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                                        </div>
+                                        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 block">PhilHealth No.</label>
+                                                <input type="text" name="philhealth_no" value="{{ old('philhealth_no', $employee->philhealth_no) }}" class="block w-full rounded-lg border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2">
+                                            </div>
+                                            <div>
+                                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 block">
+                                                    Attach PhilHealth Proof
+                                                    @if($employee->philhealth_proof_path) &nbsp;<a href="{{ asset('storage/'.$employee->philhealth_proof_path) }}" target="_blank" class="text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 normal-case font-normal">— View</a> @endif
+                                                </label>
+                                                <input type="file" name="philhealth_proof" class="block w-full text-xs text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-50 dark:file:bg-rose-900/50 file:text-rose-700 dark:file:text-rose-300 hover:file:bg-rose-100 cursor-pointer">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Pag-Ibig --}}
-                            <div class="p-4 bg-slate-50 dark:bg-slate-700/40 rounded-lg">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">Pag-Ibig No.</label>
-                                        <input type="text" name="pagibig_no" value="{{ old('pagibig_no', $employee->pagibig_no) }}" class="block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 block">
-                                            Attach Pag-Ibig Proof
-                                            @if($employee->pagibig_proof_path) — <a href="{{ asset('storage/'.$employee->pagibig_proof_path) }}" target="_blank" class="text-indigo-500 hover:underline normal-case font-normal">View</a> @endif
-                                        </label>
-                                        <input type="file" name="pagibig_proof" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                {{-- Pag-Ibig --}}
+                                <div class="px-5 py-4 bg-white dark:bg-slate-800 hover:bg-gray-50/60 dark:hover:bg-slate-700/40 transition">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center mt-0.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                        </div>
+                                        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 block">Pag-Ibig No.</label>
+                                                <input type="text" name="pagibig_no" value="{{ old('pagibig_no', $employee->pagibig_no) }}" class="block w-full rounded-lg border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2">
+                                            </div>
+                                            <div>
+                                                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1 block">
+                                                    Attach Pag-Ibig Proof
+                                                    @if($employee->pagibig_proof_path) &nbsp;<a href="{{ asset('storage/'.$employee->pagibig_proof_path) }}" target="_blank" class="text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 normal-case font-normal">— View</a> @endif
+                                                </label>
+                                                <input type="file" name="pagibig_proof" class="block w-full text-xs text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-50 dark:file:bg-amber-900/50 file:text-amber-700 dark:file:text-amber-300 hover:file:bg-amber-100 cursor-pointer">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 

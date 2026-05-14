@@ -23,44 +23,80 @@
             @endif
 
             {{-- LEAVE CREDITS CARDS --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+            <div class="grid grid-cols-2 @if($employee->is_solo_parent) md:grid-cols-5 @else md:grid-cols-4 @endif gap-4 mb-8">
+
+                {{-- Vacation Leave --}}
+                <div class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-sm p-5 group hover:shadow-md transition-all duration-200">
+                    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-blue-400 to-blue-600 rounded-t-2xl"></div>
+                    <div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 transition-transform duration-300 group-hover:scale-125"></div>
                     <div class="relative z-10">
-                        <p class="text-blue-100 text-xs font-bold uppercase tracking-wider">Vacation Leave</p>
-                        <p class="text-4xl font-bold mt-1">{{ $employee->vacation_credits ?? 0 }}</p>
-                        <p class="text-blue-200 text-xs mt-0.5">days remaining</p>
+                        <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">Vacation Leave</p>
+                        <p class="text-4xl font-extrabold text-gray-800 dark:text-white mt-1 leading-none">{{ $employee->vacation_credits ?? 0 }}</p>
+                        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">days remaining</p>
                     </div>
                 </div>
-                <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+
+                {{-- Sick Leave --}}
+                <div class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-sm p-5 group hover:shadow-md transition-all duration-200">
+                    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-rose-400 to-rose-600 rounded-t-2xl"></div>
+                    <div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-rose-50 dark:bg-rose-900/20 transition-transform duration-300 group-hover:scale-125"></div>
                     <div class="relative z-10">
-                        <p class="text-rose-100 text-xs font-bold uppercase tracking-wider">Sick Leave</p>
-                        <p class="text-4xl font-bold mt-1">{{ $employee->sick_credits ?? 0 }}</p>
-                        <p class="text-rose-200 text-xs mt-0.5">days remaining</p>
+                        <div class="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">Sick Leave</p>
+                        <p class="text-4xl font-extrabold text-gray-800 dark:text-white mt-1 leading-none">{{ $employee->sick_credits ?? 0 }}</p>
+                        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">days remaining</p>
                     </div>
                 </div>
-                <div class="bg-gradient-to-br from-violet-500 to-violet-600 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+
+                {{-- Birthday Leave --}}
+                <div class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-sm p-5 group hover:shadow-md transition-all duration-200">
+                    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-violet-400 to-violet-600 rounded-t-2xl"></div>
+                    <div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-violet-50 dark:bg-violet-900/20 transition-transform duration-300 group-hover:scale-125"></div>
                     <div class="relative z-10">
-                        <p class="text-violet-100 text-xs font-bold uppercase tracking-wider">Birthday Leave</p>
-                        <p class="text-4xl font-bold mt-1">{{ $employee->birthday_leave_credits ?? 0 }}</p>
-                        <p class="text-violet-200 text-xs mt-0.5">days remaining</p>
+                        <div class="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" /></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">Birthday Leave</p>
+                        <p class="text-4xl font-extrabold text-gray-800 dark:text-white mt-1 leading-none">{{ $employee->birthday_leave_credits ?? 0 }}</p>
+                        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">days remaining</p>
                     </div>
                 </div>
-                <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+
+                {{-- Incentive Hours --}}
+                <div class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-sm p-5 group hover:shadow-md transition-all duration-200">
+                    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-amber-400 to-amber-600 rounded-t-2xl"></div>
+                    <div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-amber-50 dark:bg-amber-900/20 transition-transform duration-300 group-hover:scale-125"></div>
                     <div class="relative z-10">
-                        <p class="text-amber-100 text-xs font-bold uppercase tracking-wider">Incentive Hours</p>
-                        <p class="text-4xl font-bold mt-1">{{ $employee->incentive_hours_credits ?? 0 }}</p>
-                        <p class="text-amber-200 text-xs mt-0.5">hours remaining</p>
+                        <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">Incentive Hours</p>
+                        <p class="text-4xl font-extrabold text-gray-800 dark:text-white mt-1 leading-none">{{ number_format($employee->incentive_hours_credits ?? 0, 2) }}</p>
+                        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">hours remaining</p>
                     </div>
                 </div>
+
+                {{-- Solo Parent Leave (conditional) --}}
                 @if($employee->is_solo_parent)
-                <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+                <div class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-sm p-5 group hover:shadow-md transition-all duration-200">
+                    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-teal-400 to-teal-600 rounded-t-2xl"></div>
+                    <div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-teal-50 dark:bg-teal-900/20 transition-transform duration-300 group-hover:scale-125"></div>
                     <div class="relative z-10">
-                        <p class="text-teal-100 text-xs font-bold uppercase tracking-wider">Solo Parent Leave</p>
-                        <p class="text-4xl font-bold mt-1">{{ $employee->solo_parent_leave_credits ?? 0 }}</p>
-                        <p class="text-teal-200 text-xs mt-0.5">days remaining</p>
+                        <div class="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">Solo Parent</p>
+                        <p class="text-4xl font-extrabold text-gray-800 dark:text-white mt-1 leading-none">{{ $employee->solo_parent_leave_credits ?? 0 }}</p>
+                        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">days remaining</p>
                     </div>
                 </div>
                 @endif
+
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
