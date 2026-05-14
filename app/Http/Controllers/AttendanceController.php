@@ -97,9 +97,10 @@ class AttendanceController extends Controller
                                 ->where('date', $date)
                                 ->first();
 
-        // Night shift: if no record today and it's still early morning,
+        // Night shift: only for guards — if no record today and it's still early morning,
         // check if there's an open clock-in from yesterday (overnight shift).
-        if (!$attendance && $now->hour < 12) {
+        $isGuard = $type === 'App\Models\Employee' && ($person->user->role ?? '') === 'guard';
+        if (!$attendance && $now->hour < 12 && $isGuard) {
             $nightShiftRecord = Attendance::where('attendable_id', $person->id)
                                           ->where('attendable_type', $type)
                                           ->where('date', $yesterday)
