@@ -224,7 +224,7 @@ class EmployeeController extends Controller
     public function uploadPhoto(Request $request, $id)
     {
         $request->validate([
-            'photo' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'photo' => 'required|file|mimes:jpg,jpeg,png|max:15360',
         ]);
 
         $employee = Employee::findOrFail($id);
@@ -522,7 +522,7 @@ class EmployeeController extends Controller
 
     public function uploadMyPhoto(Request $request)
     {
-        $request->validate(['photo' => 'required|file|mimes:jpg,jpeg,png|max:5120']);
+        $request->validate(['photo' => 'required|file|mimes:jpg,jpeg,png|max:15360']);
 
         $user = \Illuminate\Support\Facades\Auth::user();
         $employee = $user->employee;

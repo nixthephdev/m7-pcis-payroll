@@ -40,7 +40,7 @@
             <div class="mb-6 bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl shadow-lg p-6 flex items-center gap-6 text-white">
                 <div class="flex-shrink-0">
                     @if($employee->photo_path)
-                        <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="Photo" class="w-20 h-20 rounded-full object-cover border-4 border-white/30 shadow-lg">
+                        <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="Photo" class="w-20 h-20 rounded-full object-cover object-top ring-2 ring-white/40 shadow-lg" style="image-rendering:auto;">
                     @else
                         <div class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center border-4 border-white/30">
                             <svg class="w-10 h-10 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -87,7 +87,7 @@
                         <div class="flex items-center gap-6">
                             <div class="flex-shrink-0">
                                 @if($employee->photo_path)
-                                    <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="Photo" class="w-20 h-20 rounded-full object-cover border-4 border-indigo-200 dark:border-indigo-700 shadow">
+                                    <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="Photo" class="w-20 h-20 rounded-full object-cover object-top ring-2 ring-indigo-300 dark:ring-indigo-600 shadow" style="image-rendering:auto;">
                                 @else
                                     <div class="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center border-4 border-dashed border-slate-300 dark:border-slate-600">
                                         <svg class="w-9 h-9 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>

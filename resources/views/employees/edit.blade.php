@@ -183,7 +183,7 @@
                         <div class="flex items-center gap-6">
                             <div class="flex-shrink-0">
                                 @if($employee->photo_path)
-                                    <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="Employee Photo" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-200 dark:border-indigo-700 shadow">
+                                    <img src="{{ asset('storage/'.$employee->photo_path) }}" alt="Employee Photo" class="w-24 h-24 rounded-full object-cover object-top shadow-md" style="outline: 2px solid rgba(99,102,241,0.35); outline-offset: 2px; transform: translateZ(0);">
                                 @else
                                     <div class="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center border-4 border-dashed border-slate-300 dark:border-slate-600">
                                         <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -196,7 +196,7 @@
                                     <div class="flex-1">
                                         <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Upload Official Photo</label>
                                         <input type="file" name="photo" accept="image/jpeg,image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
-                                        <p class="text-[10px] text-gray-400 mt-1">JPG or PNG only. Max 5MB. This photo is for official 201 file use.</p>
+                                        <p class="text-[10px] text-gray-400 mt-1">JPG or PNG only. Max 15MB. This photo is for official 201 file use.</p>
                                     </div>
                                     <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md font-bold text-sm shadow-sm transition-all whitespace-nowrap">Upload Photo</button>
                                 </form>
