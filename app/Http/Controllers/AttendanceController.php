@@ -6,17 +6,19 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Student;
 use App\Models\Attendance;
+use App\Models\LeaveRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf; 
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AttendanceController extends Controller
 {
-    // --- 1. ADMIN: ATTENDANCE MANAGEMENT (LIST) ---
-    public function index(Request $request) {
+    // --- 1. ADMIN: ATTENDANCE MANAGEMENT ---
+    public function index(Request $request)
+    {
         $type = $request->get('type', 'employee');
 
-        $query = Attendance::with('attendable'); 
+        $query = Attendance::with('attendable');
 
         if ($type === 'student') {
             $query->where('attendable_type', 'App\Models\Student');
@@ -31,140 +33,201 @@ class AttendanceController extends Controller
         return view('attendance.index', compact('attendances', 'type'));
     }
 
-    // --- 2. KIOSK VIEW ---
-    public function scanPage() {
-        return view('attendance.scan');
+    // --- 2. EMPLOYEE: VIEW OWN ATTENDANCE ---
+    public function myAttendance(Request $request)
+    {
+        $employee = Auth::user()->employee;
+
+        $month = $request->get('month', Carbon::now()->format('Y-m'));
+
+        [$year, $mon] = explode('-', $month);
+
+        $logs = Attendance::where('attendable_id', $employee->id)
+                          ->where('attendable_type', 'App\Models\Employee')
+                          ->whereYear('date', $year)
+                          ->whereMonth('date', $mon)
+                          ->orderBy('date', 'asc')
+                          ->get();
+
+        // Approved leaves for the month (to highlight in calendar)
+        $approvedLeaves = LeaveRequest::where('employee_id', $employee->id)
+                            ->where('status', 'Approved')
+                            ->whereYear('start_date', $year)
+                            ->whereMonth('start_date', $mon)
+                            ->get();
+
+        $totalPresent       = $logs->whereIn('status', ['Present', 'Late'])->count();
+        $totalTardy         = $logs->sum('tardy_minutes');
+        $totalUndertime     = $logs->sum('undertime_minutes');
+        $totalOvertimeMins  = $logs->sum('overtime_minutes');
+
+        return view('attendance.my_attendance', compact(
+            'logs', 'employee', 'month', 'approvedLeaves',
+            'totalPresent', 'totalTardy', 'totalUndertime', 'totalOvertimeMins'
+        ));
     }
 
-    // --- 3. SCAN LOGIC (QR CODE) ---
-    // --- 3. SCAN LOGIC (QR CODE) ---
+    // --- 3. KIOSK SCAN (QR CODE) ---
     public function scan(Request $request)
     {
         $id = $request->input('employee_id');
 
-        // 1. Find Person
         $person = Employee::where('employee_code', $id)->first();
-        $type = 'App\Models\Employee';
+        $type   = 'App\Models\Employee';
 
         if (!$person) {
             $person = Student::where('student_id', $id)->first();
-            $type = 'App\Models\Student';
+            $type   = 'App\Models\Student';
         }
 
         if (!$person) {
             return response()->json(['status' => 'error', 'message' => 'ID Number not found.']);
         }
 
-        // 2. Get Name
-        $name = 'Unknown';
-        if ($type === 'App\Models\Employee') {
-            $name = $person->user ? $person->user->name : 'Unknown Employee';
-        } else {
-            $name = $person->full_name ?? ($person->first_name . ' ' . $person->last_name);
-        }
+        $name = $type === 'App\Models\Employee'
+            ? ($person->user->name ?? 'Unknown Employee')
+            : ($person->full_name ?? ($person->first_name . ' ' . $person->last_name));
 
-        $now = Carbon::now();
+        $now  = Carbon::now();
         $date = $now->format('Y-m-d');
 
-        // 3. Check for existing record
         $attendance = Attendance::where('attendable_id', $person->id)
                                 ->where('attendable_type', $type)
                                 ->where('date', $date)
                                 ->first();
 
         if ($attendance) {
-            // --- TIME OUT LOGIC ---
-
-            // A. Check if already timed out
+            // TIME OUT
             if ($attendance->time_out) {
                 return response()->json(['status' => 'error', 'message' => 'Already timed out today!']);
             }
 
-            // B. CHECK INTERVAL (Prevent Double Punch)
-            $timeIn = Carbon::parse($attendance->time_in);
-            $minutesPassed = $timeIn->diffInMinutes($now);
-
-            if ($minutesPassed < 5) {
-                return response()->json([
-                    'status' => 'error', 
-                    'message' => 'Scan ignored. Please wait 5 minutes before clocking out.'
-                ]);
+            // Prevent double punch within 5 min
+            if (Carbon::parse($attendance->time_in)->diffInMinutes($now) < 5) {
+                return response()->json(['status' => 'error', 'message' => 'Please wait 5 minutes before clocking out.']);
             }
 
-            // C. Process Time Out
-            $attendance->update(['time_out' => $now]);
-            return response()->json([
-                'status' => 'success',
-                'type' => 'clock_out',
-                'message' => "Goodbye, $name!"
-            ]);
-
-        } else {
-            // --- TIME IN LOGIC ---
-            
-            $status = 'Present';
-            
-            // Employee Late Logic
+            $undertimeMinutes = 0;
             if ($type === 'App\Models\Employee' && $person->schedule) {
-                $scheduledTime = Carbon::parse($person->schedule->time_in);
-                if ($now->gt($scheduledTime->addMinutes(15))) {
-                    $status = 'Late';
+                $scheduledOut = Carbon::parse($date . ' ' . $person->schedule->time_out);
+                if ($now->lt($scheduledOut)) {
+                    $undertimeMinutes = (int) $now->diffInMinutes($scheduledOut);
                 }
             }
-            // Student Late Logic
-            elseif ($type === 'App\Models\Student') {
-                 if ($now->format('H:i') > '08:00') {
-                     $status = 'Late';
-                 }
+
+            $attendance->update([
+                'time_out'          => $now,
+                'undertime_minutes' => $undertimeMinutes,
+            ]);
+
+            return response()->json(['status' => 'success', 'type' => 'clock_out', 'message' => "Goodbye, $name!"]);
+
+        } else {
+            // TIME IN
+            $status       = 'Present';
+            $tardyMinutes = 0;
+
+            if ($type === 'App\Models\Employee' && $person->schedule) {
+                $scheduledIn  = Carbon::parse($date . ' ' . $person->schedule->time_in);
+                $diffMinutes  = $scheduledIn->diffInMinutes($now, false); // positive = late
+
+                if ($diffMinutes > 5) {
+                    $status       = 'Late';
+                    $tardyMinutes = (int) $diffMinutes;
+                }
+            } elseif ($type === 'App\Models\Student') {
+                $cutoff      = Carbon::parse($date . ' 08:00');
+                $diffMinutes = $cutoff->diffInMinutes($now, false);
+                if ($diffMinutes > 5) {
+                    $status       = 'Late';
+                    $tardyMinutes = (int) $diffMinutes;
+                }
             }
 
             Attendance::create([
-                'attendable_id' => $person->id,
+                'attendable_id'   => $person->id,
                 'attendable_type' => $type,
-                'date' => $date,
-                'time_in' => $now,
-                'status' => $status
+                'date'            => $date,
+                'time_in'         => $now,
+                'status'          => $status,
+                'tardy_minutes'   => $tardyMinutes,
             ]);
 
-            return response()->json([
-                'status' => 'success',
-                'type' => 'clock_in',
-                'message' => "Welcome, $name!"
-            ]);
+            return response()->json(['status' => 'success', 'type' => 'clock_in', 'message' => "Welcome, $name!"]);
         }
     }
-    
 
-    // --- 4. EXPORT CSV (EMPLOYEES ONLY) ---
-    public function exportEmployees() {
+    // --- 4. ADMIN: UPDATE ATTENDANCE RECORD ---
+    public function update(Request $request, $id)
+    {
+        $log = Attendance::findOrFail($id);
+
+        $request->validate([
+            'time_in'          => 'required',
+            'time_out'         => 'nullable',
+            'status'           => 'required|in:Present,Late,Absent,Half Day',
+            'tardy_minutes'    => 'nullable|integer|min:0',
+            'overtime_minutes' => 'nullable|integer|min:0',
+            'overtime_type'    => 'nullable|string',
+        ]);
+
+        $date = $log->date;
+
+        // Recompute undertime if both times present and employee has a schedule
+        $undertimeMinutes = $log->undertime_minutes;
+        if ($request->time_out && $log->attendable instanceof Employee && $log->attendable->schedule) {
+            $scheduledOut     = Carbon::parse($date . ' ' . $log->attendable->schedule->time_out);
+            $actualOut        = Carbon::parse($date . ' ' . $request->time_out);
+            $undertimeMinutes = $actualOut->lt($scheduledOut) ? (int) $actualOut->diffInMinutes($scheduledOut) : 0;
+        }
+
+        $log->update([
+            'time_in'           => $date . ' ' . $request->time_in,
+            'time_out'          => $request->time_out ? $date . ' ' . $request->time_out : null,
+            'status'            => $request->status,
+            'tardy_minutes'     => $request->tardy_minutes ?? 0,
+            'undertime_minutes' => $undertimeMinutes,
+            'overtime_minutes'  => $request->overtime_minutes ?? 0,
+            'overtime_type'     => $request->overtime_type ?: null,
+        ]);
+
+        return redirect()->back()->with('message', 'Attendance record updated successfully.');
+    }
+
+    // --- 5. EXPORT CSV ---
+    public function exportEmployees()
+    {
         $fileName = 'employee_attendance_' . date('Y-m-d') . '.csv';
         $logs = Attendance::with('attendable.user')
                     ->where('attendable_type', 'App\Models\Employee')
                     ->orderBy('date', 'desc')
                     ->get();
 
-        $headers = array(
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        );
+        $headers = [
+            'Content-type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=$fileName",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
 
-        $columns = array('Employee Name', 'Date', 'Time In', 'Time Out', 'Status');
+        $columns = ['Employee Name', 'Date', 'Time In', 'Time Out', 'Status', 'Tardy (min)', 'Undertime (min)', 'OT (min)', 'OT Type'];
 
-        $callback = function() use($logs, $columns) {
+        $callback = function () use ($logs, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
-
             foreach ($logs as $log) {
-                $row['Employee Name']  = $log->attendable->user->name ?? 'Unknown';
-                $row['Date']    = $log->date;
-                $row['Time In'] = \Carbon\Carbon::parse($log->time_in)->format('h:i A');
-                $row['Time Out'] = $log->time_out ? \Carbon\Carbon::parse($log->time_out)->format('h:i A') : '--';
-                $row['Status']  = $log->status;
-
-                fputcsv($file, array($row['Employee Name'], $row['Date'], $row['Time In'], $row['Time Out'], $row['Status']));
+                fputcsv($file, [
+                    $log->attendable->user->name ?? 'Unknown',
+                    $log->date,
+                    Carbon::parse($log->time_in)->format('h:i A'),
+                    $log->time_out ? Carbon::parse($log->time_out)->format('h:i A') : '--',
+                    $log->status,
+                    $log->tardy_minutes,
+                    $log->undertime_minutes,
+                    $log->overtime_minutes,
+                    $log->overtime_type ?? '--',
+                ]);
             }
             fclose($file);
         };
@@ -172,49 +235,57 @@ class AttendanceController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    // --- 5. GENERATE PDF REPORT (INDIVIDUAL) ---
-    public function generateReport(Request $request) {
+    // --- 6. GENERATE PDF REPORT (Admin only) ---
+    public function generateReport(Request $request)
+    {
         $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'start_date'  => 'required|date',
             'end_date'    => 'required|date|after_or_equal:start_date',
         ]);
 
-        $employee = Employee::with('user')->findOrFail($request->employee_id);
-        
+        $employee = Employee::with('user', 'schedule')->findOrFail($request->employee_id);
+
         $logs = Attendance::where('attendable_id', $employee->id)
                           ->where('attendable_type', 'App\Models\Employee')
                           ->whereBetween('date', [$request->start_date, $request->end_date])
                           ->orderBy('date', 'asc')
                           ->get();
 
-        $totalPresent = $logs->whereIn('status', ['Present', 'Late'])->count();
-        $totalLates   = $logs->where('status', 'Late')->count();
+        $approvedLeaves = LeaveRequest::where('employee_id', $employee->id)
+                            ->where('status', 'Approved')
+                            ->whereBetween('start_date', [$request->start_date, $request->end_date])
+                            ->get();
 
-        $pdf = Pdf::loadView('attendance.report_pdf', compact('employee', 'logs', 'request', 'totalPresent', 'totalLates'));
-        
+        $totalPresent      = $logs->whereIn('status', ['Present', 'Late'])->count();
+        $totalTardy        = $logs->sum('tardy_minutes');
+        $totalUndertime    = $logs->sum('undertime_minutes');
+        $totalOvertimeMins = $logs->sum('overtime_minutes');
+        $totalLates        = $logs->where('status', 'Late')->count();
+
+        $pdf = Pdf::loadView('attendance.report_pdf', compact(
+            'employee', 'logs', 'request', 'approvedLeaves',
+            'totalPresent', 'totalLates', 'totalTardy', 'totalUndertime', 'totalOvertimeMins'
+        ));
+
         return $pdf->download("Attendance_{$employee->user->name}_{$request->start_date}.pdf");
     }
 
-    // --- 6. UPDATE ATTENDANCE (THE MISSING FUNCTION) ---
-    public function update(Request $request, $id) {
-        $log = Attendance::findOrFail($id);
+    // --- 7. EDIT FORM (admin) ---
+    public function edit($id)
+    {
+        $log = Attendance::with('attendable')->findOrFail($id);
+        return view('attendance.edit', compact('log'));
+    }
 
-        $request->validate([
-            'time_in'  => 'required',
-            'time_out' => 'nullable',
-            'status'   => 'required|in:Present,Late,Absent,Half Day',
-        ]);
+    // --- STUBS for manual clock-in/out buttons (if used in dashboard) ---
+    public function clockIn(Request $request)
+    {
+        return redirect()->back()->with('message', 'Please use the QR kiosk to clock in.');
+    }
 
-        // Combine date with time inputs to create full timestamps
-        $date = $log->date; 
-        
-        $log->update([
-            'time_in'  => $date . ' ' . $request->time_in,
-            'time_out' => $request->time_out ? $date . ' ' . $request->time_out : null,
-            'status'   => $request->status,
-        ]);
-
-        return redirect()->back()->with('message', 'Attendance record updated successfully.');
+    public function clockOut(Request $request)
+    {
+        return redirect()->back()->with('message', 'Please use the QR kiosk to clock out.');
     }
 }

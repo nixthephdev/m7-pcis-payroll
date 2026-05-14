@@ -46,6 +46,9 @@ Route::middleware('auth')->group(function () {
     // Payslip Download
     Route::get('/payroll/{id}/download', [PayrollController::class, 'downloadPdf'])->name('payroll.download');
 
+    // My Attendance (employee self-view, no download)
+    Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('attendance.mine');
+
     // Team Approvals (For Supervisors)
     Route::get('/leaves/team', [LeaveController::class, 'teamApprovals'])->name('leaves.team');
     Route::post('/leaves/{id}/supervisor', [LeaveController::class, 'supervisorAction'])->name('leaves.supervisor');

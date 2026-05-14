@@ -10,12 +10,16 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'attendable_id',   // <--- This was likely missing or named employee_id
-        'attendable_type', // <--- This too
+        'attendable_id',
+        'attendable_type',
         'date',
         'time_in',
         'time_out',
-        'status'
+        'status',
+        'tardy_minutes',
+        'undertime_minutes',
+        'overtime_minutes',
+        'overtime_type',
     ];
 
     // Polymorphic Relationship
