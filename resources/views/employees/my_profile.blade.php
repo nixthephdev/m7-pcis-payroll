@@ -81,7 +81,7 @@
             <div x-show="activeTab === 'personal'" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
                 <div class="p-8">
 
-                    {{-- Photo Upload --}}
+                    {{-- Profile Photo (display only — HR/Admin manages uploads) --}}
                     <div class="mb-8 border-b border-gray-100 dark:border-slate-700 pb-6">
                         <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-4">Profile Photo</h4>
                         <div class="flex items-center gap-6">
@@ -94,17 +94,7 @@
                                     </div>
                                 @endif
                             </div>
-                            <div class="flex-1">
-                                <form action="{{ route('employee.uploadMyPhoto') }}" method="POST" enctype="multipart/form-data" class="flex items-end gap-4">
-                                    @csrf
-                                    <div class="flex-1">
-                                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Upload Your Photo</label>
-                                        <input type="file" name="photo" accept="image/jpeg,image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
-                                        <p class="text-[10px] text-gray-400 mt-1">JPG or PNG only. Max 5MB.</p>
-                                    </div>
-                                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md font-bold text-sm shadow-sm transition-all whitespace-nowrap">Upload</button>
-                                </form>
-                            </div>
+                            <p class="text-sm text-gray-400 dark:text-gray-500 italic">Photo is managed by HR / Admin.</p>
                         </div>
                     </div>
 
