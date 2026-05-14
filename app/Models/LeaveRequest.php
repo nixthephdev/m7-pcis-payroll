@@ -14,9 +14,13 @@ class LeaveRequest extends Model
         'leave_type',
         'start_date',
         'end_date',
+        'start_time',
+        'end_time',
+        'total_hours',
         'reason',
         'status',
-        'supervisor_status' // <--- MUST BE HERE
+        'supervisor_status',
+        'is_paid',
     ];
 
     public function employee()

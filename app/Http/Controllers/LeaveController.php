@@ -5,60 +5,100 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\LeaveRequest;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class LeaveController extends Controller
 {
-    // Show the Leave Page
-    public function index() {
+    public function index()
+    {
         $employee = Auth::user()->employee;
-        
-        // Get all leaves for this employee, ordered by newest first
+
         $leaves = LeaveRequest::where('employee_id', $employee->id)
                               ->orderBy('created_at', 'desc')
                               ->get();
 
-        return view('leaves.index', compact('leaves'));
+        return view('leaves.index', compact('leaves', 'employee'));
     }
 
-    // Store a new Leave Request
-    public function store(Request $request) {
-        $request->validate([
-            'leave_type' => 'required',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'reason' => 'required'
-        ]);
-
+    public function store(Request $request)
+    {
         $employee = Auth::user()->employee;
-        
-        // Calculate Days
-        $start = \Carbon\Carbon::parse($request->start_date);
-        $end = \Carbon\Carbon::parse($request->end_date);
-        $daysRequested = $start->diffInDays($end) + 1;
 
-        // Check Credits
-        if ($request->leave_type == 'Vacation Leave' && $employee->vacation_credits < $daysRequested) {
-            return redirect()->back()->with('error', 'Not enough Vacation Leave credits!');
+        // Incentive Hours leave uses time fields instead of date range
+        $isIncentive = $request->leave_type === 'Incentive Hours';
+
+        $rules = [
+            'leave_type' => 'required|string',
+            'reason'     => 'required|string',
+        ];
+
+        if ($isIncentive) {
+            $rules['start_date']  = 'required|date';
+            $rules['start_time']  = 'required';
+            $rules['end_time']    = 'required|after:start_time';
+        } else {
+            $rules['start_date']  = 'required|date';
+            $rules['end_date']    = 'required|date|after_or_equal:start_date';
         }
-        if ($request->leave_type == 'Sick Leave' && $employee->sick_credits < $daysRequested) {
-            return redirect()->back()->with('error', 'Not enough Sick Leave credits!');
+
+        $request->validate($rules);
+
+        // Solo Parent eligibility gate
+        if ($request->leave_type === 'Solo Parent Leave' && !$employee->is_solo_parent) {
+            return redirect()->back()->with('error', 'You are not registered as a Solo Parent.');
+        }
+
+        $startTime = null;
+        $endTime   = null;
+        $totalHours = null;
+        $endDate   = $request->start_date;
+
+        if ($isIncentive) {
+            $startTime  = $request->start_time;
+            $endTime    = $request->end_time;
+            $start      = Carbon::parse($request->start_date . ' ' . $startTime);
+            $end        = Carbon::parse($request->start_date . ' ' . $endTime);
+            $totalHours = round($end->diffInMinutes($start) / 60, 2);
+
+            if ($employee->incentive_hours_credits < $totalHours) {
+                return redirect()->back()->with('error', "Not enough Incentive Hours credits! You have {$employee->incentive_hours_credits} hrs.");
+            }
+        } else {
+            $daysRequested = Carbon::parse($request->start_date)->diffInDays($request->end_date) + 1;
+            $endDate = $request->end_date;
+
+            $creditChecks = [
+                'Vacation Leave'    => ['field' => 'vacation_credits',         'label' => 'Vacation Leave'],
+                'Sick Leave'        => ['field' => 'sick_credits',             'label' => 'Sick Leave'],
+                'Birthday Leave'    => ['field' => 'birthday_leave_credits',   'label' => 'Birthday Leave'],
+                'Solo Parent Leave' => ['field' => 'solo_parent_leave_credits','label' => 'Solo Parent Leave'],
+            ];
+
+            if (isset($creditChecks[$request->leave_type])) {
+                $check = $creditChecks[$request->leave_type];
+                if ($employee->{$check['field']} < $daysRequested) {
+                    return redirect()->back()->with('error', "Not enough {$check['label']} credits!");
+                }
+            }
         }
 
         LeaveRequest::create([
-            'employee_id' => $employee->id,
-            'leave_type' => $request->leave_type,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'reason' => $request->reason,
-            'status' => 'Pending'
+            'employee_id'  => $employee->id,
+            'leave_type'   => $request->leave_type,
+            'start_date'   => $request->start_date,
+            'end_date'     => $endDate,
+            'start_time'   => $startTime,
+            'end_time'     => $endTime,
+            'total_hours'  => $totalHours,
+            'reason'       => $request->reason,
+            'status'       => 'Pending',
         ]);
 
         return redirect()->back()->with('message', 'Leave request submitted successfully.');
     }
 
-    // 1. Show the Admin View (List of all requests)
-    public function manage() {
-        // Get all leaves with employee details, newest first
+    public function manage()
+    {
         $leaves = LeaveRequest::with('employee.user')
                               ->orderBy('created_at', 'desc')
                               ->get();
@@ -66,49 +106,62 @@ class LeaveController extends Controller
         return view('leaves.manage', compact('leaves'));
     }
 
-    // 2. Process the Approval/Rejection
-    public function updateStatus(Request $request, $id) {
-        $leave = LeaveRequest::findOrFail($id);
+    public function updateStatus(Request $request, $id)
+    {
+        $leave    = LeaveRequest::findOrFail($id);
         $employee = $leave->employee;
 
-        // If Approving, Deduct Credits
-        if ($request->status == 'Approved' && $leave->status != 'Approved') {
-            
-            $days = \Carbon\Carbon::parse($leave->start_date)->diffInDays($leave->end_date) + 1;
+        if ($request->status === 'Approved' && $leave->status !== 'Approved') {
 
-            if ($leave->leave_type == 'Vacation Leave') {
-                if ($employee->vacation_credits >= $days) {
-                    $employee->decrement('vacation_credits', $days);
-                } else {
-                    return redirect()->back()->with('error', 'Cannot approve: Insufficient credits.');
+            if ($leave->leave_type === 'Incentive Hours') {
+                $hours = $leave->total_hours ?? 0;
+                if ($employee->incentive_hours_credits < $hours) {
+                    return redirect()->back()->with('error', 'Cannot approve: Insufficient Incentive Hours credits.');
                 }
-            }
-            elseif ($leave->leave_type == 'Sick Leave') {
-                if ($employee->sick_credits >= $days) {
-                    $employee->decrement('sick_credits', $days);
-                } else {
-                    return redirect()->back()->with('error', 'Cannot approve: Insufficient credits.');
+                $employee->decrement('incentive_hours_credits', $hours);
+
+            } else {
+                $days = Carbon::parse($leave->start_date)->diffInDays($leave->end_date) + 1;
+
+                $deductions = [
+                    'Vacation Leave'    => 'vacation_credits',
+                    'Sick Leave'        => 'sick_credits',
+                    'Birthday Leave'    => 'birthday_leave_credits',
+                    'Solo Parent Leave' => 'solo_parent_leave_credits',
+                ];
+
+                if (isset($deductions[$leave->leave_type])) {
+                    $field = $deductions[$leave->leave_type];
+                    if ($employee->$field < $days) {
+                        return redirect()->back()->with('error', 'Cannot approve: Insufficient credits.');
+                    }
+                    $employee->decrement($field, $days);
                 }
+                // Maternity, Paternity, Official Business, Bereavement — no credit deduction
             }
         }
 
-        $leave->update(['status' => $request->status]);
+        $leave->update([
+            'status'  => $request->status,
+            'is_paid' => $request->has('is_paid') ? 1 : 0,
+        ]);
 
-        \App\Models\AuditLog::record('Leave Decision', 'Set leave status to ' . $request->status . ' for ' . $employee->user->name);
+        \App\Models\AuditLog::record(
+            'Leave Decision',
+            'Set leave status to ' . $request->status . ' for ' . $employee->user->name
+        );
 
-        return redirect()->back()->with('message', 'Leave request updated successfully.');
+        return redirect()->back()->with('message', 'Leave request updated.');
     }
 
-    // COORDINATOR: View Team Leaves
-    public function teamApprovals() {
+    public function teamApprovals()
+    {
         $user = Auth::user();
-        
-        // Check if this user is a Supervisor (has subordinates)
+
         if (!$user->employee || $user->employee->subordinates->isEmpty()) {
             abort(403, 'You are not a designated Supervisor/Coordinator.');
         }
 
-        // Get leaves from subordinates where supervisor_status is Pending
         $leaves = LeaveRequest::whereIn('employee_id', $user->employee->subordinates->pluck('id'))
                               ->where('supervisor_status', 'Pending')
                               ->with('employee.user')
@@ -118,19 +171,17 @@ class LeaveController extends Controller
         return view('leaves.team', compact('leaves'));
     }
 
-    // COORDINATOR: Approve/Reject
-    public function supervisorAction(Request $request, $id) {
+    public function supervisorAction(Request $request, $id)
+    {
         $leave = LeaveRequest::findOrFail($id);
-        
-        if ($request->action == 'Approve') {
+
+        if ($request->action === 'Approve') {
             $leave->update(['supervisor_status' => 'Approved']);
-            // It stays 'Pending' in the main status until HR approves
             return redirect()->back()->with('message', 'Endorsed to HR for final approval.');
         } else {
-            // If Supervisor rejects, it's fully Rejected
             $leave->update([
                 'supervisor_status' => 'Rejected',
-                'status' => 'Rejected'
+                'status'            => 'Rejected',
             ]);
             return redirect()->back()->with('message', 'Leave request rejected.');
         }
