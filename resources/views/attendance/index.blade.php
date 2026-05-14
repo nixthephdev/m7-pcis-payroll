@@ -134,7 +134,7 @@
                                 <td class="px-5 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($log->date)->format('M d, Y') }}</td>
                                 <td class="px-5 py-4 font-mono text-emerald-600 dark:text-emerald-400 font-bold">{{ $in->format('h:i A') }}</td>
                                 <td class="px-5 py-4 font-mono text-gray-500 dark:text-gray-400">
-                                    {{ $out ? $out->format('h:i A') : '<span class="text-gray-300 italic">--:--</span>' }}
+                                    {!! $out ? $out->format('h:i A') : '<span class="text-gray-300 italic">--:--</span>' !!}
                                 </td>
                                 <td class="px-5 py-4 text-xs text-gray-500">{{ $durLabel }}</td>
                                 <td class="px-5 py-4 text-center">
