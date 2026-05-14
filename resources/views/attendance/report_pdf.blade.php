@@ -153,7 +153,12 @@
     <tr><td class="summary-label">Days Late</td><td class="summary-value">{{ $totalLates }}</td></tr>
     <tr><td class="summary-label">Total Tardy (minutes)</td><td class="summary-value">{{ $totalTardy }}</td></tr>
     <tr><td class="summary-label">Total Undertime (minutes)</td><td class="summary-value">{{ $totalUndertime }}</td></tr>
-    <tr><td class="summary-label">Total Overtime (minutes)</td><td class="summary-value">{{ $totalOvertimeMins }}</td></tr>
+    <tr><td class="summary-label">Total Regular Day OT (minutes)</td><td class="summary-value">{{ $otRegularDay }}</td></tr>
+    <tr><td class="summary-label">Total Regular Holiday OT (minutes)</td><td class="summary-value">{{ $otHoliday }}</td></tr>
+    <tr><td class="summary-label">Total Rest Day / Special Holiday OT (minutes)</td><td class="summary-value">{{ $otRestDay }}</td></tr>
+    <tr><td class="summary-label">Total Vacation Leave Day/s</td><td class="summary-value">{{ $totalVLDays }}</td></tr>
+    <tr><td class="summary-label">Total Sick Leave Day/s</td><td class="summary-value">{{ $totalSLDays }}</td></tr>
+    <tr><td class="summary-label">Total Unpaid Leave Day/s</td><td class="summary-value">{{ $totalUnpaidDays }}</td></tr>
     <tr><td class="summary-label">Approved Leaves</td><td class="summary-value">{{ $approvedLeaves->count() }}</td></tr>
 </table>
 

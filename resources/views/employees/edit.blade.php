@@ -460,7 +460,7 @@
                                     <div>
                                         <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Level</label>
                                         <select name="level" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                            <option>Primary</option><option>Secondary</option><option>Tertiary</option><option>Post Grad</option><option>PhD</option>
+                                            <option>Primary</option><option>Secondary</option><option>Tertiary</option><option>Post Degree</option><option>Ph Degree</option>
                                         </select>
                                     </div>
                                     <div class="md:col-span-2">

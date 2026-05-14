@@ -263,9 +263,27 @@ class AttendanceController extends Controller
         $totalOvertimeMins = $logs->sum('overtime_minutes');
         $totalLates        = $logs->where('status', 'Late')->count();
 
+        // OT breakdown by type
+        $otRegularDay  = $logs->where('overtime_type', 'Regular Day')->sum('overtime_minutes');
+        $otHoliday     = $logs->where('overtime_type', 'Regular Holiday')->sum('overtime_minutes');
+        $otRestDay     = $logs->where('overtime_type', 'Rest Day / Special Holiday')->sum('overtime_minutes');
+
+        // Leave day totals
+        $totalVLDays     = $approvedLeaves->where('leave_type', 'Vacation Leave')->sum(fn($lv) =>
+            \Carbon\Carbon::parse($lv->start_date)->diffInDaysFiltered(fn($d) => true, \Carbon\Carbon::parse($lv->end_date)) + 1
+        );
+        $totalSLDays     = $approvedLeaves->where('leave_type', 'Sick Leave')->sum(fn($lv) =>
+            \Carbon\Carbon::parse($lv->start_date)->diffInDaysFiltered(fn($d) => true, \Carbon\Carbon::parse($lv->end_date)) + 1
+        );
+        $totalUnpaidDays = $approvedLeaves->where('is_paid', false)->where('leave_type', '!=', 'Incentive Hours')->sum(fn($lv) =>
+            \Carbon\Carbon::parse($lv->start_date)->diffInDaysFiltered(fn($d) => true, \Carbon\Carbon::parse($lv->end_date)) + 1
+        );
+
         $pdf = Pdf::loadView('attendance.report_pdf', compact(
             'employee', 'logs', 'request', 'approvedLeaves',
-            'totalPresent', 'totalLates', 'totalTardy', 'totalUndertime', 'totalOvertimeMins'
+            'totalPresent', 'totalLates', 'totalTardy', 'totalUndertime', 'totalOvertimeMins',
+            'otRegularDay', 'otHoliday', 'otRestDay',
+            'totalVLDays', 'totalSLDays', 'totalUnpaidDays'
         ));
 
         return $pdf->download("Attendance_{$employee->user->name}_{$request->start_date}.pdf");

@@ -253,8 +253,7 @@
                                                 <option value="">-- None --</option>
                                                 <option value="Regular Day">Regular Day</option>
                                                 <option value="Regular Holiday">Regular Holiday</option>
-                                                <option value="Rest Day">Rest Day</option>
-                                                <option value="Special Holiday">Special Holiday</option>
+                                                <option value="Rest Day / Special Holiday">Rest Day / Special Holiday</option>
                                             </select>
                                         </div>
                                     </div>
