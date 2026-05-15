@@ -147,13 +147,21 @@ class AttendanceController extends Controller
             $status       = 'Present';
             $tardyMinutes = 0;
 
-            if ($type === 'App\Models\Employee' && $person->schedule) {
+            if ($type === 'App\Models\Employee' && $person->schedule && !$person->schedule->is_flexible) {
                 $scheduledIn  = Carbon::parse($date . ' ' . $person->schedule->time_in);
                 $diffMinutes  = $scheduledIn->diffInMinutes($now, false); // positive = late
 
                 if ($diffMinutes > 5) {
                     $status       = 'Late';
                     $tardyMinutes = (int) $diffMinutes;
+                }
+
+                // Guard protection: tardy > 6 hours on clock-in means the schedule's
+                // time_in is misaligned with the actual shift (e.g. a night shift guard
+                // clocking in at 5 PM when their stored time_in is an AM value).
+                if ($isGuard && $tardyMinutes > 360) {
+                    $status       = 'Present';
+                    $tardyMinutes = 0;
                 }
             } elseif ($type === 'App\Models\Student') {
                 $cutoff      = Carbon::parse($date . ' 08:00');

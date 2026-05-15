@@ -116,6 +116,8 @@
                             @php
                                 $in  = \Carbon\Carbon::parse($log->time_in);
                                 $out = $log->time_out ? \Carbon\Carbon::parse($log->time_out) : null;
+                                // Overnight shift: time_out may wrap to next day
+                                if ($out && $out->lt($in)) { $out->addDay(); }
                                 // Deduct 1 hr lunch if worked more than 60 minutes
                                 $workedMins = $out ? $in->diffInMinutes($out) : 0;
                                 $netMins    = $workedMins > 60 ? $workedMins - 60 : $workedMins;

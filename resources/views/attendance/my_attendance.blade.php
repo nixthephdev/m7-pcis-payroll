@@ -94,6 +94,8 @@
                             @php
                                 $in  = \Carbon\Carbon::parse($log->time_in);
                                 $out = $log->time_out ? \Carbon\Carbon::parse($log->time_out) : null;
+                                // Overnight shift: time_out may wrap to next day
+                                if ($out && $out->lt($in)) { $out->addDay(); }
                                 $workedMins = $out ? $in->diffInMinutes($out) : 0;
                                 $netMins    = $workedMins > 60 ? $workedMins - 60 : $workedMins;
                                 $durLabel   = $out ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
