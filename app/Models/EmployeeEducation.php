@@ -15,6 +15,7 @@ class EmployeeEducation extends Model
         'level', 
         'school_name', 
         'date_graduated', // <--- THIS WAS LIKELY MISSING
-        'diploma_path'
+        'diploma_path',
+        'tor_path',
     ];
 }

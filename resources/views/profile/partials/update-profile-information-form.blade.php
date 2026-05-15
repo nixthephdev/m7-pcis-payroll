@@ -19,31 +19,20 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="space-y-6" enctype="multipart/form-data">
+    <form method="post" action="{{ route('profile.update') }}" class="space-y-6">
         @csrf
         @method('patch')
 
-        <!-- Profile Picture -->
-        <div>
-            <x-input-label for="avatar" :value="__('Profile Picture')" class="font-bold text-gray-700 dark:text-gray-300" />
-            
-            <div class="flex items-center gap-6 mt-3">
-                <div class="relative group">
-                    @if($user->avatar)
-                        <img src="{{ asset('storage/' . $user->avatar) }}" class="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-slate-700 shadow-md">
-                    @else
-                        <div class="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-2xl border-4 border-white dark:border-slate-700 shadow-md">
-                            {{ substr($user->name, 0, 1) }}
-                        </div>
-                    @endif
+        <!-- Profile Picture (display only — managed by HR/Admin) -->
+        <div class="flex items-center gap-4">
+            @if($user->avatar)
+                <img src="{{ asset('storage/' . $user->avatar) }}" class="w-16 h-16 rounded-full object-cover border-4 border-white dark:border-slate-700 shadow-md">
+            @else
+                <div class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-2xl border-4 border-white dark:border-slate-700 shadow-md">
+                    {{ substr($user->name, 0, 1) }}
                 </div>
-                
-                <div class="flex-1">
-                    <input id="avatar" name="avatar" type="file" accept="image/*" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-indigo-50 dark:file:bg-indigo-900/50 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900 cursor-pointer transition" />
-                    <p class="text-xs text-gray-400 mt-2">JPG, PNG or GIF (Max 3MB)</p>
-                </div>
-            </div>
-            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
+            @endif
+            <p class="text-xs text-gray-400">Profile photo is managed by HR/Admin.</p>
         </div>
 
         <!-- Name -->
