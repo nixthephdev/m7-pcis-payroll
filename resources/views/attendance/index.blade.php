@@ -107,7 +107,7 @@
                                 <th class="px-5 py-4">Duration*</th>
                                 <th class="px-5 py-4 text-center">Status</th>
                                 <th class="px-5 py-4 text-center">Tardy</th>
-                                <th class="px-5 py-4 text-center">OT</th>
+                                @if($type !== 'student')<th class="px-5 py-4 text-center">OT</th>@endif
                                 <th class="px-5 py-4 text-center">Edit</th>
                             </tr>
                         </thead>
@@ -159,6 +159,7 @@
                                         <span class="text-gray-300">—</span>
                                     @endif
                                 </td>
+                                @if($type !== 'student')
                                 <td class="px-5 py-4 text-center text-xs">
                                     @if($log->overtime_minutes > 0)
                                         <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ $log->overtime_minutes }}m</span>
@@ -169,6 +170,7 @@
                                         <span class="text-gray-300">—</span>
                                     @endif
                                 </td>
+                                @endif
                                 <td class="px-5 py-4 text-center">
                                     <button @click="openEdit(
                                         {{ $log->id }},
@@ -239,6 +241,7 @@
                                     </div>
                                 </div>
 
+                                @if($type !== 'student')
                                 <div class="border-t dark:border-slate-700 pt-4">
                                     <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">HR Overtime Entry</p>
                                     <div class="grid grid-cols-2 gap-4">
@@ -260,6 +263,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             </div>
 
                             <div class="bg-gray-50 dark:bg-slate-700/50 px-6 py-4 flex flex-row-reverse gap-3 rounded-b-xl">
