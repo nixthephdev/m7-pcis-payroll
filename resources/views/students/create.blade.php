@@ -83,6 +83,12 @@
                             <input type="text" name="guardian_contact" value="{{ old('guardian_contact') }}" class="w-full rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm" required>
                         </div>
 
+                        <!-- Guardian Email -->
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Guardian Email <span class="text-gray-400 font-normal normal-case">(for attendance notifications)</span></label>
+                            <input type="email" name="guardian_email" value="{{ old('guardian_email') }}" placeholder="parent@email.com" class="w-full rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
+                        </div>
+
                     </div>
 
                     <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-slate-700">

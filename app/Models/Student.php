@@ -13,12 +13,13 @@ class Student extends Model
 
     protected $fillable = [
         'student_id',
-        'full_name', // <--- Changed to full_name
+        'full_name',
         'email',
         'grade_level',
         'section',
         'guardian_name',
         'guardian_contact',
+        'guardian_email',
     ];
 
     public function attendance()

@@ -2,11 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\StudentAttendanceNotification;
 use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
+use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class MarkAbsentEmployees extends Command
 {
@@ -101,7 +105,56 @@ class MarkAbsentEmployees extends Command
             $totalSkipped += $skipped;
         }
 
-        $this->info("Done — {$totalMarked} total absent records created, {$totalSkipped} skipped.");
+        $this->info("Employees — {$totalMarked} absent records created, {$totalSkipped} skipped.");
+
+        // --- STUDENTS ---
+        $students = Student::all();
+        $studentMarked  = 0;
+        $studentSkipped = 0;
+
+        foreach ($dates as $date) {
+            if ($date->isWeekend() && !$this->option('force')) {
+                continue;
+            }
+
+            foreach ($students as $student) {
+                $hasAttendance = Attendance::where('attendable_id', $student->id)
+                    ->where('attendable_type', Student::class)
+                    ->whereDate('date', $date->toDateString())
+                    ->exists();
+
+                if ($hasAttendance) {
+                    $studentSkipped++;
+                    continue;
+                }
+
+                $attendance = Attendance::create([
+                    'attendable_id'     => $student->id,
+                    'attendable_type'   => Student::class,
+                    'date'              => $date->toDateString(),
+                    'time_in'           => null,
+                    'time_out'          => null,
+                    'status'            => 'Absent',
+                    'tardy_minutes'     => 0,
+                    'undertime_minutes' => 0,
+                    'overtime_minutes'  => 0,
+                    'overtime_type'     => null,
+                ]);
+
+                if ($student->guardian_email) {
+                    try {
+                        Mail::to($student->guardian_email)
+                            ->send(new StudentAttendanceNotification($student, $attendance));
+                    } catch (\Exception $e) {
+                        Log::error("Absent email failed for student {$student->student_id}: " . $e->getMessage());
+                    }
+                }
+
+                $studentMarked++;
+            }
+        }
+
+        $this->info("Students — {$studentMarked} absent records created, {$studentSkipped} skipped.");
         return 0;
     }
 }

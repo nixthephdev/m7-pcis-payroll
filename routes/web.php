@@ -61,6 +61,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/my-profile/health-exam', [EmployeeController::class, 'storeMyHealthExam'])->name('employee.storeMyHealthExam');
     Route::put('/my-profile/health-notes', [EmployeeController::class, 'updateMyHealthNotes'])->name('employee.updateMyHealthNotes');
 
+    // Self-service Edit & Delete for Education, Employment, Training
+    Route::put('/my-profile/education/{edu}', [EmployeeController::class, 'updateMyEducation'])->name('employee.updateMyEducation');
+    Route::delete('/my-profile/education/{edu}', [EmployeeController::class, 'destroyMyEducation'])->name('employee.destroyMyEducation');
+    Route::put('/my-profile/employment-history/{job}', [EmployeeController::class, 'updateMyEmploymentHistory'])->name('employee.updateMyEmploymentHistory');
+    Route::delete('/my-profile/employment-history/{job}', [EmployeeController::class, 'destroyMyEmploymentHistory'])->name('employee.destroyMyEmploymentHistory');
+    Route::put('/my-profile/training/{training}', [EmployeeController::class, 'updateMyTraining'])->name('employee.updateMyTraining');
+    Route::delete('/my-profile/training/{training}', [EmployeeController::class, 'destroyMyTraining'])->name('employee.destroyMyTraining');
+
     // Team Approvals (For Supervisors)
     Route::get('/leaves/team', [LeaveController::class, 'teamApprovals'])->name('leaves.team');
     Route::post('/leaves/{id}/supervisor', [LeaveController::class, 'supervisorAction'])->name('leaves.supervisor');
@@ -121,6 +129,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/employees/{id}/health-notes', [EmployeeController::class, 'updateHealthNotes'])->name('employees.updateHealthNotes');
     Route::post('/employees/{id}/health-exam', [EmployeeController::class, 'storeHealthExam'])->name('employees.storeHealthExam');
     Route::post('/employees/{id}/employment-history', [EmployeeController::class, 'storeEmploymentHistory'])->name('employees.storeEmploymentHistory');
+    Route::put('/employees/education/{edu}', [EmployeeController::class, 'updateEducation'])->name('employees.updateEducation');
+    Route::delete('/employees/education/{edu}', [EmployeeController::class, 'destroyEducation'])->name('employees.destroyEducation');
+    Route::put('/employees/employment/{job}', [EmployeeController::class, 'updateEmploymentHistory'])->name('employees.updateEmploymentHistory');
+    Route::delete('/employees/employment/{job}', [EmployeeController::class, 'destroyEmploymentHistory'])->name('employees.destroyEmploymentHistory');
+    Route::put('/employees/training/{training}', [EmployeeController::class, 'updateTraining'])->name('employees.updateTraining');
+    Route::delete('/employees/training/{training}', [EmployeeController::class, 'destroyTraining'])->name('employees.destroyTraining');
     Route::post('/employees/{id}/upload-photo', [EmployeeController::class, 'uploadPhoto'])->name('employees.uploadPhoto');
 });
 

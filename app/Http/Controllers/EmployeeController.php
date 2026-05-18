@@ -11,6 +11,7 @@ use App\Models\EmployeeEmploymentHistory;
 use App\Models\EmployeeHealthExam;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
@@ -361,6 +362,130 @@ class EmployeeController extends Controller
             ->with('active_tab', 'training');
     }
 
+    // --- UPDATE EDUCATION ---
+    public function updateEducation(Request $request, \App\Models\EmployeeEducation $edu)
+    {
+        $request->validate([
+            'school_name'    => 'required|string',
+            'level'          => 'required|string',
+            'date_graduated' => 'nullable|date',
+            'diploma'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'tor'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $data = [
+            'level'          => $request->level,
+            'school_name'    => $request->school_name,
+            'date_graduated' => $request->date_graduated,
+        ];
+
+        if ($request->hasFile('diploma')) {
+            if ($edu->diploma_path) Storage::disk('public')->delete($edu->diploma_path);
+            $data['diploma_path'] = $request->file('diploma')->store('diplomas', 'public');
+        }
+
+        if ($request->hasFile('tor')) {
+            if ($edu->tor_path) Storage::disk('public')->delete($edu->tor_path);
+            $data['tor_path'] = $request->file('tor')->store('tor-files', 'public');
+        }
+
+        $edu->update($data);
+
+        return redirect()->back()
+            ->with('message', 'Education record updated successfully.')
+            ->with('active_tab', 'education');
+    }
+
+    // --- UPDATE EMPLOYMENT HISTORY ---
+    public function updateEmploymentHistory(Request $request, EmployeeEmploymentHistory $job)
+    {
+        $request->validate([
+            'company_name' => 'required|string',
+            'designation'  => 'required|string',
+            'from_date'    => 'required|string',
+            'coe'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $data = [
+            'from_date'    => $request->from_date,
+            'to_date'      => $request->to_date ?: null,
+            'company_name' => $request->company_name,
+            'designation'  => $request->designation,
+        ];
+
+        if ($request->hasFile('coe')) {
+            if ($job->coe_path) Storage::disk('public')->delete($job->coe_path);
+            $data['coe_path'] = $request->file('coe')->store('coe-files', 'public');
+        }
+
+        $job->update($data);
+
+        return redirect()->back()
+            ->with('message', 'Employment history updated successfully.')
+            ->with('active_tab', 'education');
+    }
+
+    // --- UPDATE TRAINING / LICENSE ---
+    public function updateTraining(Request $request, \App\Models\EmployeeTraining $training)
+    {
+        $request->validate([
+            'title'       => 'required|string',
+            'start_date'  => 'nullable|date',
+            'certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $data = [
+            'title'       => $request->title,
+            'license_no'  => $request->license_no,
+            'start_date'  => $request->start_date,
+            'end_date'    => $request->end_date,
+            'expiry_date' => $request->expiry_date,
+        ];
+
+        if ($request->hasFile('certificate')) {
+            if ($training->certificate_path) Storage::disk('public')->delete($training->certificate_path);
+            $data['certificate_path'] = $request->file('certificate')->store('certificates', 'public');
+        }
+
+        $training->update($data);
+
+        return redirect()->back()
+            ->with('message', ($training->type === 'License' ? 'License' : 'Training') . ' updated successfully.')
+            ->with('active_tab', 'training');
+    }
+
+    // --- DELETE EDUCATION ---
+    public function destroyEducation(\App\Models\EmployeeEducation $edu)
+    {
+        if ($edu->diploma_path) Storage::disk('public')->delete($edu->diploma_path);
+        if ($edu->tor_path)     Storage::disk('public')->delete($edu->tor_path);
+        $edu->delete();
+        return redirect()->back()
+            ->with('message', 'Education record deleted.')
+            ->with('active_tab', 'education');
+    }
+
+    // --- DELETE EMPLOYMENT HISTORY ---
+    public function destroyEmploymentHistory(EmployeeEmploymentHistory $job)
+    {
+        if ($job->coe_path) Storage::disk('public')->delete($job->coe_path);
+        $job->delete();
+        return redirect()->back()
+            ->with('message', 'Employment record deleted.')
+            ->with('active_tab', 'education');
+    }
+
+    // --- DELETE TRAINING / LICENSE ---
+    public function destroyTraining(\App\Models\EmployeeTraining $training)
+    {
+        if ($training->certificate_path) Storage::disk('public')->delete($training->certificate_path);
+        $label = $training->type === 'License' ? 'License' : 'Training';
+        $training->delete();
+        return redirect()->back()
+            ->with('message', $label . ' record deleted.')
+            ->with('active_tab', 'training');
+    }
+
     // --- STORE FAMILY MEMBER ---
     public function storeFamily(Request $request, $id)
     {
@@ -615,6 +740,132 @@ class EmployeeController extends Controller
 
         return redirect()->route('employee.myProfile')
             ->with('message', ($request->type === 'License' ? 'License' : 'Training') . ' added.')
+            ->with('active_tab', 'training');
+    }
+
+    public function updateMyEducation(Request $request, \App\Models\EmployeeEducation $edu)
+    {
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        abort_if($edu->employee_id !== $employee->id, 403);
+
+        $request->validate([
+            'school_name'    => 'required',
+            'level'          => 'required',
+            'date_graduated' => 'nullable|date',
+            'diploma'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'tor'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        if ($request->hasFile('diploma')) {
+            if ($edu->diploma_path) Storage::disk('public')->delete($edu->diploma_path);
+            $edu->diploma_path = $request->file('diploma')->store('diplomas', 'public');
+        }
+        if ($request->hasFile('tor')) {
+            if ($edu->tor_path) Storage::disk('public')->delete($edu->tor_path);
+            $edu->tor_path = $request->file('tor')->store('tor-files', 'public');
+        }
+        $edu->level          = $request->level;
+        $edu->school_name    = $request->school_name;
+        $edu->date_graduated = $request->date_graduated;
+        $edu->save();
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Education record updated.')
+            ->with('active_tab', 'education');
+    }
+
+    public function destroyMyEducation(\App\Models\EmployeeEducation $edu)
+    {
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        abort_if($edu->employee_id !== $employee->id, 403);
+
+        if ($edu->diploma_path) Storage::disk('public')->delete($edu->diploma_path);
+        if ($edu->tor_path) Storage::disk('public')->delete($edu->tor_path);
+        $edu->delete();
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Education record deleted.')
+            ->with('active_tab', 'education');
+    }
+
+    public function updateMyEmploymentHistory(Request $request, EmployeeEmploymentHistory $job)
+    {
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        abort_if($job->employee_id !== $employee->id, 403);
+
+        $request->validate([
+            'company_name' => 'required|string',
+            'designation'  => 'required|string',
+            'from_date'    => 'required|string',
+            'coe'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        if ($request->hasFile('coe')) {
+            if ($job->coe_path) Storage::disk('public')->delete($job->coe_path);
+            $job->coe_path = $request->file('coe')->store('coe-files', 'public');
+        }
+        $job->from_date    = $request->from_date;
+        $job->to_date      = $request->to_date ?: null;
+        $job->company_name = $request->company_name;
+        $job->designation  = $request->designation;
+        $job->save();
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Employment history updated.')
+            ->with('active_tab', 'education');
+    }
+
+    public function destroyMyEmploymentHistory(EmployeeEmploymentHistory $job)
+    {
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        abort_if($job->employee_id !== $employee->id, 403);
+
+        if ($job->coe_path) Storage::disk('public')->delete($job->coe_path);
+        $job->delete();
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', 'Employment record deleted.')
+            ->with('active_tab', 'education');
+    }
+
+    public function updateMyTraining(Request $request, \App\Models\EmployeeTraining $training)
+    {
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        abort_if($training->employee_id !== $employee->id, 403);
+
+        $request->validate([
+            'title'       => 'required|string',
+            'start_date'  => 'nullable|date',
+            'certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        if ($request->hasFile('certificate')) {
+            if ($training->certificate_path) Storage::disk('public')->delete($training->certificate_path);
+            $training->certificate_path = $request->file('certificate')->store('certificates', 'public');
+        }
+        $training->title       = $request->title;
+        $training->license_no  = $request->license_no;
+        $training->start_date  = $request->start_date;
+        $training->end_date    = $request->end_date;
+        $training->expiry_date = $request->expiry_date;
+        $training->save();
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', ($training->type === 'License' ? 'License' : 'Training') . ' updated.')
+            ->with('active_tab', 'training');
+    }
+
+    public function destroyMyTraining(\App\Models\EmployeeTraining $training)
+    {
+        $employee = \Illuminate\Support\Facades\Auth::user()->employee;
+        abort_if($training->employee_id !== $employee->id, 403);
+
+        if ($training->certificate_path) Storage::disk('public')->delete($training->certificate_path);
+        $label = $training->type === 'License' ? 'License' : 'Training';
+        $training->delete();
+
+        return redirect()->route('employee.myProfile')
+            ->with('message', $label . ' record deleted.')
             ->with('active_tab', 'training');
     }
 

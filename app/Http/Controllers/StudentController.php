@@ -18,22 +18,24 @@ class StudentController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'student_id' => 'required|unique:students,student_id',
-            'full_name'  => 'required|string',
-            'grade_level'=> 'required|string',
-            'section'    => 'required|string',
-            'guardian_name' => 'required|string',
+            'student_id'       => 'required|unique:students,student_id',
+            'full_name'        => 'required|string',
+            'grade_level'      => 'required|string',
+            'section'          => 'required|string',
+            'guardian_name'    => 'required|string',
             'guardian_contact' => 'required|string',
+            'guardian_email'   => 'nullable|email',
         ]);
 
         Student::create([
-            'student_id' => $request->student_id,
-            'full_name'  => $request->full_name, // Direct save
-            'email'      => $request->email,
-            'grade_level'=> $request->grade_level,
-            'section'    => $request->section,
-            'guardian_name' => $request->guardian_name,
+            'student_id'       => $request->student_id,
+            'full_name'        => $request->full_name,
+            'email'            => $request->email,
+            'grade_level'      => $request->grade_level,
+            'section'          => $request->section,
+            'guardian_name'    => $request->guardian_name,
             'guardian_contact' => $request->guardian_contact,
+            'guardian_email'   => $request->guardian_email,
         ]);
 
         return redirect()->route('students.index')->with('message', 'Student added successfully.');
@@ -48,22 +50,24 @@ class StudentController extends Controller
         $student = Student::findOrFail($id);
 
         $request->validate([
-            'student_id' => 'required|unique:students,student_id,' . $id,
-            'full_name'  => 'required|string',
-            'grade_level'=> 'required|string',
-            'section'    => 'required|string',
-            'guardian_name' => 'required|string',
+            'student_id'       => 'required|unique:students,student_id,' . $id,
+            'full_name'        => 'required|string',
+            'grade_level'      => 'required|string',
+            'section'          => 'required|string',
+            'guardian_name'    => 'required|string',
             'guardian_contact' => 'required|string',
+            'guardian_email'   => 'nullable|email',
         ]);
 
         $student->update([
-            'student_id' => $request->student_id,
-            'full_name'  => $request->full_name, // Direct update
-            'email'      => $request->email,
-            'grade_level'=> $request->grade_level,
-            'section'    => $request->section,
-            'guardian_name' => $request->guardian_name,
+            'student_id'       => $request->student_id,
+            'full_name'        => $request->full_name,
+            'email'            => $request->email,
+            'grade_level'      => $request->grade_level,
+            'section'          => $request->section,
+            'guardian_name'    => $request->guardian_name,
             'guardian_contact' => $request->guardian_contact,
+            'guardian_email'   => $request->guardian_email,
         ]);
 
         return redirect()->route('students.index')->with('message', 'Student updated successfully.');

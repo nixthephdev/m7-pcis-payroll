@@ -7,8 +7,11 @@ use App\Models\Employee;
 use App\Models\Student;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
+use App\Mail\StudentAttendanceNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class AttendanceController extends Controller
@@ -195,7 +198,7 @@ class AttendanceController extends Controller
                 }
             }
 
-            Attendance::create([
+            $attendance = Attendance::create([
                 'attendable_id'   => $person->id,
                 'attendable_type' => $type,
                 'date'            => $date,
@@ -203,6 +206,15 @@ class AttendanceController extends Controller
                 'status'          => $status,
                 'tardy_minutes'   => $tardyMinutes,
             ]);
+
+            if ($type === 'App\Models\Student' && $person->guardian_email) {
+                try {
+                    Mail::to($person->guardian_email)
+                        ->send(new StudentAttendanceNotification($person, $attendance));
+                } catch (\Exception $e) {
+                    Log::error("Student attendance email failed for {$person->student_id}: " . $e->getMessage());
+                }
+            }
 
             return response()->json(['status' => 'success', 'type' => 'clock_in', 'message' => "Welcome, $name!"]);
         }

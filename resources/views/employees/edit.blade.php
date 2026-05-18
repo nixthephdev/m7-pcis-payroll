@@ -448,7 +448,7 @@
             <div x-show="activeTab === 'education'" class="space-y-6">
 
                 {{-- Education Records --}}
-                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                <div x-data="{ showEduModal: false, edu: {} }" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
                     <div class="p-6 border-b border-gray-100 dark:border-slate-700">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">Educational Background</h3>
                     </div>
@@ -461,7 +461,8 @@
                                         <th class="px-4 py-3">School Name</th>
                                         <th class="px-4 py-3">Date Graduated</th>
                                         <th class="px-4 py-3">Diploma</th>
-                                        <th class="px-4 py-3 rounded-r-md">Transcript (TOR)</th>
+                                        <th class="px-4 py-3">Transcript (TOR)</th>
+                                        <th class="px-4 py-3 rounded-r-md"></th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
@@ -476,12 +477,63 @@
                                         <td class="px-4 py-3">
                                             @if($edu->tor_path) <a href="{{ asset('storage/'.$edu->tor_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View</a> @else <span class="text-gray-400">—</span> @endif
                                         </td>
+                                        <td class="px-4 py-3 flex items-center gap-2">
+                                            <button type="button" @click="edu = {{ json_encode(['id' => $edu->id, 'level' => $edu->level, 'school_name' => $edu->school_name, 'date_graduated' => $edu->date_graduated ?? '', 'has_diploma' => (bool)$edu->diploma_path, 'has_tor' => (bool)$edu->tor_path]) }}; showEduModal = true" title="Edit" class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                                            <form method="POST" action="{{ route('employees.destroyEducation', $edu->id) }}" onsubmit="return confirm('Delete this education record?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" title="Delete" class="text-red-500 hover:text-red-700 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                                            </form>
+                                        </td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 italic">No education records yet.</td></tr>
+                                    <tr><td colspan="6" class="px-4 py-6 text-center text-gray-400 italic">No education records yet.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        {{-- Edit Education Modal --}}
+                        <div x-show="showEduModal" style="display:none" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black/60 p-4" @keydown.escape.window="showEduModal = false">
+                            <div class="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg">
+                                <div class="flex items-center justify-between p-5 border-b dark:border-slate-700">
+                                    <h3 class="text-base font-bold text-gray-900 dark:text-white">Edit Education Record</h3>
+                                    <button @click="showEduModal = false" type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl leading-none">&times;</button>
+                                </div>
+                                <form :action="'/employees/education/' + edu.id" method="POST" enctype="multipart/form-data" class="p-5 space-y-4">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Level</label>
+                                            <select name="level" x-model="edu.level" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                                <option>Primary</option><option>Secondary</option><option>Tertiary</option><option>Post Degree</option><option>Ph Degree</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date Graduated</label>
+                                            <input type="date" name="date_graduated" x-model="edu.date_graduated" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">School Name</label>
+                                            <input type="text" name="school_name" x-model="edu.school_name" required class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Replace Diploma <span class="font-normal text-gray-400">(optional)</span></label>
+                                            <input type="file" name="diploma" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                            <p x-show="edu.has_diploma" class="text-[10px] text-gray-400 mt-1">Current file kept if none uploaded.</p>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Replace TOR <span class="font-normal text-gray-400">(optional)</span></label>
+                                            <input type="file" name="tor" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                            <p x-show="edu.has_tor" class="text-[10px] text-gray-400 mt-1">Current file kept if none uploaded.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end gap-3 pt-2">
+                                        <button type="button" @click="showEduModal = false" class="px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+                                        <button type="submit" class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm transition-all">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
@@ -525,7 +577,7 @@
                 </div>
 
                 {{-- Employment History --}}
-                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                <div x-data="{ showJobModal: false, job: {} }" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
                     <div class="p-6 border-b border-gray-100 dark:border-slate-700">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">Employment History</h3>
                     </div>
@@ -538,7 +590,8 @@
                                         <th class="px-4 py-3">To</th>
                                         <th class="px-4 py-3">Company</th>
                                         <th class="px-4 py-3">Designation</th>
-                                        <th class="px-4 py-3 rounded-r-md">COE</th>
+                                        <th class="px-4 py-3">COE</th>
+                                        <th class="px-4 py-3 rounded-r-md"></th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
@@ -551,12 +604,60 @@
                                         <td class="px-4 py-3">
                                             @if($job->coe_path) <a href="{{ asset('storage/'.$job->coe_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View COE</a> @else <span class="text-gray-400">—</span> @endif
                                         </td>
+                                        <td class="px-4 py-3 flex items-center gap-2">
+                                            <button type="button" @click="job = {{ json_encode(['id' => $job->id, 'from_date' => $job->from_date, 'to_date' => $job->to_date ?? '', 'company_name' => $job->company_name, 'designation' => $job->designation, 'has_coe' => (bool)$job->coe_path]) }}; showJobModal = true" title="Edit" class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                                            <form method="POST" action="{{ route('employees.destroyEmploymentHistory', $job->id) }}" onsubmit="return confirm('Delete this employment record?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" title="Delete" class="text-red-500 hover:text-red-700 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                                            </form>
+                                        </td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 italic">No employment history added yet.</td></tr>
+                                    <tr><td colspan="6" class="px-4 py-6 text-center text-gray-400 italic">No employment history added yet.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        {{-- Edit Employment Modal --}}
+                        <div x-show="showJobModal" style="display:none" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black/60 p-4" @keydown.escape.window="showJobModal = false">
+                            <div class="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg">
+                                <div class="flex items-center justify-between p-5 border-b dark:border-slate-700">
+                                    <h3 class="text-base font-bold text-gray-900 dark:text-white">Edit Employment Record</h3>
+                                    <button @click="showJobModal = false" type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl leading-none">&times;</button>
+                                </div>
+                                <form :action="'/employees/employment/' + job.id" method="POST" enctype="multipart/form-data" class="p-5 space-y-4">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">From (Month & Year)</label>
+                                            <input type="text" name="from_date" x-model="job.from_date" placeholder="e.g. June 2018" required class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">To (leave blank if current)</label>
+                                            <input type="text" name="to_date" x-model="job.to_date" placeholder="e.g. March 2023" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Company Name</label>
+                                            <input type="text" name="company_name" x-model="job.company_name" required class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Designation / Position</label>
+                                            <input type="text" name="designation" x-model="job.designation" required class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Replace COE <span class="font-normal text-gray-400">(optional)</span></label>
+                                            <input type="file" name="coe" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                            <p x-show="job.has_coe" class="text-[10px] text-gray-400 mt-1">Current file kept if none uploaded.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end gap-3 pt-2">
+                                        <button type="button" @click="showJobModal = false" class="px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+                                        <button type="submit" class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm transition-all">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
@@ -603,7 +704,7 @@
             <div x-show="activeTab === 'training'" class="space-y-6">
 
                 {{-- LICENSES --}}
-                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                <div x-data="{ showLicModal: false, lic: {} }" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
                     <div class="p-6 border-b border-gray-100 dark:border-slate-700 flex items-center gap-3">
                         <span class="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-bold rounded-full uppercase">Licenses</span>
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">Professional Licenses</h3>
@@ -617,7 +718,8 @@
                                         <th class="px-4 py-3">License No.</th>
                                         <th class="px-4 py-3">Date Issued</th>
                                         <th class="px-4 py-3">Expiry Date</th>
-                                        <th class="px-4 py-3 rounded-r-md">Copy</th>
+                                        <th class="px-4 py-3">Copy</th>
+                                        <th class="px-4 py-3 rounded-r-md"></th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
@@ -639,12 +741,60 @@
                                         <td class="px-4 py-3">
                                             @if($lic->certificate_path) <a href="{{ asset('storage/'.$lic->certificate_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View</a> @else <span class="text-gray-400">—</span> @endif
                                         </td>
+                                        <td class="px-4 py-3 flex items-center gap-2">
+                                            <button type="button" @click="lic = {{ json_encode(['id' => $lic->id, 'title' => $lic->title, 'license_no' => $lic->license_no ?? '', 'start_date' => $lic->start_date ?? '', 'expiry_date' => $lic->expiry_date ?? '', 'has_cert' => (bool)$lic->certificate_path]) }}; showLicModal = true" title="Edit" class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                                            <form method="POST" action="{{ route('employees.destroyTraining', $lic->id) }}" onsubmit="return confirm('Delete this license?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" title="Delete" class="text-red-500 hover:text-red-700 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                                            </form>
+                                        </td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 italic">No licenses added yet.</td></tr>
+                                    <tr><td colspan="6" class="px-4 py-6 text-center text-gray-400 italic">No licenses added yet.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        {{-- Edit License Modal --}}
+                        <div x-show="showLicModal" style="display:none" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black/60 p-4" @keydown.escape.window="showLicModal = false">
+                            <div class="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg">
+                                <div class="flex items-center justify-between p-5 border-b dark:border-slate-700">
+                                    <h3 class="text-base font-bold text-gray-900 dark:text-white">Edit License</h3>
+                                    <button @click="showLicModal = false" type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl leading-none">&times;</button>
+                                </div>
+                                <form :action="'/employees/training/' + lic.id" method="POST" enctype="multipart/form-data" class="p-5 space-y-4">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="md:col-span-2">
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">License Name</label>
+                                            <input type="text" name="title" x-model="lic.title" required class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">License No.</label>
+                                            <input type="text" name="license_no" x-model="lic.license_no" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date Issued</label>
+                                            <input type="date" name="start_date" x-model="lic.start_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Expiry Date</label>
+                                            <input type="date" name="expiry_date" x-model="lic.expiry_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Replace Copy <span class="font-normal text-gray-400">(optional)</span></label>
+                                            <input type="file" name="certificate" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                            <p x-show="lic.has_cert" class="text-[10px] text-gray-400 mt-1">Current file kept if none uploaded.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end gap-3 pt-2">
+                                        <button type="button" @click="showLicModal = false" class="px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+                                        <button type="submit" class="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-sm transition-all">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
@@ -684,7 +834,7 @@
                 </div>
 
                 {{-- TRAININGS --}}
-                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
+                <div x-data="{ showTrModal: false, tr: {} }" class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700">
                     <div class="p-6 border-b border-gray-100 dark:border-slate-700 flex items-center gap-3">
                         <span class="px-3 py-1 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 text-xs font-bold rounded-full uppercase">Trainings</span>
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">Trainings Attended</h3>
@@ -696,7 +846,8 @@
                                     <tr>
                                         <th class="px-4 py-3 rounded-l-md">Training / Details</th>
                                         <th class="px-4 py-3">Inclusive Dates</th>
-                                        <th class="px-4 py-3 rounded-r-md">Certificate</th>
+                                        <th class="px-4 py-3">Certificate</th>
+                                        <th class="px-4 py-3 rounded-r-md"></th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
@@ -710,12 +861,56 @@
                                         <td class="px-4 py-3">
                                             @if($tr->certificate_path) <a href="{{ asset('storage/'.$tr->certificate_path) }}" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View</a> @else <span class="text-gray-400">—</span> @endif
                                         </td>
+                                        <td class="px-4 py-3 flex items-center gap-2">
+                                            <button type="button" @click="tr = {{ json_encode(['id' => $tr->id, 'title' => $tr->title, 'start_date' => $tr->start_date ?? '', 'end_date' => $tr->end_date ?? '', 'has_cert' => (bool)$tr->certificate_path]) }}; showTrModal = true" title="Edit" class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                                            <form method="POST" action="{{ route('employees.destroyTraining', $tr->id) }}" onsubmit="return confirm('Delete this training?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" title="Delete" class="text-red-500 hover:text-red-700 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                                            </form>
+                                        </td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="3" class="px-4 py-6 text-center text-gray-400 italic">No trainings added yet.</td></tr>
+                                    <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400 italic">No trainings added yet.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        {{-- Edit Training Modal --}}
+                        <div x-show="showTrModal" style="display:none" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black/60 p-4" @keydown.escape.window="showTrModal = false">
+                            <div class="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg">
+                                <div class="flex items-center justify-between p-5 border-b dark:border-slate-700">
+                                    <h3 class="text-base font-bold text-gray-900 dark:text-white">Edit Training</h3>
+                                    <button @click="showTrModal = false" type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl leading-none">&times;</button>
+                                </div>
+                                <form :action="'/employees/training/' + tr.id" method="POST" enctype="multipart/form-data" class="p-5 space-y-4">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="md:col-span-2">
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Training / Details</label>
+                                            <input type="text" name="title" x-model="tr.title" required class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Start Date</label>
+                                            <input type="date" name="start_date" x-model="tr.start_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">End Date</label>
+                                            <input type="date" name="end_date" x-model="tr.end_date" class="block w-full rounded-md border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Replace Certificate <span class="font-normal text-gray-400">(optional)</span></label>
+                                            <input type="file" name="certificate" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-gray-300">
+                                            <p x-show="tr.has_cert" class="text-[10px] text-gray-400 mt-1">Current file kept if none uploaded.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end gap-3 pt-2">
+                                        <button type="button" @click="showTrModal = false" class="px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+                                        <button type="submit" class="px-4 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-sm transition-all">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
