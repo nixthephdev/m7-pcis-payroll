@@ -87,17 +87,18 @@
 
         @foreach($logs as $log)
         @php
-            $in  = \Carbon\Carbon::parse($log->time_in);
-            $out = $log->time_out ? \Carbon\Carbon::parse($log->time_out) : null;
-            $workedMins = $out ? $in->diffInMinutes($out) : 0;
+            $isAbsent   = $log->status === 'Absent';
+            $in         = !$isAbsent && $log->time_in  ? \Carbon\Carbon::parse($log->time_in)  : null;
+            $out        = !$isAbsent && $log->time_out ? \Carbon\Carbon::parse($log->time_out) : null;
+            $workedMins = ($in && $out) ? $in->diffInMinutes($out) : 0;
             $netMins    = $workedMins > 60 ? $workedMins - 60 : $workedMins;
-            $durLabel   = $out ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
+            $durLabel   = ($in && $out) ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
             $hasLeave   = isset($leaveDates[$log->date]);
         @endphp
         <tr class="{{ $hasLeave ? 'leave-row' : '' }}">
             <td>{{ \Carbon\Carbon::parse($log->date)->format('M d, Y') }}</td>
             <td>{{ \Carbon\Carbon::parse($log->date)->format('D') }}</td>
-            <td>{{ $in->format('h:i A') }}</td>
+            <td>{{ $in ? $in->format('h:i A') : '--' }}</td>
             <td>{{ $out ? $out->format('h:i A') : '--' }}</td>
             <td>{{ $durLabel }}</td>
             <td style="text-align:center;">{{ $log->tardy_minutes > 0 ? $log->tardy_minutes : '--' }}</td>
@@ -150,6 +151,7 @@
 <div class="section-title">Summary</div>
 <table class="summary-grid">
     <tr><td class="summary-label">Days Present</td><td class="summary-value">{{ $totalPresent }}</td></tr>
+    <tr><td class="summary-label">Days Absent</td><td class="summary-value" style="color:#6b7280;">{{ $totalAbsent }}</td></tr>
     <tr><td class="summary-label">Days Late</td><td class="summary-value">{{ $totalLates }}</td></tr>
     <tr><td class="summary-label">Total Tardy (minutes)</td><td class="summary-value">{{ $totalTardy }}</td></tr>
     <tr><td class="summary-label">Total Undertime (minutes)</td><td class="summary-value">{{ $totalUndertime }}</td></tr>

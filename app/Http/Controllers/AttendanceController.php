@@ -16,21 +16,44 @@ class AttendanceController extends Controller
     // --- 1. ADMIN: ATTENDANCE MANAGEMENT ---
     public function index(Request $request)
     {
-        $type = $request->get('type', 'employee');
+        $type     = $request->get('type', 'employee');
+        $search   = $request->get('search', '');
+        $dateFrom = $request->get('date_from', Carbon::now()->subDays(29)->format('Y-m-d'));
+        $dateTo   = $request->get('date_to',   Carbon::now()->format('Y-m-d'));
 
         $query = Attendance::with('attendable');
 
         if ($type === 'student') {
             $query->where('attendable_type', 'App\Models\Student');
+
+            if ($search) {
+                $ids = Student::where(function ($q) use ($search) {
+                    $q->where('full_name',  'LIKE', "%{$search}%")
+                      ->orWhere('student_id', 'LIKE', "%{$search}%");
+                })->pluck('id');
+                $query->whereIn('attendable_id', $ids);
+            }
         } else {
             $query->where('attendable_type', 'App\Models\Employee');
+
+            if ($search) {
+                $ids = Employee::where(function ($q) use ($search) {
+                    $q->whereHas('user', fn($uq) => $uq->where('name', 'LIKE', "%{$search}%"))
+                      ->orWhere('position', 'LIKE', "%{$search}%")
+                      ->orWhere('employee_code', 'LIKE', "%{$search}%");
+                })->pluck('id');
+                $query->whereIn('attendable_id', $ids);
+            }
         }
 
-        $attendances = $query->orderBy('date', 'desc')
-                             ->orderBy('time_in', 'desc')
-                             ->get();
+        $query->whereBetween('date', [$dateFrom, $dateTo]);
 
-        return view('attendance.index', compact('attendances', 'type'));
+        $attendances = $query->orderBy('date', 'desc')
+                             ->orderBy('created_at', 'desc')
+                             ->paginate(25)
+                             ->withQueryString();
+
+        return view('attendance.index', compact('attendances', 'type', 'search', 'dateFrom', 'dateTo'));
     }
 
     // --- 2. EMPLOYEE: VIEW OWN ATTENDANCE ---
@@ -286,6 +309,7 @@ class AttendanceController extends Controller
                             ->get();
 
         $totalPresent      = $logs->whereIn('status', ['Present', 'Late'])->count();
+        $totalAbsent       = $logs->where('status', 'Absent')->count();
         $totalTardy        = $logs->sum('tardy_minutes');
         $totalUndertime    = $logs->sum('undertime_minutes');
         $totalOvertimeMins = $logs->sum('overtime_minutes');
@@ -309,7 +333,7 @@ class AttendanceController extends Controller
 
         $pdf = Pdf::loadView('attendance.report_pdf', compact(
             'employee', 'logs', 'request', 'approvedLeaves',
-            'totalPresent', 'totalLates', 'totalTardy', 'totalUndertime', 'totalOvertimeMins',
+            'totalPresent', 'totalAbsent', 'totalLates', 'totalTardy', 'totalUndertime', 'totalOvertimeMins',
             'otRegularDay', 'otHoliday', 'otRestDay',
             'totalVLDays', 'totalSLDays', 'totalUnpaidDays'
         ));
