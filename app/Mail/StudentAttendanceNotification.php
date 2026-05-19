@@ -17,15 +17,16 @@ class StudentAttendanceNotification extends Mailable
     public function __construct(
         public Student $student,
         public Attendance $attendance,
+        public string $clockType = 'clock_in',
     ) {}
 
     public function envelope(): Envelope
     {
-        $status = $this->attendance->status;
-        $name   = $this->student->full_name;
+        $name  = $this->student->full_name;
+        $label = $this->clockType === 'clock_out' ? 'Clock Out' : $this->attendance->status;
 
         return new Envelope(
-            subject: "Attendance Alert: {$name} — {$status}",
+            subject: "Attendance Alert: {$name} — {$label}",
         );
     }
 

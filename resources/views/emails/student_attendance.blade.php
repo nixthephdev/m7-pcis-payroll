@@ -162,12 +162,18 @@ M7 PCIS Attendance &amp; Payroll
         </tr>
         <tr>
             <td>Status</td>
-            <td><strong>{{ $attendance->status }}</strong></td>
+            <td><strong>{{ $clockType === 'clock_out' ? 'Clocked Out' : $attendance->status }}</strong></td>
         </tr>
         @if($attendance->time_in)
         <tr>
             <td>Time In</td>
             <td>{{ \Carbon\Carbon::parse($attendance->time_in)->format('h:i A') }}</td>
+        </tr>
+        @endif
+        @if($clockType === 'clock_out' && $attendance->time_out)
+        <tr>
+            <td>Time Out</td>
+            <td>{{ \Carbon\Carbon::parse($attendance->time_out)->format('h:i A') }}</td>
         </tr>
         @endif
         @if($attendance->tardy_minutes > 0)
@@ -178,7 +184,11 @@ M7 PCIS Attendance &amp; Payroll
         @endif
     </table>
 
-    @if($attendance->status === 'Absent')
+    @if($clockType === 'clock_out')
+    <div class="alert-panel" style="border-left-color: #38a169;">
+        Your child has safely clocked out at <strong>{{ \Carbon\Carbon::parse($attendance->time_out)->format('h:i A') }}</strong>.
+    </div>
+    @elseif($attendance->status === 'Absent')
     <div class="alert-panel absent">
         Your child was not recorded as present today. If you believe this is an error or have notified the school of an absence, please disregard this message.
     </div>

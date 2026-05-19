@@ -172,6 +172,15 @@ class AttendanceController extends Controller
                 'undertime_minutes' => $undertimeMinutes,
             ]);
 
+            if ($type === 'App\Models\Student' && $person->guardian_email) {
+                try {
+                    Mail::to($person->guardian_email)
+                        ->send(new StudentAttendanceNotification($person, $attendance->fresh(), 'clock_out'));
+                } catch (\Throwable $e) {
+                    Log::error("Student attendance email failed for {$person->student_id}: " . $e->getMessage());
+                }
+            }
+
             return response()->json(['status' => 'success', 'type' => 'clock_out', 'message' => "Goodbye, $name!"]);
 
         } else {
@@ -217,7 +226,7 @@ class AttendanceController extends Controller
                 try {
                     Mail::to($person->guardian_email)
                         ->send(new StudentAttendanceNotification($person, $attendance));
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     Log::error("Student attendance email failed for {$person->student_id}: " . $e->getMessage());
                 }
             }
