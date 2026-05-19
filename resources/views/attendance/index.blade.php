@@ -140,7 +140,8 @@
                                 $out        = (!$isAbsent && $log->time_out) ? \Carbon\Carbon::parse($log->time_out) : null;
                                 if ($in && $out && $out->lt($in)) { $out->addDay(); }
                                 $workedMins = ($in && $out) ? $in->diffInMinutes($out) : 0;
-                                $netMins    = $workedMins > 60 ? $workedMins - 60 : $workedMins;
+                                $isFlexible = ($log->attendable instanceof \App\Models\Employee) && ($log->attendable->schedule->is_flexible ?? false);
+                                $netMins    = (!$isFlexible && $workedMins > 60) ? $workedMins - 60 : $workedMins;
                                 $durLabel   = ($in && $out) ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
                             @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
@@ -216,7 +217,7 @@
                         <div class="text-center py-12 text-gray-400 dark:text-gray-500">No attendance records found.</div>
                     @endif
                 </div>
-                <p class="px-6 py-2 text-xs text-gray-400 dark:text-gray-500 border-t dark:border-slate-700">* Duration excludes 1-hour lunch break.</p>
+                <p class="px-6 py-2 text-xs text-gray-400 dark:text-gray-500 border-t dark:border-slate-700">* Duration excludes 1-hour lunch break (fixed schedules only).</p>
 
                 @if($attendances->hasPages())
                 <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-700">

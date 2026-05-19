@@ -97,7 +97,8 @@
                                 // Overnight shift: time_out may wrap to next day
                                 if ($out && $out->lt($in)) { $out->addDay(); }
                                 $workedMins = $out ? $in->diffInMinutes($out) : 0;
-                                $netMins    = $workedMins > 60 ? $workedMins - 60 : $workedMins;
+                                $isFlexible = $employee->schedule->is_flexible ?? false;
+                                $netMins    = (!$isFlexible && $workedMins > 60) ? $workedMins - 60 : $workedMins;
                                 $durLabel   = $out ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
                             @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
@@ -128,7 +129,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="px-6 py-2 text-xs text-gray-400 dark:text-gray-500 border-t dark:border-slate-700">* Duration excludes 1-hour lunch break.</p>
+                <p class="px-6 py-2 text-xs text-gray-400 dark:text-gray-500 border-t dark:border-slate-700">* Duration excludes 1-hour lunch break (fixed schedules only).</p>
             </div>
 
         </div>

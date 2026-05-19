@@ -91,7 +91,8 @@
             $in         = !$isAbsent && $log->time_in  ? \Carbon\Carbon::parse($log->time_in)  : null;
             $out        = !$isAbsent && $log->time_out ? \Carbon\Carbon::parse($log->time_out) : null;
             $workedMins = ($in && $out) ? $in->diffInMinutes($out) : 0;
-            $netMins    = $workedMins > 60 ? $workedMins - 60 : $workedMins;
+            $isFlexible = $employee->schedule->is_flexible ?? false;
+            $netMins    = (!$isFlexible && $workedMins > 60) ? $workedMins - 60 : $workedMins;
             $durLabel   = ($in && $out) ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
             $hasLeave   = isset($leaveDates[$log->date]);
         @endphp
@@ -121,7 +122,7 @@
     </tbody>
 </table>
 
-<p style="font-size:9px;color:#aaa;margin-top:4px;">* Duration excludes 1-hour lunch break.</p>
+<p style="font-size:9px;color:#aaa;margin-top:4px;">* Duration excludes 1-hour lunch break (fixed schedules only).</p>
 
 @if($approvedLeaves->isNotEmpty())
 <div class="section-title">Approved Leaves in Period</div>
