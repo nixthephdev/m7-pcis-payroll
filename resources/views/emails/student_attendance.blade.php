@@ -1,111 +1,223 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Notification</title>
-    <style>
-        body { margin: 0; padding: 0; background-color: #f4f6f9; font-family: Arial, sans-serif; color: #333; }
-        .wrapper { max-width: 560px; margin: 32px auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .header { background-color: #4f46e5; padding: 28px 32px; text-align: center; }
-        .header h1 { margin: 0; font-size: 20px; color: #ffffff; letter-spacing: 0.5px; }
-        .header p { margin: 4px 0 0; font-size: 13px; color: #c7d2fe; }
-        .body { padding: 32px; }
-        .greeting { font-size: 15px; margin-bottom: 16px; }
-        .message { font-size: 14px; color: #555; margin-bottom: 24px; line-height: 1.6; }
-        .details-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 24px; }
-        .details-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
-        .details-table td:first-child { font-weight: bold; color: #555; width: 40%; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .badge-present  { background: #d1fae5; color: #065f46; }
-        .badge-late     { background: #fef3c7; color: #92400e; }
-        .badge-absent   { background: #fee2e2; color: #991b1b; }
-        .badge-halfday  { background: #e0e7ff; color: #3730a3; }
-        .footer { background-color: #f8f9fb; padding: 20px 32px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb; }
-        .footer strong { color: #6b7280; }
-    </style>
+<title>{{ config('app.name') }}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<style>
+@media only screen and (max-width: 600px) {
+.inner-body { width: 100% !important; }
+.footer { width: 100% !important; }
+}
+@media only screen and (max-width: 500px) {
+.button { width: 100% !important; }
+}
+
+body, body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    position: relative;
+}
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #ffffff;
+    color: #718096;
+    height: 100%;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+p, ul, ol, blockquote { line-height: 1.4; text-align: left; }
+a { color: #3869d4; }
+a img { border: none; }
+h1 { color: #3d4852; font-size: 18px; font-weight: bold; margin-top: 0; text-align: left; }
+h2 { font-size: 16px; font-weight: bold; margin-top: 0; text-align: left; }
+h3 { font-size: 14px; font-weight: bold; margin-top: 0; text-align: left; }
+p { font-size: 16px; line-height: 1.5em; margin-top: 0; text-align: left; }
+p.sub { font-size: 12px; }
+img { max-width: 100%; }
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #edf2f7;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+.header { padding: 25px 0; text-align: center; }
+.header a { color: #3d4852; font-size: 19px; font-weight: bold; text-decoration: none; }
+.body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #edf2f7;
+    border-bottom: 1px solid #edf2f7;
+    border-top: 1px solid #edf2f7;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    background-color: #ffffff;
+    border-color: #e8e5ef;
+    border-radius: 2px;
+    border-width: 1px;
+    box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025), 2px 4px 0 rgba(0, 0, 150, 0.015);
+    margin: 0 auto;
+    padding: 0;
+    width: 570px;
+}
+.content-cell { max-width: 100vw; padding: 32px; }
+.footer {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    width: 570px;
+}
+.footer p { color: #b0adc5; font-size: 12px; text-align: center; }
+.footer a { color: #b0adc5; text-decoration: underline; }
+.details-table { margin: 20px 0 24px; width: 100%; border-collapse: collapse; }
+.details-table td { color: #74787e; font-size: 15px; line-height: 18px; padding: 10px 0; border-bottom: 1px solid #edeff2; }
+.details-table td:first-child { font-weight: bold; color: #3d4852; width: 42%; }
+.alert-panel {
+    border-left: 4px solid #2d3748;
+    margin: 21px 0;
+    background-color: #edf2f7;
+    color: #718096;
+    padding: 16px;
+    font-size: 15px;
+    line-height: 1.5em;
+}
+.alert-panel.absent { border-left-color: #e53e3e; }
+.alert-panel.late { border-left-color: #d69e2e; }
+</style>
 </head>
 <body>
-    <div class="wrapper">
-        <div class="header">
-            <h1>{{ config('app.name') }}</h1>
-            <p>Student Attendance Notification</p>
-        </div>
 
-        <div class="body">
-            <p class="greeting">Dear <strong>{{ $student->guardian_name }}</strong>,</p>
+<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+<tr>
+<td align="center">
+<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
 
-            <p class="message">
-                This is an automated notification regarding the attendance of your child
-                <strong>{{ $student->full_name }}</strong> ({{ $student->student_id }}) for
-                <strong>{{ \Carbon\Carbon::parse($attendance->date)->format('l, F j, Y') }}</strong>.
-            </p>
+{{-- Header --}}
+<tr>
+<td class="header">
+<a href="{{ config('app.url') }}" style="display: inline-block;">
+M7 PCIS Attendance &amp; Payroll
+</a>
+</td>
+</tr>
 
-            <table class="details-table">
-                <tr>
-                    <td>Student</td>
-                    <td>{{ $student->full_name }}</td>
-                </tr>
-                <tr>
-                    <td>Student ID</td>
-                    <td>{{ $student->student_id }}</td>
-                </tr>
-                <tr>
-                    <td>Grade / Section</td>
-                    <td>{{ $student->grade_level }} — {{ $student->section }}</td>
-                </tr>
-                <tr>
-                    <td>Date</td>
-                    <td>{{ \Carbon\Carbon::parse($attendance->date)->format('M j, Y') }}</td>
-                </tr>
-                <tr>
-                    <td>Status</td>
-                    <td>
-                        @php
-                            $badgeClass = match($attendance->status) {
-                                'Present'  => 'badge-present',
-                                'Late'     => 'badge-late',
-                                'Absent'   => 'badge-absent',
-                                'Half Day' => 'badge-halfday',
-                                default    => 'badge-present',
-                            };
-                        @endphp
-                        <span class="badge {{ $badgeClass }}">{{ $attendance->status }}</span>
-                    </td>
-                </tr>
-                @if($attendance->time_in)
-                <tr>
-                    <td>Time In</td>
-                    <td>{{ \Carbon\Carbon::parse($attendance->time_in)->format('h:i A') }}</td>
-                </tr>
-                @endif
-                @if($attendance->tardy_minutes > 0)
-                <tr>
-                    <td>Minutes Late</td>
-                    <td>{{ $attendance->tardy_minutes }} min</td>
-                </tr>
-                @endif
-            </table>
+{{-- Body --}}
+<tr>
+<td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
+<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+<tr>
+<td class="content-cell">
 
-            @if($attendance->status === 'Absent')
-            <p class="message" style="background:#fff7ed;border-left:3px solid #f97316;padding:10px 14px;border-radius:4px;">
-                Your child was not recorded as present today. If you believe this is an error or have notified the school of an absence, please disregard this message.
-            </p>
-            @elseif($attendance->status === 'Late')
-            <p class="message" style="background:#fffbeb;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:4px;">
-                Your child arrived <strong>{{ $attendance->tardy_minutes }} minute(s) late</strong>. Please remind them of the 8:00 AM check-in time.
-            </p>
-            @endif
+    <h1>Attendance Notification</h1>
 
-            <p class="message" style="margin-bottom:0;">
-                If you have any questions, please contact the school administration directly.
-            </p>
-        </div>
+    <p>Dear <strong>{{ $student->guardian_name }}</strong>,</p>
 
-        <div class="footer">
-            <strong>{{ config('app.name') }}</strong><br>
-            This is an automated message — please do not reply to this email.
-        </div>
+    <p>
+        This is an automated notification regarding the attendance of your child
+        <strong>{{ $student->full_name }}</strong> ({{ $student->student_id }}) for
+        <strong>{{ \Carbon\Carbon::parse($attendance->date)->format('l, F j, Y') }}</strong>.
+    </p>
+
+    <table class="details-table" role="presentation">
+        <tr>
+            <td>Student</td>
+            <td>{{ $student->full_name }}</td>
+        </tr>
+        <tr>
+            <td>Student ID</td>
+            <td>{{ $student->student_id }}</td>
+        </tr>
+        <tr>
+            <td>Grade &amp; Section</td>
+            <td>{{ $student->grade_level }} &mdash; {{ $student->section }}</td>
+        </tr>
+        <tr>
+            <td>Date</td>
+            <td>{{ \Carbon\Carbon::parse($attendance->date)->format('M j, Y') }}</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td><strong>{{ $attendance->status }}</strong></td>
+        </tr>
+        @if($attendance->time_in)
+        <tr>
+            <td>Time In</td>
+            <td>{{ \Carbon\Carbon::parse($attendance->time_in)->format('h:i A') }}</td>
+        </tr>
+        @endif
+        @if($attendance->tardy_minutes > 0)
+        <tr>
+            <td>Minutes Late</td>
+            <td>{{ $attendance->tardy_minutes }} min</td>
+        </tr>
+        @endif
+    </table>
+
+    @if($attendance->status === 'Absent')
+    <div class="alert-panel absent">
+        Your child was not recorded as present today. If you believe this is an error or have notified the school of an absence, please disregard this message.
     </div>
+    @elseif($attendance->status === 'Late')
+    <div class="alert-panel late">
+        Your child arrived <strong>{{ $attendance->tardy_minutes }} minute(s) late</strong>. Please remind them of the 8:00 AM check-in time.
+    </div>
+    @endif
+
+    <p>If you have any questions, please contact the school administration directly.</p>
+
+    <p>
+        Regards,<br>
+        M7 PCIS Attendance &amp; Payroll
+    </p>
+
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+{{-- Footer --}}
+<tr>
+<td>
+<table class="footer" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+<tr>
+<td class="content-cell" align="center">
+<p>&copy; {{ date('Y') }} M7 PCIS Attendance &amp; Payroll. All rights reserved.</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+
 </body>
 </html>

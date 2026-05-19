@@ -91,7 +91,7 @@
                         Search
                     </button>
 
-                    @if($search || $dateFrom !== \Carbon\Carbon::now()->subDays(29)->format('Y-m-d') || $dateTo !== \Carbon\Carbon::now()->format('Y-m-d'))
+                    @if($search || $dateFrom || $dateTo)
                     <a href="{{ route('attendance.index', ['type' => $type]) }}"
                        class="px-5 py-2 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-lg transition whitespace-nowrap">
                         Clear
@@ -105,8 +105,15 @@
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 flex items-center justify-between">
                     <h3 class="font-bold text-gray-700 dark:text-white">{{ ucfirst($type) }} Attendance Logs</h3>
                     <span class="text-xs text-gray-400 dark:text-gray-500">
-                        {{ $attendances->total() }} record(s) &bull;
-                        {{ \Carbon\Carbon::parse($dateFrom)->format('M d, Y') }} – {{ \Carbon\Carbon::parse($dateTo)->format('M d, Y') }}
+                        {{ $attendances->total() }} record(s)
+                        @if($dateFrom || $dateTo)
+                            &bull;
+                            {{ $dateFrom ? \Carbon\Carbon::parse($dateFrom)->format('M d, Y') : 'Beginning' }}
+                            –
+                            {{ $dateTo ? \Carbon\Carbon::parse($dateTo)->format('M d, Y') : 'Today' }}
+                        @else
+                            &bull; All dates
+                        @endif
                     </span>
                 </div>
 

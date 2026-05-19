@@ -21,8 +21,8 @@ class AttendanceController extends Controller
     {
         $type     = $request->get('type', 'employee');
         $search   = $request->get('search', '');
-        $dateFrom = $request->get('date_from', Carbon::now()->subDays(29)->format('Y-m-d'));
-        $dateTo   = $request->get('date_to',   Carbon::now()->format('Y-m-d'));
+        $dateFrom = $request->get('date_from', '');
+        $dateTo   = $request->get('date_to',   '');
 
         $query = Attendance::with('attendable');
 
@@ -49,7 +49,13 @@ class AttendanceController extends Controller
             }
         }
 
-        $query->whereBetween('date', [$dateFrom, $dateTo]);
+        if ($dateFrom && $dateTo) {
+            $query->whereBetween('date', [$dateFrom, $dateTo]);
+        } elseif ($dateFrom) {
+            $query->where('date', '>=', $dateFrom);
+        } elseif ($dateTo) {
+            $query->where('date', '<=', $dateTo);
+        }
 
         $attendances = $query->orderBy('date', 'desc')
                              ->orderBy('created_at', 'desc')
