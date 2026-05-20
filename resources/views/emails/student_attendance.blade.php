@@ -47,8 +47,8 @@
                         <td align="center" style="padding-right:18px;">
                             <img src="{{ config('app.url') }}/images/logo.png"
                                  alt="M7 PCIS Logo"
-                                 width="72" height="72"
-                                 style="display:block;border-radius:50%;border:3px solid rgba(200,149,42,0.6);"/>
+                                 height="68"
+                                 style="display:block;"/>
                         </td>
                         <td style="width:1px;background:rgba(200,149,42,0.4);height:72px;">&nbsp;</td>
                         <td align="center" style="padding-left:18px;">
