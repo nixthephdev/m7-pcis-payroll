@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\Student;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
+use App\Models\Holiday;
 use App\Mail\StudentAttendanceNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -358,11 +359,39 @@ class AttendanceController extends Controller
             \Carbon\Carbon::parse($lv->start_date)->diffInDaysFiltered(fn($d) => true, \Carbon\Carbon::parse($lv->end_date)) + 1
         );
 
+        // Build holiday map for the date range
+        $holidayDates = [];
+        $nonRecurringHolidays = Holiday::where('is_recurring', false)
+            ->whereBetween('date', [$request->start_date, $request->end_date])
+            ->get()
+            ->keyBy(fn($h) => $h->date->format('Y-m-d'));
+        $recurringHolidays = Holiday::where('is_recurring', true)->get();
+
+        $cursor = Carbon::parse($request->start_date);
+        $rangeEnd = Carbon::parse($request->end_date);
+        while ($cursor->lte($rangeEnd)) {
+            $key = $cursor->format('Y-m-d');
+            if ($nonRecurringHolidays->has($key)) {
+                $h = $nonRecurringHolidays[$key];
+                $holidayDates[$key] = ['name' => $h->name, 'type' => $h->type];
+            } else {
+                $match = $recurringHolidays->first(
+                    fn($h) => $h->date->month == $cursor->month && $h->date->day == $cursor->day
+                );
+                if ($match) {
+                    $holidayDates[$key] = ['name' => $match->name, 'type' => $match->type];
+                }
+            }
+            $cursor->addDay();
+        }
+        $totalHolidays = count($holidayDates);
+
         $pdf = Pdf::loadView('attendance.report_pdf', compact(
             'employee', 'logs', 'request', 'approvedLeaves',
             'totalPresent', 'totalAbsent', 'totalLates', 'totalTardy', 'totalUndertime', 'totalOvertimeMins',
             'otRegularDay', 'otHoliday', 'otRestDay',
-            'totalVLDays', 'totalSLDays', 'totalUnpaidDays'
+            'totalVLDays', 'totalSLDays', 'totalUnpaidDays',
+            'holidayDates', 'totalHolidays'
         ));
 
         return $pdf->download("Attendance_{$employee->user->name}_{$request->start_date}.pdf");

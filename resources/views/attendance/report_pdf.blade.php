@@ -17,6 +17,8 @@
         .status-present { color: #059669; font-weight: bold; }
         .status-absent { color: #6b7280; }
         .leave-row td { background: #f0fdf4 !important; color: #15803d; font-style: italic; }
+        .holiday-row td { background: #fef9c3 !important; }
+        .status-holiday { color: #b45309; font-weight: bold; }
         .summary-grid { display: table; width: 60%; margin-top: 24px; border: 1px solid #e0e0e0; border-collapse: collapse; }
         .summary-grid td { padding: 7px 12px; border: 1px solid #e0e0e0; }
         .summary-label { font-weight: bold; color: #555; background: #f9f9f9; width: 55%; }
@@ -69,7 +71,7 @@
     </thead>
     <tbody>
         @php
-            // Build a map of approved leave dates for quick lookup
+            // Build leave date map
             $leaveDates = [];
             foreach ($approvedLeaves as $lv) {
                 if ($lv->leave_type === 'Incentive Hours') {
@@ -83,22 +85,52 @@
                     }
                 }
             }
+            // Key logs by date for quick lookup
+            $logMap    = $logs->keyBy(fn($l) => \Carbon\Carbon::parse($l->date)->format('Y-m-d'));
+            $isFlexible = $employee->schedule->is_flexible ?? false;
+            $rangeStart = \Carbon\Carbon::parse($request->start_date);
+            $rangeEnd   = \Carbon\Carbon::parse($request->end_date);
         @endphp
 
-        @foreach($logs as $log)
+        @php $day = $rangeStart->copy(); @endphp
+        @while($day->lte($rangeEnd))
+        @php
+            $dateKey   = $day->format('Y-m-d');
+            $isHoliday = array_key_exists($dateKey, $holidayDates);
+            $log       = $logMap->get($dateKey);
+        @endphp
+
+        @if($isHoliday)
+        @php
+            $hName = $holidayDates[$dateKey]['name'];
+            $hType = $holidayDates[$dateKey]['type'];
+        @endphp
+        <tr class="holiday-row">
+            <td>{{ $day->format('M d, Y') }}</td>
+            <td>{{ $day->format('D') }}</td>
+            <td colspan="5" style="color:#92400e;font-style:italic;">{{ $hName }}</td>
+            <td style="text-align:center;">
+                @if($hType === 'regular')
+                    <span style="background:#fef08a;color:#713f12;font-size:8px;font-weight:bold;padding:2px 5px;border-radius:3px;">Regular</span>
+                @else
+                    <span style="background:#fed7aa;color:#7c2d12;font-size:8px;font-weight:bold;padding:2px 5px;border-radius:3px;">Special</span>
+                @endif
+            </td>
+            <td><span class="status-holiday">Holiday</span></td>
+        </tr>
+        @elseif($log)
         @php
             $isAbsent   = $log->status === 'Absent';
             $in         = !$isAbsent && $log->time_in  ? \Carbon\Carbon::parse($log->time_in)  : null;
             $out        = !$isAbsent && $log->time_out ? \Carbon\Carbon::parse($log->time_out) : null;
             $workedMins = ($in && $out) ? $in->diffInMinutes($out) : 0;
-            $isFlexible = $employee->schedule->is_flexible ?? false;
             $netMins    = (!$isFlexible && $workedMins > 60) ? $workedMins - 60 : $workedMins;
             $durLabel   = ($in && $out) ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
-            $hasLeave   = isset($leaveDates[$log->date]);
+            $hasLeave   = isset($leaveDates[$dateKey]);
         @endphp
         <tr class="{{ $hasLeave ? 'leave-row' : '' }}">
-            <td>{{ \Carbon\Carbon::parse($log->date)->format('M d, Y') }}</td>
-            <td>{{ \Carbon\Carbon::parse($log->date)->format('D') }}</td>
+            <td>{{ $day->format('M d, Y') }}</td>
+            <td>{{ $day->format('D') }}</td>
             <td>{{ $in ? $in->format('h:i A') : '--' }}</td>
             <td>{{ $out ? $out->format('h:i A') : '--' }}</td>
             <td>{{ $durLabel }}</td>
@@ -114,9 +146,12 @@
                 @endif
             </td>
         </tr>
-        @endforeach
+        @endif
 
-        @if($logs->isEmpty())
+        @php $day->addDay(); @endphp
+        @endwhile
+
+        @if($logs->isEmpty() && empty($holidayDates))
         <tr><td colspan="9" style="text-align:center;color:#999;padding:16px;">No attendance records for this period.</td></tr>
         @endif
     </tbody>
@@ -153,6 +188,7 @@
 <table class="summary-grid">
     <tr><td class="summary-label">Days Present</td><td class="summary-value">{{ $totalPresent }}</td></tr>
     <tr><td class="summary-label">Days Absent</td><td class="summary-value" style="color:#6b7280;">{{ $totalAbsent }}</td></tr>
+    <tr><td class="summary-label">Public Holidays</td><td class="summary-value" style="color:#b45309;">{{ $totalHolidays }}</td></tr>
     <tr><td class="summary-label">Days Late</td><td class="summary-value">{{ $totalLates }}</td></tr>
     <tr><td class="summary-label">Total Tardy (minutes)</td><td class="summary-value">{{ $totalTardy }}</td></tr>
     <tr><td class="summary-label">Total Undertime (minutes)</td><td class="summary-value">{{ $totalUndertime }}</td></tr>
