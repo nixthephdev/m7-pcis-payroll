@@ -39,7 +39,7 @@
              ═══════════════════════════════════════════ --}}
         <tr>
             <td class="header-cell" align="center"
-                style="background-color:#14213d;padding:36px 40px 28px;border-radius:12px 12px 0 0;">
+                style="background-color:#1e3a8a;padding:36px 40px 28px;border-radius:12px 12px 0 0;">
 
                 {{-- Logos row: School logo + IB World School logo --}}
                 <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 14px;">
@@ -50,7 +50,7 @@
                                  height="68"
                                  style="display:block;"/>
                         </td>
-                        <td style="width:1px;background:rgba(200,149,42,0.4);height:72px;">&nbsp;</td>
+                        <td style="width:1px;background:rgba(245,194,0,0.5);height:68px;">&nbsp;</td>
                         <td align="center" style="padding-left:18px;">
                             <img src="{{ config('app.url') }}/images/world.webp"
                                  alt="IB World School"
@@ -65,12 +65,12 @@
                     M7 Philippine Cambridge<br>International School
                 </div>
 
-                {{-- Gold divider --}}
-                <div style="width:56px;height:3px;background:linear-gradient(90deg,#c8952a,#e8b84b);margin:14px auto 12px;border-radius:2px;"></div>
+                {{-- Yellow divider --}}
+                <div style="width:56px;height:3px;background:#f5c200;margin:14px auto 12px;border-radius:2px;"></div>
 
                 {{-- IB tag line --}}
-                <div style="display:inline-block;background:rgba(200,149,42,0.15);border:1px solid rgba(200,149,42,0.4);
-                            color:#e8b84b;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+                <div style="display:inline-block;background:rgba(245,194,0,0.15);border:1px solid rgba(245,194,0,0.5);
+                            color:#f5c200;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
                             padding:4px 14px;border-radius:20px;">
                     IB World School
                 </div>
@@ -82,23 +82,23 @@
              ═══════════════════════════════════════════ --}}
         @php
             if ($clockType === 'clock_out') {
-                $bannerBg    = '#1a7f4e';
+                $bannerBg    = '#16a34a'; // logo green
                 $bannerText  = '#ffffff';
                 $bannerIcon  = '✓';
                 $bannerLabel = 'Clock-Out Recorded';
             } elseif ($attendance->status === 'Absent') {
-                $bannerBg    = '#c0392b';
+                $bannerBg    = '#dc2626'; // logo red
                 $bannerText  = '#ffffff';
                 $bannerIcon  = '!';
                 $bannerLabel = 'Absence Notice';
             } elseif ($attendance->status === 'Late') {
-                $bannerBg    = '#b7791f';
+                $bannerBg    = '#b45309'; // dark amber from logo yellow
                 $bannerText  = '#ffffff';
                 $bannerIcon  = '⏰';
                 $bannerLabel = 'Late Arrival';
             } else {
-                $bannerBg    = '#1a5276';
-                $bannerText  = '#ffffff';
+                $bannerBg    = '#1e3a8a'; // logo royal blue
+                $bannerText  = '#f5c200'; // logo yellow text on blue
                 $bannerIcon  = '✓';
                 $bannerLabel = 'Clock-In Recorded';
             }
@@ -133,8 +133,8 @@
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
                        style="background:#f7f9fc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:24px;overflow:hidden;">
                     <tr>
-                        <td style="padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#14213d;">
-                            <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#e8b84b;">
+                        <td style="padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#1e3a8a;">
+                            <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#f5c200;">
                                 Student Information
                             </span>
                         </td>
@@ -169,8 +169,8 @@
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
                        style="background:#f7f9fc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:24px;overflow:hidden;">
                     <tr>
-                        <td style="padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#14213d;">
-                            <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#e8b84b;">
+                        <td style="padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#1e3a8a;">
+                            <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#f5c200;">
                                 Attendance Record
                             </span>
                         </td>
@@ -238,9 +238,9 @@
                 {{-- Contextual message --}}
                 @if($clockType === 'clock_out')
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
-                       style="background:#f0faf5;border-left:4px solid #1a7f4e;border-radius:0 6px 6px 0;margin-bottom:24px;">
+                       style="background:#f0fdf4;border-left:4px solid #16a34a;border-radius:0 6px 6px 0;margin-bottom:24px;">
                     <tr>
-                        <td style="padding:16px 18px;font-size:14px;color:#276749;line-height:1.6;">
+                        <td style="padding:16px 18px;font-size:14px;color:#14532d;line-height:1.6;">
                             Your child has <strong>safely clocked out</strong> at
                             <strong>{{ \Carbon\Carbon::parse($attendance->time_out)->format('h:i A') }}</strong>.
                             We hope they have a safe journey home.
@@ -249,9 +249,9 @@
                 </table>
                 @elseif($attendance->status === 'Absent')
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
-                       style="background:#fff5f5;border-left:4px solid #c0392b;border-radius:0 6px 6px 0;margin-bottom:24px;">
+                       style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:0 6px 6px 0;margin-bottom:24px;">
                     <tr>
-                        <td style="padding:16px 18px;font-size:14px;color:#742a2a;line-height:1.6;">
+                        <td style="padding:16px 18px;font-size:14px;color:#7f1d1d;line-height:1.6;">
                             Your child was <strong>not recorded as present</strong> today. If an absence was communicated
                             to the school in advance, please disregard this message. Otherwise, please contact the
                             school administration.
@@ -260,9 +260,9 @@
                 </table>
                 @elseif($attendance->status === 'Late')
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
-                       style="background:#fffbeb;border-left:4px solid #b7791f;border-radius:0 6px 6px 0;margin-bottom:24px;">
+                       style="background:#fefce8;border-left:4px solid #b45309;border-radius:0 6px 6px 0;margin-bottom:24px;">
                     <tr>
-                        <td style="padding:16px 18px;font-size:14px;color:#7b341e;line-height:1.6;">
+                        <td style="padding:16px 18px;font-size:14px;color:#78350f;line-height:1.6;">
                             Your child arrived <strong>{{ $attendance->tardy_minutes }} minute(s) late</strong> today.
                             School check-in begins at <strong>8:00 AM</strong>. Punctuality is an important part of
                             the IB learner profile.
@@ -271,9 +271,9 @@
                 </table>
                 @else
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
-                       style="background:#ebf8ff;border-left:4px solid #1a5276;border-radius:0 6px 6px 0;margin-bottom:24px;">
+                       style="background:#eff6ff;border-left:4px solid #1e3a8a;border-radius:0 6px 6px 0;margin-bottom:24px;">
                     <tr>
-                        <td style="padding:16px 18px;font-size:14px;color:#1a365d;line-height:1.6;">
+                        <td style="padding:16px 18px;font-size:14px;color:#1e3a8a;line-height:1.6;">
                             Your child has <strong>successfully checked in</strong> and is present in school today.
                         </td>
                     </tr>
@@ -286,7 +286,7 @@
                 </p>
                 <p style="font-size:14px;color:#2d3748;margin:0;">
                     Warm regards,<br>
-                    <strong style="color:#14213d;">M7 PCIS Administration</strong>
+                    <strong style="color:#1e3a8a;">M7 PCIS Administration</strong>
                 </p>
 
             </td>
@@ -300,7 +300,7 @@
                 style="background-color:#14213d;padding:24px 40px;border-radius:0 0 12px 12px;">
 
                 {{-- Gold divider --}}
-                <div style="width:40px;height:2px;background:#c8952a;margin:0 auto 16px;border-radius:2px;"></div>
+                <div style="width:40px;height:2px;background:#f5c200;margin:0 auto 16px;border-radius:2px;"></div>
 
                 <p style="font-size:11px;color:#a0aec0;margin:0 0 6px;line-height:1.6;">
                     This is an automated message from the M7 PCIS Attendance System.<br>
