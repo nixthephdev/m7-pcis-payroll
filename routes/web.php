@@ -10,6 +10,7 @@ use App\Http\Controllers\SalaryItemController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\HolidayController;
 
 /*
 |--------------------------------------------------------------------------
@@ -120,6 +121,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // 13th Month Pay
     Route::get('/payroll/13th-month', [PayrollController::class, 'index13th'])->name('payroll.13th');
     Route::post('/payroll/13th-month/{id}', [PayrollController::class, 'generate13th'])->name('payroll.13th.generate');
+
+    // --- HOLIDAY MANAGEMENT ---
+    Route::get('/holidays', [HolidayController::class, 'index'])->name('holidays.index');
+    Route::post('/holidays', [HolidayController::class, 'store'])->name('holidays.store');
+    Route::put('/holidays/{id}', [HolidayController::class, 'update'])->name('holidays.update');
+    Route::delete('/holidays/{id}', [HolidayController::class, 'destroy'])->name('holidays.destroy');
 
     // --- SYSTEM AUDIT ---
     Route::get('/audit', [AuditController::class, 'index'])->name('audit.index');

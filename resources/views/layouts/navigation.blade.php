@@ -92,15 +92,41 @@
                                 <span class="absolute -top-1 -right-1 flex h-4 w-4"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span><span class="relative inline-flex rounded-full h-4 w-4 bg-rose-500 text-[10px] text-white font-bold items-center justify-center">{{ $pendingLeavesCount }}</span></span>
                             @endif
                         </x-nav-link>
-                        <x-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto">{{ __('Attendance') }}</x-nav-link>
-                        
+                        <!-- ATTENDANCE DROPDOWN -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition focus:outline-none {{ request()->routeIs('attendance.*') || request()->routeIs('holidays.*') ? 'bg-white/10 text-white' : '' }}">
+                                <span>Attendance</span>
+                                <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <div x-show="open"
+                                 @click.away="open = false"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg py-1 z-50 border border-gray-100 dark:border-slate-700"
+                                 style="display: none;">
+                                <a href="{{ route('attendance.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition {{ request()->routeIs('attendance.*') ? 'font-semibold text-indigo-600 dark:text-indigo-400' : '' }}">
+                                    Attendance Logs
+                                </a>
+                                <a href="{{ route('holidays.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition {{ request()->routeIs('holidays.*') ? 'font-semibold text-indigo-600 dark:text-indigo-400' : '' }}">
+                                    Holidays
+                                </a>
+                            </div>
+                        </div>
+
                         <!-- PAYROLL (With Notification) -->
                         <x-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-indigo-100 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out border-none h-auto flex items-center relative">
                             {{ __('Payroll') }}
                             @if($pendingPayrollCount > 0)
                                 <span class="absolute -top-1 -right-1 flex h-4 w-4"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span><span class="relative inline-flex rounded-full h-4 w-4 bg-rose-500 text-[10px] text-white font-bold items-center justify-center">{{ $pendingPayrollCount }}</span></span>
                             @endif
-                        </x-nav-link>    
+                        </x-nav-link>
                     @endif
 
                     <!-- GUARD ONLY: Kiosk Link -->
@@ -172,7 +198,8 @@
                 <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Employees') }}</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('students.index')" :active="request()->routeIs('students.*')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Students') }}</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('leaves.manage')" :active="request()->routeIs('leaves.manage')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white flex justify-between items-center">{{ __('Approvals') }} @if($pendingLeavesCount > 0) <span class="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $pendingLeavesCount }}</span> @endif</x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Attendance') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Attendance Logs') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('holidays.index')" :active="request()->routeIs('holidays.*')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white pl-8">{{ __('↳ Holidays') }}</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('payroll.history')" :active="request()->routeIs('payroll.history')" class="text-indigo-100 hover:bg-indigo-800 hover:text-white">{{ __('Payroll') }}</x-responsive-nav-link>
             @endif
         </div>

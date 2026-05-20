@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Mail\StudentAttendanceNotification;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Holiday;
 use App\Models\LeaveRequest;
 use App\Models\Student;
 use Carbon\Carbon;
@@ -53,6 +54,11 @@ class MarkAbsentEmployees extends Command
 
         foreach ($dates as $date) {
             if ($date->isWeekend() && !$this->option('force')) {
+                continue;
+            }
+
+            if (Holiday::isHoliday($date) && !$this->option('force')) {
+                $this->line("  Skipping holiday: {$date->toDateString()}");
                 continue;
             }
 
@@ -114,6 +120,10 @@ class MarkAbsentEmployees extends Command
 
         foreach ($dates as $date) {
             if ($date->isWeekend() && !$this->option('force')) {
+                continue;
+            }
+
+            if (Holiday::isHoliday($date) && !$this->option('force')) {
                 continue;
             }
 
