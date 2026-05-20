@@ -52,7 +52,7 @@
                         </td>
                         <td style="width:1px;background:rgba(245,194,0,0.5);height:68px;">&nbsp;</td>
                         <td align="center" style="padding-left:18px;">
-                            <img src="{{ config('app.url') }}/images/world.webp"
+                            <img src="{{ config('app.url') }}/images/world.png"
                                  alt="IB World School"
                                  height="68"
                                  style="display:block;"/>
