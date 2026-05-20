@@ -1,232 +1,323 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-<title>{{ config('app.name') }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
-<style>
-@media only screen and (max-width: 600px) {
-.inner-body { width: 100% !important; }
-.footer { width: 100% !important; }
-}
-@media only screen and (max-width: 500px) {
-.button { width: 100% !important; }
-}
-
-body, body *:not(html):not(style):not(br):not(tr):not(code) {
-    box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    position: relative;
-}
-body {
-    -webkit-text-size-adjust: none;
-    background-color: #ffffff;
-    color: #718096;
-    height: 100%;
-    line-height: 1.4;
-    margin: 0;
-    padding: 0;
-    width: 100% !important;
-}
-p, ul, ol, blockquote { line-height: 1.4; text-align: left; }
-a { color: #3869d4; }
-a img { border: none; }
-h1 { color: #3d4852; font-size: 18px; font-weight: bold; margin-top: 0; text-align: left; }
-h2 { font-size: 16px; font-weight: bold; margin-top: 0; text-align: left; }
-h3 { font-size: 14px; font-weight: bold; margin-top: 0; text-align: left; }
-p { font-size: 16px; line-height: 1.5em; margin-top: 0; text-align: left; }
-p.sub { font-size: 12px; }
-img { max-width: 100%; }
-.wrapper {
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
-    background-color: #edf2f7;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-}
-.content {
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-}
-.header { padding: 25px 0; text-align: center; }
-.header a { color: #3d4852; font-size: 19px; font-weight: bold; text-decoration: none; }
-.body {
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 100%;
-    background-color: #edf2f7;
-    border-bottom: 1px solid #edf2f7;
-    border-top: 1px solid #edf2f7;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-}
-.inner-body {
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 570px;
-    background-color: #ffffff;
-    border-color: #e8e5ef;
-    border-radius: 2px;
-    border-width: 1px;
-    box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025), 2px 4px 0 rgba(0, 0, 150, 0.015);
-    margin: 0 auto;
-    padding: 0;
-    width: 570px;
-}
-.content-cell { max-width: 100vw; padding: 32px; }
-.footer {
-    -premailer-cellpadding: 0;
-    -premailer-cellspacing: 0;
-    -premailer-width: 570px;
-    margin: 0 auto;
-    padding: 0;
-    text-align: center;
-    width: 570px;
-}
-.footer p { color: #b0adc5; font-size: 12px; text-align: center; }
-.footer a { color: #b0adc5; text-decoration: underline; }
-.details-table { margin: 20px 0 24px; width: 100%; border-collapse: collapse; }
-.details-table td { color: #74787e; font-size: 15px; line-height: 18px; padding: 10px 0; border-bottom: 1px solid #edeff2; }
-.details-table td:first-child { font-weight: bold; color: #3d4852; width: 42%; }
-.alert-panel {
-    border-left: 4px solid #2d3748;
-    margin: 21px 0;
-    background-color: #edf2f7;
-    color: #718096;
-    padding: 16px;
-    font-size: 15px;
-    line-height: 1.5em;
-}
-.alert-panel.absent { border-left-color: #e53e3e; }
-.alert-panel.late { border-left-color: #d69e2e; }
-</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>Attendance Notification — M7 PCIS</title>
+    <style>
+        @media only screen and (max-width: 600px) {
+            .email-wrapper { width: 100% !important; }
+            .email-body    { width: 100% !important; padding: 24px 16px !important; }
+            .header-cell   { padding: 28px 16px !important; }
+            .detail-label,
+            .detail-value  { display: block !important; width: 100% !important; }
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0;
+            background-color: #eef1f8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            -webkit-text-size-adjust: none;
+            color: #3d4852;
+        }
+    </style>
 </head>
-<body>
+<body style="margin:0;padding:0;background-color:#eef1f8;">
 
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-<tr>
-<td align="center">
-<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+{{-- Outer wrapper --}}
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#eef1f8;margin:0;padding:32px 0;">
+<tr><td align="center">
 
-{{-- Header --}}
-<tr>
-<td class="header">
-<a href="{{ config('app.url') }}" style="display: inline-block;">
-M7 PCIS Attendance &amp; Payroll
-</a>
-</td>
-</tr>
+    {{-- Email card (max 600px) --}}
+    <table class="email-wrapper" width="600" cellpadding="0" cellspacing="0" role="presentation"
+           style="width:600px;max-width:600px;">
 
-{{-- Body --}}
-<tr>
-<td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
-<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-<tr>
-<td class="content-cell">
+        {{-- ═══════════════════════════════════════════
+             HEADER — Deep navy with school logo + IB tag
+             ═══════════════════════════════════════════ --}}
+        <tr>
+            <td class="header-cell" align="center"
+                style="background-color:#14213d;padding:36px 40px 28px;border-radius:12px 12px 0 0;">
 
-    <h1>Attendance Notification</h1>
+                {{-- Logos row: School logo + IB World School logo --}}
+                <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto 14px;">
+                    <tr>
+                        <td align="center" style="padding-right:18px;">
+                            <img src="{{ config('app.url') }}/images/logo.png"
+                                 alt="M7 PCIS Logo"
+                                 width="72" height="72"
+                                 style="display:block;border-radius:50%;border:3px solid rgba(200,149,42,0.6);"/>
+                        </td>
+                        <td style="width:1px;background:rgba(200,149,42,0.4);height:72px;">&nbsp;</td>
+                        <td align="center" style="padding-left:18px;">
+                            <img src="{{ config('app.url') }}/images/world.webp"
+                                 alt="IB World School"
+                                 height="68"
+                                 style="display:block;"/>
+                        </td>
+                    </tr>
+                </table>
 
-    <p>Dear <strong>{{ $student->guardian_name }}</strong>,</p>
+                {{-- School name --}}
+                <div style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:0.5px;line-height:1.2;">
+                    M7 Philippine Cambridge<br>International School
+                </div>
 
-    <p>
-        This is an automated notification regarding the attendance of your child
-        <strong>{{ $student->full_name }}</strong> ({{ $student->student_id }}) for
-        <strong>{{ \Carbon\Carbon::parse($attendance->date)->format('l, F j, Y') }}</strong>.
-    </p>
+                {{-- Gold divider --}}
+                <div style="width:56px;height:3px;background:linear-gradient(90deg,#c8952a,#e8b84b);margin:14px auto 12px;border-radius:2px;"></div>
 
-    <table class="details-table" role="presentation">
-        <tr>
-            <td>Student</td>
-            <td>{{ $student->full_name }}</td>
+                {{-- IB tag line --}}
+                <div style="display:inline-block;background:rgba(200,149,42,0.15);border:1px solid rgba(200,149,42,0.4);
+                            color:#e8b84b;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+                            padding:4px 14px;border-radius:20px;">
+                    IB World School
+                </div>
+            </td>
         </tr>
+
+        {{-- ═══════════════════════════════════════════
+             NOTIFICATION TYPE BANNER
+             ═══════════════════════════════════════════ --}}
+        @php
+            if ($clockType === 'clock_out') {
+                $bannerBg    = '#1a7f4e';
+                $bannerText  = '#ffffff';
+                $bannerIcon  = '✓';
+                $bannerLabel = 'Clock-Out Recorded';
+            } elseif ($attendance->status === 'Absent') {
+                $bannerBg    = '#c0392b';
+                $bannerText  = '#ffffff';
+                $bannerIcon  = '!';
+                $bannerLabel = 'Absence Notice';
+            } elseif ($attendance->status === 'Late') {
+                $bannerBg    = '#b7791f';
+                $bannerText  = '#ffffff';
+                $bannerIcon  = '⏰';
+                $bannerLabel = 'Late Arrival';
+            } else {
+                $bannerBg    = '#1a5276';
+                $bannerText  = '#ffffff';
+                $bannerIcon  = '✓';
+                $bannerLabel = 'Clock-In Recorded';
+            }
+        @endphp
         <tr>
-            <td>Student ID</td>
-            <td>{{ $student->student_id }}</td>
+            <td align="center"
+                style="background-color:{{ $bannerBg }};padding:12px 40px;">
+                <span style="color:{{ $bannerText }};font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
+                    {{ $bannerIcon }}&nbsp;&nbsp;{{ $bannerLabel }}
+                </span>
+            </td>
         </tr>
+
+        {{-- ═══════════════════════════════════════════
+             BODY
+             ═══════════════════════════════════════════ --}}
         <tr>
-            <td>Grade &amp; Section</td>
-            <td>{{ $student->grade_level }} &mdash; {{ $student->section }}</td>
+            <td class="email-body"
+                style="background-color:#ffffff;padding:36px 40px 28px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+
+                {{-- Greeting --}}
+                <p style="font-size:16px;color:#2d3748;font-weight:600;margin:0 0 8px;">
+                    Dear {{ $student->guardian_name }},
+                </p>
+                <p style="font-size:14px;color:#718096;margin:0 0 28px;line-height:1.6;">
+                    This is an automated attendance notification from
+                    <strong style="color:#14213d;">M7 PCIS</strong>
+                    regarding your child's school attendance.
+                </p>
+
+                {{-- Student info card --}}
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+                       style="background:#f7f9fc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:24px;overflow:hidden;">
+                    <tr>
+                        <td style="padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#14213d;">
+                            <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#e8b84b;">
+                                Student Information
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:16px 18px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                                <tr>
+                                    <td class="detail-label" style="font-size:12px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;padding:7px 0;width:42%;border-bottom:1px solid #edf2f7;">Name</td>
+                                    <td class="detail-value" style="font-size:14px;color:#2d3748;font-weight:600;padding:7px 0;border-bottom:1px solid #edf2f7;">{{ $student->full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="detail-label" style="font-size:12px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;padding:7px 0;width:42%;border-bottom:1px solid #edf2f7;">Student ID</td>
+                                    <td class="detail-value" style="font-size:14px;color:#2d3748;font-weight:600;padding:7px 0;border-bottom:1px solid #edf2f7;">{{ $student->student_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="detail-label" style="font-size:12px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;padding:7px 0;width:42%;border-bottom:1px solid #edf2f7;">Grade &amp; Section</td>
+                                    <td class="detail-value" style="font-size:14px;color:#2d3748;font-weight:600;padding:7px 0;border-bottom:1px solid #edf2f7;">{{ $student->grade_level }} &mdash; {{ $student->section }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="detail-label" style="font-size:12px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;padding:7px 0;width:42%;">Date</td>
+                                    <td class="detail-value" style="font-size:14px;color:#2d3748;font-weight:600;padding:7px 0;">
+                                        {{ \Carbon\Carbon::parse($attendance->date)->format('l, F j, Y') }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                {{-- Attendance detail card --}}
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+                       style="background:#f7f9fc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:24px;overflow:hidden;">
+                    <tr>
+                        <td style="padding:14px 18px;border-bottom:1px solid #e2e8f0;background:#14213d;">
+                            <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#e8b84b;">
+                                Attendance Record
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:16px 18px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+
+                                {{-- Status row --}}
+                                <tr>
+                                    <td class="detail-label" style="font-size:12px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;padding:7px 0;width:42%;border-bottom:1px solid #edf2f7;">Status</td>
+                                    <td class="detail-value" style="padding:7px 0;border-bottom:1px solid #edf2f7;">
+                                        @if($clockType === 'clock_out')
+                                            <span style="background:#d4edda;color:#155724;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">
+                                                Clocked Out
+                                            </span>
+                                        @elseif($attendance->status === 'Absent')
+                                            <span style="background:#f8d7da;color:#721c24;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">
+                                                Absent
+                                            </span>
+                                        @elseif($attendance->status === 'Late')
+                                            <span style="background:#fff3cd;color:#856404;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">
+                                                Late
+                                            </span>
+                                        @else
+                                            <span style="background:#cce5ff;color:#004085;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">
+                                                Present
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+
+                                @if($attendance->time_in)
+                                <tr>
+                                    <td class="detail-label" style="font-size:12px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;padding:7px 0;width:42%;border-bottom:1px solid #edf2f7;">Time In</td>
+                                    <td class="detail-value" style="font-size:14px;color:#2d3748;font-weight:600;padding:7px 0;border-bottom:1px solid #edf2f7;">
+                                        {{ \Carbon\Carbon::parse($attendance->time_in)->format('h:i A') }}
+                                    </td>
+                                </tr>
+                                @endif
+
+                                @if($clockType === 'clock_out' && $attendance->time_out)
+                                <tr>
+                                    <td class="detail-label" style="font-size:12px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;padding:7px 0;width:42%;border-bottom:1px solid #edf2f7;">Time Out</td>
+                                    <td class="detail-value" style="font-size:14px;color:#2d3748;font-weight:600;padding:7px 0;border-bottom:1px solid #edf2f7;">
+                                        {{ \Carbon\Carbon::parse($attendance->time_out)->format('h:i A') }}
+                                    </td>
+                                </tr>
+                                @endif
+
+                                @if($attendance->tardy_minutes > 0)
+                                <tr>
+                                    <td class="detail-label" style="font-size:12px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;padding:7px 0;width:42%;">Minutes Late</td>
+                                    <td class="detail-value" style="font-size:14px;color:#b7791f;font-weight:700;padding:7px 0;">
+                                        {{ $attendance->tardy_minutes }} minutes
+                                    </td>
+                                </tr>
+                                @endif
+
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                {{-- Contextual message --}}
+                @if($clockType === 'clock_out')
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+                       style="background:#f0faf5;border-left:4px solid #1a7f4e;border-radius:0 6px 6px 0;margin-bottom:24px;">
+                    <tr>
+                        <td style="padding:16px 18px;font-size:14px;color:#276749;line-height:1.6;">
+                            Your child has <strong>safely clocked out</strong> at
+                            <strong>{{ \Carbon\Carbon::parse($attendance->time_out)->format('h:i A') }}</strong>.
+                            We hope they have a safe journey home.
+                        </td>
+                    </tr>
+                </table>
+                @elseif($attendance->status === 'Absent')
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+                       style="background:#fff5f5;border-left:4px solid #c0392b;border-radius:0 6px 6px 0;margin-bottom:24px;">
+                    <tr>
+                        <td style="padding:16px 18px;font-size:14px;color:#742a2a;line-height:1.6;">
+                            Your child was <strong>not recorded as present</strong> today. If an absence was communicated
+                            to the school in advance, please disregard this message. Otherwise, please contact the
+                            school administration.
+                        </td>
+                    </tr>
+                </table>
+                @elseif($attendance->status === 'Late')
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+                       style="background:#fffbeb;border-left:4px solid #b7791f;border-radius:0 6px 6px 0;margin-bottom:24px;">
+                    <tr>
+                        <td style="padding:16px 18px;font-size:14px;color:#7b341e;line-height:1.6;">
+                            Your child arrived <strong>{{ $attendance->tardy_minutes }} minute(s) late</strong> today.
+                            School check-in begins at <strong>8:00 AM</strong>. Punctuality is an important part of
+                            the IB learner profile.
+                        </td>
+                    </tr>
+                </table>
+                @else
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+                       style="background:#ebf8ff;border-left:4px solid #1a5276;border-radius:0 6px 6px 0;margin-bottom:24px;">
+                    <tr>
+                        <td style="padding:16px 18px;font-size:14px;color:#1a365d;line-height:1.6;">
+                            Your child has <strong>successfully checked in</strong> and is present in school today.
+                        </td>
+                    </tr>
+                </table>
+                @endif
+
+                {{-- Closing --}}
+                <p style="font-size:14px;color:#718096;line-height:1.6;margin:0 0 6px;">
+                    For any concerns, please contact the school administration office directly.
+                </p>
+                <p style="font-size:14px;color:#2d3748;margin:0;">
+                    Warm regards,<br>
+                    <strong style="color:#14213d;">M7 PCIS Administration</strong>
+                </p>
+
+            </td>
         </tr>
+
+        {{-- ═══════════════════════════════════════════
+             FOOTER
+             ═══════════════════════════════════════════ --}}
         <tr>
-            <td>Date</td>
-            <td>{{ \Carbon\Carbon::parse($attendance->date)->format('M j, Y') }}</td>
+            <td align="center"
+                style="background-color:#14213d;padding:24px 40px;border-radius:0 0 12px 12px;">
+
+                {{-- Gold divider --}}
+                <div style="width:40px;height:2px;background:#c8952a;margin:0 auto 16px;border-radius:2px;"></div>
+
+                <p style="font-size:11px;color:#a0aec0;margin:0 0 6px;line-height:1.6;">
+                    This is an automated message from the M7 PCIS Attendance System.<br>
+                    Please do not reply to this email.
+                </p>
+                <p style="font-size:11px;color:#718096;margin:0;">
+                    &copy; {{ date('Y') }} M7 Philippine Cambridge International School &mdash; IB World School
+                </p>
+            </td>
         </tr>
-        <tr>
-            <td>Status</td>
-            <td><strong>{{ $clockType === 'clock_out' ? 'Clocked Out' : $attendance->status }}</strong></td>
-        </tr>
-        @if($attendance->time_in)
-        <tr>
-            <td>Time In</td>
-            <td>{{ \Carbon\Carbon::parse($attendance->time_in)->format('h:i A') }}</td>
-        </tr>
-        @endif
-        @if($clockType === 'clock_out' && $attendance->time_out)
-        <tr>
-            <td>Time Out</td>
-            <td>{{ \Carbon\Carbon::parse($attendance->time_out)->format('h:i A') }}</td>
-        </tr>
-        @endif
-        @if($attendance->tardy_minutes > 0)
-        <tr>
-            <td>Minutes Late</td>
-            <td>{{ $attendance->tardy_minutes }} min</td>
-        </tr>
-        @endif
+
+        {{-- Spacer --}}
+        <tr><td style="height:32px;"></td></tr>
+
     </table>
 
-    @if($clockType === 'clock_out')
-    <div class="alert-panel" style="border-left-color: #38a169;">
-        Your child has safely clocked out at <strong>{{ \Carbon\Carbon::parse($attendance->time_out)->format('h:i A') }}</strong>.
-    </div>
-    @elseif($attendance->status === 'Absent')
-    <div class="alert-panel absent">
-        Your child was not recorded as present today. If you believe this is an error or have notified the school of an absence, please disregard this message.
-    </div>
-    @elseif($attendance->status === 'Late')
-    <div class="alert-panel late">
-        Your child arrived <strong>{{ $attendance->tardy_minutes }} minute(s) late</strong>. Please remind them of the 8:00 AM check-in time.
-    </div>
-    @endif
-
-    <p>If you have any questions, please contact the school administration directly.</p>
-
-    <p>
-        Regards,<br>
-        M7 PCIS Attendance &amp; Payroll
-    </p>
-
-</td>
-</tr>
-</table>
-</td>
-</tr>
-
-{{-- Footer --}}
-<tr>
-<td>
-<table class="footer" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-<tr>
-<td class="content-cell" align="center">
-<p>&copy; {{ date('Y') }} M7 PCIS Attendance &amp; Payroll. All rights reserved.</p>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-
-</table>
-</td>
-</tr>
+</td></tr>
 </table>
 
 </body>
