@@ -34,20 +34,32 @@
         @endif
 
         {{-- Header Row --}}
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Holidays</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage public holidays and special non-working days.</p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm px-6 py-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+                    <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-800 dark:text-white leading-tight">Holiday Management</h1>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Manage public holidays and special non-working days.</p>
+                </div>
             </div>
             <div class="flex items-center gap-3">
                 {{-- Year Filter --}}
                 <form method="GET" action="{{ route('holidays.index') }}">
-                    <select name="year" onchange="this.form.submit()"
-                            class="text-sm border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        @foreach($years->merge([now()->year])->unique()->sortDesc() as $y)
-                            <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endforeach
-                    </select>
+                    <div class="flex items-center gap-2 border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 bg-gray-50 dark:bg-slate-700">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <select name="year" onchange="this.form.submit()"
+                                class="text-sm bg-transparent text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer">
+                            @foreach($years->merge([now()->year])->unique()->sortDesc() as $y)
+                                <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </form>
 
                 <button @click="showAddModal = true"
