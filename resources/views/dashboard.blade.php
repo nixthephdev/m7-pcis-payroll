@@ -50,37 +50,77 @@
                 </div>
 
                 {{-- Time In Card --}}
-                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-4">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Time In</p>
-                        <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-                        </div>
-                    </div>
-                    @if($todayAttendance)
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white tabular-nums">{{ \Carbon\Carbon::parse($todayAttendance->time_in)->format('h:i') }}<span class="text-lg text-gray-400 ml-1">{{ \Carbon\Carbon::parse($todayAttendance->time_in)->format('A') }}</span></p>
-                        <p class="text-xs text-gray-400 mt-1">Scheduled: {{ $employee->schedule ? \Carbon\Carbon::parse($employee->schedule->time_in)->format('h:i A') : 'N/A' }}</p>
+                @if($todayAttendance)
+                    @if($todayAttendance->status === 'Late')
+                        <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
                     @else
-                        <p class="text-3xl font-bold text-gray-300 dark:text-slate-600">--:--</p>
-                        <p class="text-xs text-gray-400 mt-1">Scheduled: {{ $employee->schedule ? \Carbon\Carbon::parse($employee->schedule->time_in)->format('h:i A') : 'N/A' }}</p>
+                        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
                     @endif
+                @else
+                    <div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
+                @endif
+                    <div class="absolute top-0 right-0 opacity-10 w-24 h-24 -mr-4 -mt-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                    </div>
+                    <p class="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">Time In</p>
+                    @if($todayAttendance)
+                        <p class="text-4xl font-bold tabular-nums tracking-tight">
+                            {{ \Carbon\Carbon::parse($todayAttendance->time_in)->format('h:i') }}<span class="text-xl font-medium opacity-70 ml-1.5">{{ \Carbon\Carbon::parse($todayAttendance->time_in)->format('A') }}</span>
+                        </p>
+                        <div class="mt-3">
+                            @if($todayAttendance->status === 'Late')
+                                <span class="inline-flex items-center gap-1.5 bg-white/20 border border-white/30 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span> Late {{ $todayAttendance->tardy_minutes }}m
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 bg-white/20 border border-white/30 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-white"></span> On Time
+                                </span>
+                            @endif
+                        </div>
+                    @else
+                        <p class="text-4xl font-bold tabular-nums opacity-40">--:--</p>
+                        <div class="mt-3">
+                            <span class="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 text-white/60 text-xs font-bold px-3 py-1 rounded-full">Not yet clocked in</span>
+                        </div>
+                    @endif
+                    <p class="text-white/50 text-xs mt-4">Scheduled: {{ $employee->schedule ? \Carbon\Carbon::parse($employee->schedule->time_in)->format('h:i A') : 'N/A' }}</p>
                 </div>
 
                 {{-- Time Out Card --}}
-                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-4">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Time Out</p>
-                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        </div>
+                @if($todayAttendance && $todayAttendance->time_out)
+                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
+                @elseif($todayAttendance && $todayAttendance->time_in)
+                    <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
+                @else
+                    <div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
+                @endif
+                    <div class="absolute top-0 right-0 opacity-10 w-24 h-24 -mr-4 -mt-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                     </div>
+                    <p class="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">Time Out</p>
                     @if($todayAttendance && $todayAttendance->time_out)
-                        <p class="text-3xl font-bold text-gray-800 dark:text-white tabular-nums">{{ \Carbon\Carbon::parse($todayAttendance->time_out)->format('h:i') }}<span class="text-lg text-gray-400 ml-1">{{ \Carbon\Carbon::parse($todayAttendance->time_out)->format('A') }}</span></p>
-                        <p class="text-xs text-gray-400 mt-1">Scheduled: {{ $employee->schedule ? \Carbon\Carbon::parse($employee->schedule->time_out)->format('h:i A') : 'N/A' }}</p>
+                        <p class="text-4xl font-bold tabular-nums tracking-tight">
+                            {{ \Carbon\Carbon::parse($todayAttendance->time_out)->format('h:i') }}<span class="text-xl font-medium opacity-70 ml-1.5">{{ \Carbon\Carbon::parse($todayAttendance->time_out)->format('A') }}</span>
+                        </p>
+                        <div class="mt-3">
+                            <span class="inline-flex items-center gap-1.5 bg-white/20 border border-white/30 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                <span class="h-1.5 w-1.5 rounded-full bg-white"></span> Clocked Out
+                            </span>
+                        </div>
                     @else
-                        <p class="text-3xl font-bold text-gray-300 dark:text-slate-600">--:--</p>
-                        <p class="text-xs text-gray-400 mt-1">Scheduled: {{ $employee->schedule ? \Carbon\Carbon::parse($employee->schedule->time_out)->format('h:i A') : 'N/A' }}</p>
+                        <p class="text-4xl font-bold tabular-nums opacity-40">--:--</p>
+                        <div class="mt-3">
+                            @if($todayAttendance && $todayAttendance->time_in)
+                                <span class="inline-flex items-center gap-1.5 bg-white/20 border border-white/30 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span> In Progress
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 text-white/60 text-xs font-bold px-3 py-1 rounded-full">Not yet clocked out</span>
+                            @endif
+                        </div>
                     @endif
+                    <p class="text-white/50 text-xs mt-4">Scheduled: {{ $employee->schedule ? \Carbon\Carbon::parse($employee->schedule->time_out)->format('h:i A') : 'N/A' }}</p>
                 </div>
 
             </div>
