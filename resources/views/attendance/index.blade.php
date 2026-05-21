@@ -136,8 +136,8 @@
                             @foreach($attendances as $log)
                             @php
                                 $isAbsent   = $log->status === 'Absent';
-                                $in         = (!$isAbsent && $log->time_in)  ? \Carbon\Carbon::parse($log->time_in)  : null;
-                                $out        = (!$isAbsent && $log->time_out) ? \Carbon\Carbon::parse($log->time_out) : null;
+                                $in         = $log->time_in  ? \Carbon\Carbon::parse($log->time_in)  : null;
+                                $out        = $log->time_out ? \Carbon\Carbon::parse($log->time_out) : null;
                                 if ($in && $out && $out->lt($in)) { $out->addDay(); }
                                 $workedMins = ($in && $out) ? $in->diffInMinutes($out) : 0;
                                 $isFlexible = ($log->attendable instanceof \App\Models\Employee) && ($log->attendable->schedule->is_flexible ?? false);

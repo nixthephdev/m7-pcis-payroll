@@ -247,7 +247,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-3 text-gray-400 dark:text-gray-500">{{ \Carbon\Carbon::parse($log->date)->format('D') }}</td>
-                                <td class="px-6 py-3 font-mono text-gray-700 dark:text-gray-300">{{ \Carbon\Carbon::parse($log->time_in)->format('h:i A') }}</td>
+                                <td class="px-6 py-3 font-mono text-gray-700 dark:text-gray-300">{{ $log->time_in ? \Carbon\Carbon::parse($log->time_in)->format('h:i A') : '--:--' }}</td>
                                 <td class="px-6 py-3 font-mono text-gray-700 dark:text-gray-300">
                                     {{ $log->time_out ? \Carbon\Carbon::parse($log->time_out)->format('h:i A') : '--' }}
                                 </td>

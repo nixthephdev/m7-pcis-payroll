@@ -92,21 +92,23 @@
                         <tbody class="divide-y divide-gray-50 dark:divide-slate-700">
                             @forelse($logs as $log)
                             @php
-                                $in  = \Carbon\Carbon::parse($log->time_in);
+                                $in  = $log->time_in ? \Carbon\Carbon::parse($log->time_in) : null;
                                 $out = $log->time_out ? \Carbon\Carbon::parse($log->time_out) : null;
                                 // Overnight shift: time_out may wrap to next day
-                                if ($out && $out->lt($in)) { $out->addDay(); }
-                                $workedMins = $out ? $in->diffInMinutes($out) : 0;
+                                if ($in && $out && $out->lt($in)) { $out->addDay(); }
+                                $workedMins = ($in && $out) ? $in->diffInMinutes($out) : 0;
                                 $isFlexible = $employee->schedule->is_flexible ?? false;
                                 $netMins    = (!$isFlexible && $workedMins > 60) ? $workedMins - 60 : $workedMins;
-                                $durLabel   = $out ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
+                                $durLabel   = ($in && $out) ? floor($netMins/60).'h '.($netMins%60).'m' : '--';
                             @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                                 <td class="px-6 py-4 font-medium">{{ \Carbon\Carbon::parse($log->date)->format('M d, Y') }}</td>
                                 <td class="px-6 py-4 text-gray-400">{{ \Carbon\Carbon::parse($log->date)->format('D') }}</td>
-                                <td class="px-6 py-4 font-mono text-emerald-600 dark:text-emerald-400 font-bold">{{ $in->format('h:i A') }}</td>
+                                <td class="px-6 py-4 font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                                    {!! $in ? $in->format('h:i A') : '<span class="italic text-gray-300 dark:text-gray-600">--:--</span>' !!}
+                                </td>
                                 <td class="px-6 py-4 font-mono text-gray-500 dark:text-gray-400">
-                                    {{ $out ? $out->format('h:i A') : '<span class="italic text-gray-300">--:--</span>' }}
+                                    {!! $out ? $out->format('h:i A') : '<span class="italic text-gray-300 dark:text-gray-600">--:--</span>' !!}
                                 </td>
                                 <td class="px-6 py-4 text-xs text-gray-500">{{ $durLabel }}</td>
                                 <td class="px-6 py-4 text-center">
